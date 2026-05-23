@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
     <style>
+        /* အစ်ကိုပေးထားတဲ့ UI Styling အတိုင်း အတိအကျ */
         :root { 
             --bg-color: #f1f5f9; 
             --card-color: #ffffff; 
@@ -28,16 +29,13 @@
         .header h2 { font-size: 24px; color: var(--primary); font-weight: 800; }
         .header p { font-size: 13px; color: var(--text-muted); font-weight: bold; margin-top: 2px; }
 
-        /* Navigation Bottom Bar */
         .nav-bar { position: fixed; bottom: 15px; left: 12px; right: 12px; width: calc(100% - 24px); background: white; display: flex; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 999; border-radius: 16px; border: 1px solid var(--border-color); overflow: hidden; }
         .nav-item { flex: 1; text-align: center; padding: 16px; font-weight: 800; color: var(--text-muted); font-size: 16px; cursor: pointer; border-bottom: 4px solid transparent; }
         .nav-item.active { color: var(--primary); border-bottom-color: var(--primary); background: var(--primary-light); }
 
-        /* Views Control */
         .view-section { display: none; }
         .view-section.active { display: block; }
 
-        /* General UI Elements */
         .card { background: var(--card-color); padding: 16px; border-radius: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 14px; border: 1px solid var(--border-color); }
         .card h3 { font-size: 16px; color: var(--primary); margin-bottom: 12px; font-weight: 700; }
         
@@ -48,64 +46,34 @@
 
         .add-trigger-btn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; width: 100%; font-size: 16px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15); cursor: pointer; }
 
-        /* Table Style */
         .stat-table { width: 100%; border-collapse: collapse; font-size: 14px; }
         .stat-table th, .stat-table td { padding: 10px 6px; text-align: left; border-bottom: 1px solid var(--border-color); }
         .stat-table th { color: var(--text-muted); font-weight: 700; font-size: 12px; text-transform: uppercase; }
-        .stat-table td { font-weight: 700; }
         .total-row { background: var(--primary-light); color: var(--primary); }
         .total-row td { color: var(--primary) !important; font-weight: 800; }
 
-        /* Popups / Modals */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); z-index: 1000; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px); }
         .form-container { background: var(--card-color); padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); width: 100%; max-width: 400px; border-radius: 16px; }
-        .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .close-btn { background: none; border: none; font-size: 24px; color: var(--text-muted); cursor: pointer; }
+        .close-btn { background: none; border: none; font-size: 24px; color: var(--text-muted); cursor: pointer; float: right; }
 
-        .input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; clear: both; }
         input, select { padding: 12px 14px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 15px; outline: none; background: white; width: 100%; }
         .btn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; width: 100%; font-size: 16px; cursor: pointer; }
 
-        .pin-container { text-align: center; }
-        .pin-input { font-size: 28px; text-align: center; letter-spacing: 12px; width: 100%; max-width: 200px; margin: 20px auto; display: block; border: 2px solid var(--border-color); border-radius: 12px; padding: 10px; font-weight: bold; }
-
-        /* Filter & Search Controls */
         .filter-container { display: flex; gap: 8px; margin-bottom: 12px; }
-        .filter-container select { flex: 1; border: 1px solid var(--border-color); font-weight: bold; padding: 12px; font-size: 14px; }
-        .search-box { flex: 1.2; }
-        .search-box input { border: 1px solid var(--border-color); padding: 12px; font-size: 14px; }
-
-        /* Item Cards List */
         .item-list { display: flex; flex-direction: column; gap: 12px; }
-        .item-card { background: var(--card-color); padding: 16px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); border-left: 8px solid var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .item-card { background: var(--card-color); padding: 16px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); border-left: 8px solid var(--primary); }
         
-        .cat-hardware { border-left-color: #3b82f6; }   /* Blue */
-        .cat-accessories { border-left-color: #ec4899; } /* Pink */
-        .cat-other { border-left-color: #64748b; }       /* Slate */
+        .cat-hardware { border-left-color: #3b82f6; }
+        .cat-accessories { border-left-color: #ec4899; }
+        .cat-other { border-left-color: #64748b; }
 
-        .item-info h4 { font-size: 18px; font-weight: 800; color: #000000; margin-bottom: 6px; line-height: 1.3; }
-        .item-info p { font-size: 14px; color: #334155; font-weight: 600; margin-bottom: 3px; }
-        .badge { display: inline-block; background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-top: 6px; }
-        
-        .item-actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; min-width: 105px; }
-        .btn-group { display: flex; gap: 6px; width: 100%; }
-        .btn-sm { padding: 9px 12px; border-radius: 8px; border: none; font-size: 13px; color: white; font-weight: 700; cursor: pointer; text-align: center; }
-        .btn-minus { background: #f43f5e; box-shadow: 0 2px 4px rgba(244, 63, 94, 0.2); width: 100%; font-size: 13px; padding: 10px 8px; }
-        .btn-edit { background: #f59e0b; flex: 1; }
-        .btn-delete { background: #94a3b8; flex: 1; }
-
-        /* Finance History List */
         .history-list { display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; }
-        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #cbd5e1; font-size: 14px; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8fafc; border-radius: 8px; font-size: 14px; border-left: 4px solid #cbd5e1; }
         .history-item.income { border-left-color: var(--success); background: #f0fdf4; }
         .history-item.expense { border-left-color: var(--danger); background: #fef2f2; }
-        .history-details p { font-weight: 700; }
-        .history-details span { font-size: 12px; color: var(--text-muted); }
-        .history-amount { font-weight: 800; font-size: 15px; }
-        .history-item.income .history-amount { color: var(--success); }
-        .history-item.expense .history-amount { color: var(--danger); }
-
-        .loading { text-align: center; color: var(--primary); font-weight: bold; padding: 20px; font-size: 15px; }
+        
+        .date-label { font-size: 10px; color: var(--text-muted); display: block; }
     </style>
 </head>
 <body>
@@ -116,31 +84,23 @@
     </div>
 
     <div id="adminView" class="view-section">
-        <button class="add-trigger-btn" style="background:var(--success); margin-bottom: 16px;" onclick="requestPin('save_finance_trigger')">💸 အသုံးစရိတ်/အမြတ်စာရင်းအသစ်ထည့်ရန်</button>
+        <button class="add-trigger-btn" style="background:var(--success);" onclick="openModal('finance')">💸 အသုံးစရိတ်/အမြတ်စာရင်းအသစ်ထည့်ရန်</button>
 
         <div class="grid-2">
-            <div class="mini-card">
-                <p>💰 ယနေ့ဝင်ငွေစုစုပေါင်း</p>
-                <h4 id="todayIncome">0 K</h4>
-            </div>
-            <div class="mini-card" style="background:#fef2f2; border-color:#fee2e2;">
-                <p style="color:#b91c1c;">💸 ယနေ့အထွေထွေအသုံးစရိတ်</p>
-                <h4 id="todayExpense" style="color:#b91c1c;">0 K</h4>
-            </div>
+            <div class="mini-card"><p>💰 ယနေ့ဝင်ငွေ</p><h4 id="todayIncome">0 K</h4></div>
+            <div class="mini-card" style="background:#fef2f2;"><p style="color:#b91c1c;">💸 ယနေ့အသုံးစရိတ်</p><h4 id="todayExpense" style="color:#b91c1c;">0 K</h4></div>
         </div>
 
         <div class="card">
-            <h3>📈 လတ်တလော Ngweကြေးလှုပ်ရှားမှုမှတ်တမ်း</h3>
-            <div id="financeLoading" class="loading">မှတ်တမ်းများ ဆွဲယူနေသည်...</div>
+            <h3>📈 ငွေကြေးမှတ်တမ်း (Date ပါဝင်သည်)</h3>
             <div class="history-list" id="financeList"></div>
         </div>
         
         <div class="card">
-            <h3>🔐 လုံခြုံရေး PIN နံပါတ်များ ပြင်ဆင်ရန်</h3>
-            <div class="input-group" style="margin-bottom:0;">
-                <input type="password" id="setAdminPin" placeholder="Admin PIN အသစ် ထည့်ပါ">
-                <input type="password" id="setStorePin" placeholder="ဝန်ထမ်းသုံး Store PIN အသစ် ထည့်ပါ">
-                <button class="btn" onclick="requestPin('update_pins')">PIN နံပါတ်များ အွန်လိုင်းပေါ်တင်သိမ်းမည်</button>
+            <h3>🔐 Admin PIN ပြင်ဆင်ရန်</h3>
+            <div class="input-group">
+                <input type="password" id="setAdminPin" placeholder="Admin PIN အသစ်">
+                <button class="btn" onclick="executePinUpdate()">PIN အွန်လိုင်းတင်သိမ်းမည်</button>
             </div>
         </div>
     </div>
@@ -151,93 +111,76 @@
         <div class="card" style="padding:12px;">
             <h3>📊 အုပ်စုလိုက် စာရင်းချုပ်</h3>
             <table class="stat-table">
-                <thead>
-                    <tr><th>အုပ်စုအမည်</th><th>မျိုးတူ</th><th>တန်ဖိုးစုစုပေါင်း (ကျပ်)</th></tr>
-                </thead>
                 <tbody>
-                    <tr><td>⚙️ Hardware အပိုပစ္စည်း</td><td id="count-hardware">0</td><td id="total-hardware">0 ကျပ်</td></tr>
-                    <tr><td>🎧 Accessories</td><td id="count-accessories">0</td><td id="total-accessories">0 ကျပ်</td></tr>
-                    <tr><td>📦 အထွေထွေ</td><td id="count-other">0</td><td id="total-other">0 ကျပ်</td></tr>
-                    <tr class="total-row"><td>🧾 စုစုပေါင်းချုပ်</td><td id="grandCount">0</td><td id="grandTotal">0 ကျပ်</td></tr>
+                    <tr><td>⚙️ Hardware</td><td id="count-hardware">0</td><td id="total-hardware">0 K</td></tr>
+                    <tr><td>🎧 Accessories</td><td id="count-accessories">0</td><td id="total-accessories">0 K</td></tr>
+                    <tr><td>📦 အထွေထွေ</td><td id="count-other">0</td><td id="total-other">0 K</td></tr>
+                    <tr class="total-row"><td>🧾 စုစုပေါင်း</td><td id="grandCount">0</td><td id="grandTotal">0 K</td></tr>
                 </tbody>
             </table>
         </div>
 
-        <div class="filter-container">
-            <select id="filterCategory" onchange="renderItems()">
-                <option value="all">📁 အုပ်စုအားလုံးပြရန်</option>
-                <option value="hardware">⚙️ Hardware အပိုပစ္စည်း</option>
-                <option value="accessories">🎧 Accessories</option>
-                <option value="other">📦 အထွေထွေ</option>
-            </select>
-            <div class="search-box">
-                <input type="text" id="searchBar" placeholder="🔍 ရှာဖွေရန်..." oninput="renderItems()">
-            </div>
-        </div>
+        <div id="itemList" class="item-list"></div>
+    </div>
 
-        <div id="itemLoading" class="loading">ပစ္စည်းစာရင်းများ ဆွဲယူနေသည်...</div>
-        <div class="item-list" id="itemList"></div>
+    <div class="modal-overlay" id="pinModal">
+        <div class="form-container" style="text-align:center;">
+            <h3>Admin PIN လိုအပ်ပါသည်</h3>
+            <input type="password" id="pinField" style="font-size:30px; text-align:center; letter-spacing:10px; margin:20px 0;" maxlength="4" inputmode="numeric">
+            <button class="btn" onclick="verifyAdminPin()">Confirm</button>
+            <button class="btn" style="background:#e2e8f0; color:black; margin-top:10px;" onclick="closeModal('pin')">Cancel</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="confirmModal">
+        <div class="form-container" style="text-align:center;">
+            <h3 id="confirmTitle" style="color:var(--primary);">သေချာပါသလား?</h3>
+            <p id="confirmMessage" style="margin:20px 0; font-weight:600;"></p>
+            <button class="btn" id="confirmBtn">ဟုတ်ကဲ့၊ အတည်ပြုသည်</button>
+            <button class="btn" style="background:#e2e8f0; color:black; margin-top:10px;" onclick="closeModal('confirm')">မလုပ်တော့ပါ</button>
+        </div>
     </div>
 
     <div class="modal-overlay" id="itemModal">
         <div class="form-container">
-            <div class="form-header">
-                <h3 id="itemModalTitle">ပစ္စည်းအသစ်ထည့်သွင်းခြင်း</h3>
-                <button class="close-btn" onclick="closeModal('item')">&times;</button>
-            </div>
+            <button class="close-btn" onclick="closeModal('item')">&times;</button>
+            <h3 id="itemModalTitle">ပစ္စည်းအသစ်ထည့်ခြင်း</h3>
             <div class="input-group">
-                <input type="text" id="itemName" placeholder="ပစ္စည်းအမည် (ဥပမာ - Mi 11 Lite Screen)">
+                <input type="text" id="itemName" placeholder="ပစ္စည်းအမည်">
                 <select id="itemCategory">
-                    <option value="hardware">⚙️ Hardware အပိုပစ္စည်း</option>
+                    <option value="hardware">⚙️ Hardware</option>
                     <option value="accessories">🎧 Accessories</option>
                     <option value="other">📦 အထွေထွေ</option>
                 </select>
                 <input type="number" id="itemQty" placeholder="အရေအတွက်">
-                <input type="number" id="itemPrice" placeholder="ဈေးနှုန်း (ကျပ်)">
+                <input type="number" id="itemPrice" placeholder="ဈေးနှုန်း">
             </div>
-            <button class="btn" id="itemSaveBtn" onclick="requestPin('save_item')">သိမ်းဆည်းမည် (Online)</button>
+            <button class="btn" onclick="confirmAction('save_item')">Cloud သို့ သိမ်းမည်</button>
         </div>
     </div>
 
     <div class="modal-overlay" id="financeModal">
         <div class="form-container">
-            <div class="form-header">
-                <h3>ငွေကြေးစာရင်းအသစ်ထည့်သွင်းခြင်း</h3>
-                <button class="close-btn" onclick="closeModal('finance')">&times;</button>
-            </div>
+            <button class="close-btn" onclick="closeModal('finance')">&times;</button>
+            <h3>ငွေကြေးစာရင်းသွင်းရန်</h3>
             <div class="input-group">
-                <select id="finType">
-                    <option value="expense">💸 အထွေထွေအသုံးစရိတ် (Expense)</option>
-                    <option value="income">💰 တခြားအမြတ်/ဝင်ငွေ (Income)</option>
-                </select>
-                <input type="text" id="finTitle" placeholder="အကြောင်းအရာ (ဥမမာ - ဆိုင်လခပေးခြင်း)">
+                <select id="finType"><option value="expense">💸 အသုံးစရိတ်</option><option value="income">💰 ဝင်ငွေ/အမြတ်</option></select>
+                <input type="text" id="finTitle" placeholder="အကြောင်းအရာ">
                 <input type="number" id="finAmount" placeholder="ပမာဏ (ကျပ်)">
             </div>
-            <button class="btn" style="background:var(--success);" onclick="executeAddFinance()">စာရင်းသွင်းမည် (Online)</button>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="pinModal">
-        <div class="form-container pin-container">
-            <div class="form-header">
-                <h3>လုံခြုံရေး PIN စစ်ဆေးခြင်း</h3>
-                <button class="close-btn" onclick="closePinModal()">&times;</button>
-            </div>
-            <p style="font-size: 14px; color: var(--text-muted);">လုပ်ဆောင်ရန် လုံခြုံရေး PIN နံပါတ် ရိုက်ထည့်ပါ</p>
-            <input type="password" id="pinField" class="pin-input" maxlength="4" pattern="\d*" inputmode="numeric" placeholder="••••">
-            <button class="btn" onclick="verifyPin()">အတည်ပြုမည်</button>
+            <button class="btn" onclick="executeAddFinance()">စာရင်းသွင်းမည်</button>
         </div>
     </div>
 
     <div class="nav-bar">
-        <div class="nav-item" id="tabAdmin" onclick="triggerAdminView()">📊 Admin ပိုင်း</div>
+        <div class="nav-item" id="tabAdmin" onclick="tryAdminAccess()">📊 Admin ပိုင်း</div>
         <div class="nav-item active" id="tabStore" onclick="switchView('store')">📦 ပစ္စည်းစာရင်း</div>
     </div>
 
     <script>
-        // ⚠️ Firebase Configuration (အစ်ကို့ Project ID ဆွဲပြီး တိကျအောင် ပြင်ပေးထားပါတယ်)
+        // Firebase Config (အစ်ကို့ API Key ပြန်ထည့်ပါ)
         const firebaseConfig = {
-            apiKey: "AIzaSy...", // အစ်ကို့ရဲ့ မူရင်း Firebase Key လေးကို ဤနေရာတွင် ပြန်ထည့်ပါ
+            apiKey: "AIzaSy...", 
             authDomain: "masstore-c32a7.firebaseapp.com",
             projectId: "masstore-c32a7",
             storageBucket: "masstore-c32a7.appspot.com",
@@ -245,287 +188,133 @@
             appId: "1:3748291024:web:abcd"
         };
         
-        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let adminPin = "2018"; 
-        let storePin = "3344"; 
-        let currentAction = null;
-        let pendingParams = {};
-        let isAdminAuthenticated = false;
-        let allItems = [];
-        let editingItemId = null;
+        let adminPin = "2018", isAdminLocked = true, allItems = [], editingItemId = null, pendingAction = null;
 
-        // 🔐 Realtime ဖြင့် Firebase ဒေတာဘေ့စ်မှ PIN များ ချိတ်ဆက်ဆွဲယူခြင်း
-        db.collection("app_settings").doc("security_pins").onSnapshot((doc) => {
-            if (doc.exists) {
-                const data = doc.data();
-                adminPin = data.finance_pin || "2018";
-                storePin = data.store_pin || "3344";
-                console.log("Firebase PIN Loaded:", {adminPin, storePin});
-            }
-        });
+        // Sync Admin PIN
+        db.collection("app_settings").doc("security_pins").onSnapshot(doc => { if (doc.exists) adminPin = doc.data().finance_pin || "2018"; });
 
-        // 📦 Realtime ဖြင့် ပစ္စည်းစာရင်းများကို Firebase မှ ဆွဲယူခြင်း
-        db.collection("items").onSnapshot((snapshot) => {
-            allItems = [];
-            snapshot.forEach(doc => {
-                allItems.push({ id: doc.id, ...doc.data() });
-            });
-            document.getElementById('itemLoading').style.display = 'none';
+        // Sync Items
+        db.collection("items").onSnapshot(snap => {
+            allItems = []; snap.forEach(doc => allItems.push({ id: doc.id, ...doc.data() }));
             renderItems();
         });
 
-        // 💸 Realtime ဖြင့် ငွေစာရင်းများကို Firebase မှ ဆွဲယူခြင်း
-        db.collection("finance").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
-            let todayInc = 0;
-            let todayExp = 0;
-            let html = "";
-            
-            const todayStr = new Date().toDateString();
-
-            snapshot.forEach(doc => {
+        // Sync Finance with Date
+        db.collection("finance").orderBy("timestamp", "desc").onSnapshot(snap => {
+            let inc = 0, exp = 0, html = "";
+            const today = new Date().toDateString();
+            snap.forEach(doc => {
                 const data = doc.data();
-                const amount = parseInt(data.amount || 0);
-                const dateStr = data.timestamp ? data.timestamp.toDate().toDateString() : new Date().toDateString();
-                const timeStr = data.timestamp ? data.timestamp.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "";
-
-                if (dateStr === todayStr) {
-                    if (data.type === "income") todayInc += amount;
-                    if (data.type === "expense") todayExp += amount;
+                const ts = data.timestamp ? data.timestamp.toDate() : new Date();
+                if (ts.toDateString() === today) {
+                    if (data.type === 'income') inc += parseInt(data.amount); else exp += parseInt(data.amount);
                 }
-
-                html += `
-                    <div class="history-item ${data.type}">
-                        <div class="history-details">
-                            <p>${data.title}</p>
-                            <span>${timeStr}</span>
-                        </div>
-                        <div class="history-amount">${data.type === 'income' ? '+' : '-'}${amount.toLocaleString()} K</div>
-                    </div>
-                `;
+                html += `<div class="history-item ${data.type}">
+                            <div><b>${data.title}</b><span class="date-label">${ts.toLocaleString()}</span></div>
+                            <div style="font-weight:800">${parseInt(data.amount).toLocaleString()} K</div>
+                         </div>`;
             });
-
-            document.getElementById('todayIncome').innerText = todayInc.toLocaleString() + " K";
-            document.getElementById('todayExpense').innerText = todayExp.toLocaleString() + " K";
-            document.getElementById('financeList').innerHTML = html || "<p style='text-align:center; color:#64748b; font-size:13px;'>ယနေ့မှတ်တမ်း မရှိသေးပါ</p>";
-            document.getElementById('financeLoading').style.display = 'none';
+            document.getElementById('todayIncome').innerText = inc.toLocaleString() + " K";
+            document.getElementById('todayExpense').innerText = exp.toLocaleString() + " K";
+            document.getElementById('financeList').innerHTML = html || "မှတ်တမ်းမရှိပါ။";
         });
 
-        // 🧭 Tab Navigation
-        function switchView(view) {
+        function renderItems() {
+            let counts = { hardware: 0, accessories: 0, other: 0 }, totals = { hardware: 0, accessories: 0, other: 0 }, html = "";
+            allItems.forEach(item => {
+                const q = parseInt(item.qty), p = parseInt(item.price), cat = item.category || 'other';
+                counts[cat] += q; totals[cat] += (q * p);
+                html += `<div class="item-card cat-${cat}">
+                            <div style="flex:1">
+                                <h4 style="font-size:18px">${item.name}</h4>
+                                <p>${q} ခု x ${p.toLocaleString()} K</p>
+                            </div>
+                            <div style="text-align:right">
+                                <button class="btn" style="background:var(--danger); padding:8px 12px; font-size:12px; margin-bottom:5px;" onclick="confirmAction('minus_qty', '${item.id}')">➖ ၁ ထုတ်</button>
+                                <button class="btn" style="background:var(--warning); padding:8px 12px; font-size:12px;" onclick="openEditModal('${item.id}')">📝 ပြင်</button>
+                            </div>
+                         </div>`;
+            });
+            ['hardware', 'accessories', 'other'].forEach(c => {
+                document.getElementById('count-'+c).innerText = counts[c];
+                document.getElementById('total-'+c).innerText = totals[c].toLocaleString() + " K";
+            });
+            document.getElementById('grandCount').innerText = counts.hardware+counts.accessories+counts.other;
+            document.getElementById('grandTotal').innerText = (totals.hardware+totals.accessories+totals.other).toLocaleString() + " K";
+            document.getElementById('itemList').innerHTML = html;
+        }
+
+        function switchView(v) {
             document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-
-            if (view === 'admin') {
-                document.getElementById('adminView').classList.add('active');
-                document.getElementById('tabAdmin').classList.add('active');
-            } else if (view === 'store') {
-                document.getElementById('storeView').classList.add('active');
-                document.getElementById('tabStore').classList.add('active');
-            }
+            document.getElementById(v+'View').classList.add('active');
+            document.getElementById('tab'+v.charAt(0).toUpperCase()+v.slice(1)).classList.add('active');
         }
 
-        function triggerAdminView() {
-            if (isAdminAuthenticated) { switchView('admin'); } else { requestPin('view_admin'); }
+        function tryAdminAccess() { if (isAdminLocked) openModal('pin'); else switchView('admin'); }
+        function verifyAdminPin() {
+            if (document.getElementById('pinField').value === adminPin) { isAdminLocked = false; closeModal('pin'); switchView('admin'); }
+            else alert("PIN မှားယွင်းပါသည်!");
+            document.getElementById('pinField').value = "";
         }
 
-        function openModal(type) { document.getElementById(type + 'Modal').style.display = 'flex'; }
-        function closeModal(type) { 
-            document.getElementById(type + 'Modal').style.display = 'none'; 
-            if(type === 'item') { clearItemForm(); }
-        }
-        function closePinModal() {
-            document.getElementById('pinModal').style.display = 'none';
-            document.getElementById('pinField').value = '';
-        }
+        function openModal(id) { document.getElementById(id+'Modal').style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id+'Modal').style.display = 'none'; }
 
-        function requestPin(action, params = {}) {
-            currentAction = action;
-            pendingParams = params;
-            document.getElementById('pinModal').style.display = 'flex';
-            document.getElementById('pinField').focus();
+        function confirmAction(type, id) {
+            pendingAction = { type, id };
+            const item = id ? allItems.find(i => i.id === id) : null;
+            document.getElementById('confirmMessage').innerText = type === 'minus_qty' ? `${item.name} ကို (၁) ခု ထုတ်ယူမှာ သေချာလား?` : "ဒေတာများကို Cloud ပေါ်သို့ သိမ်းဆည်းမှာ သေချာလား?";
+            openModal('confirm');
         }
 
-        function verifyPin() {
-            const enteredPin = document.getElementById('pinField').value.trim();
-            if (enteredPin.length !== 4) { alert("PIN နံပါတ် ၄ လုံး ရိုက်ပါဗျာ။"); return; }
+        document.getElementById('confirmBtn').onclick = () => {
+            const { type, id } = pendingAction; closeModal('confirm');
+            if (type === 'minus_qty') {
+                const item = allItems.find(i => i.id === id);
+                if (item.qty > 0) db.collection("items").doc(id).update({ qty: item.qty - 1 });
+            } else executeSaveItem();
+        };
 
-            if (['view_admin', 'update_pins', 'save_finance_trigger'].includes(currentAction)) {
-                if (enteredPin === adminPin) {
-                    closePinModal();
-                    if (currentAction === 'view_admin') { isAdminAuthenticated = true; switchView('admin'); }
-                    else if (currentAction === 'update_pins') { executePinUpdate(); }
-                    else if (currentAction === 'save_finance_trigger') { openModal('finance'); }
-                } else { alert("❌ Admin PIN မမှန်ကန်ပါဗျာ။"); }
-            } else {
-                if (enteredPin === storePin || enteredPin === adminPin) {
-                    closePinModal();
-                    if (currentAction === 'save_item') { executeSaveItem(); }
-                    else if (currentAction === 'minus_qty') { executeMinusQty(pendingParams.id); }
-                    else if (currentAction === 'edit_item_trigger') { openEditModal(pendingParams.id); }
-                    else if (currentAction === 'delete_item') { executeDeleteItem(pendingParams.id); }
-                } else { alert("❌ လုံခြုံရေး PIN မမှန်ကန်ပါဗျာ။"); }
-            }
-        }
-
-        // 🖥️ UI ပေါ်တွင် ပစ္စည်းများကို အမျိုးအစားအလိုက် Filter လုပ်ပြီး ပြသခြင်းနှင့် စာရင်းချုပ်တွက်ချက်ခြင်း
-        function renderItems() {
-            const filter = document.getElementById('filterCategory').value;
-            const search = document.getElementById('searchBar').value.toLowerCase().trim();
-            const listEl = document.getElementById('itemList');
-            
-            let counts = { hardware: 0, accessories: 0, other: 0 };
-            let totals = { hardware: 0, accessories: 0, other: 0 };
-            let html = "";
-
-            allItems.forEach(item => {
-                const qty = parseInt(item.qty || 0);
-                const price = parseInt(item.price || 0);
-                const subTotal = qty * price;
-                const cat = item.category || 'other';
-
-                if (counts[cat] !== undefined) {
-                    counts[cat] += qty;
-                    totals[cat] += subTotal;
-                }
-
-                if ((filter === 'all' || filter === cat) && (item.name || '').toLowerCase().includes(search)) {
-                    html += `
-                        <div class="item-card cat-${cat}">
-                            <div class="item-info">
-                                <h4>${item.name}</h4>
-                                <p>🔢 အရေအတွက်: ${qty} ခု</p>
-                                <p>💵 ဈေးနှုန်း: ${price.toLocaleString()} ကျပ်</p>
-                                <span class="badge">စုစုပေါင်း: ${subTotal.toLocaleString()} ကျပ်</span>
-                            </div>
-                            <div class="item-actions">
-                                <button class="btn-sm btn-minus" onclick="requestPin('minus_qty', {id: '${item.id}'})">➖ ၁ ခုနှုတ်ရန်</button>
-                                <div class="btn-group">
-                                    <button class="btn-sm btn-edit" onclick="requestPin('edit_item_trigger', {id: '${item.id}'})">📝 ပြင်</button>
-                                    <button class="btn-sm btn-delete" onclick="requestPin('delete_item', {id: '${item.id}'})">🗑️ ဖျက်</button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
-  // စာရင်းချုပ်ဇယားကွက်များသို့ Data ရိုက်ထည့်ခြင်း
-            ['hardware', 'accessories', 'other'].forEach(c => {
-                document.getElementById(`count-${c}`).innerText = counts[c];
-                document.getElementById(`total-${c}`).innerText = totals[c].toLocaleString() + " ကျပ်";
-            });
-
-            const grandCount = counts.hardware + counts.accessories + counts.other;
-            const grandTotal = totals.hardware + totals.accessories + totals.other;
-            
-            document.getElementById('grandCount').innerText = grandCount;
-            document.getElementById('grandTotal').innerText = grandTotal.toLocaleString() + " ကျပ်";
-            listEl.innerHTML = html || "<p style='text-align:center; padding:20px; color:#64748b;'>ပစ္စည်းစာရင်း မရှိသေးပါဗျာ</p>";
-        }
-
-        // ➕ Firebase သို့ ပစ္စည်း အသစ်ထည့်ခြင်း / တည်းဖြတ်ခြင်း လုပ်ဆောင်ချက်
         function executeSaveItem() {
-            const name = document.getElementById('itemName').value.trim();
-            const category = document.getElementById('itemCategory').value;
-            const qty = parseInt(document.getElementById('itemQty').value) || 0;
-            const price = parseInt(document.getElementById('itemPrice').value) || 0;
+            const data = {
+                name: document.getElementById('itemName').value,
+                category: document.getElementById('itemCategory').value,
+                qty: parseInt(document.getElementById('itemQty').value) || 0,
+                price: parseInt(document.getElementById('itemPrice').value) || 0,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            if (editingItemId) db.collection("items").doc(editingItemId).update(data);
+            else db.collection("items").add(data);
+            closeModal('item');
+        }
 
-            if (!name || qty <= 0 || price <= 0) { alert("အချက်အလက်များကို ပြည့်စုံစွာ ဖြည့်စွက်ပါဗျာ။"); return; }
-
-            const itemData = { name, category, qty, price, timestamp: firebase.firestore.FieldValue.serverTimestamp() };
-
-            if (editingItemId) {
-                db.collection("items").doc(editingItemId).update(itemData)
-                .then(() => { alert("🎉 ပစ္စည်းစာရင်းကို အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ။"); closeModal('item'); })
-                .catch(err => alert("ပြင်ဆင်ရာတွင် အမှားရှိပါသည်: " + err.message));
-            } else {
-                db.collection("items").add(itemData)
-                .then(() => { alert("🎉 ပစ္စည်းအသစ်ကို အွန်လိုင်းဒေတာဘေ့စ်ထဲသို့ ထည့်သွင်းပြီးပါပြီ။"); closeModal('item'); })
-                .catch(err => alert("ထည့်သွင်းရာတွင် အမှားရှိပါသည်: " + err.message));
-            }
+        function executeAddFinance() {
+            const data = {
+                type: document.getElementById('finType').value,
+                title: document.getElementById('finTitle').value,
+                amount: document.getElementById('finAmount').value,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            db.collection("finance").add(data).then(() => closeModal('finance'));
         }
 
         function openEditModal(id) {
             const item = allItems.find(i => i.id === id);
-            if (!item) return;
             editingItemId = id;
-            document.getElementById('itemModalTitle').innerText = "ပစ္စည်းအချက်အလက်ပြင်ဆင်ခြင်း";
             document.getElementById('itemName').value = item.name;
             document.getElementById('itemCategory').value = item.category;
             document.getElementById('itemQty').value = item.qty;
             document.getElementById('itemPrice').value = item.price;
-            document.getElementById('itemSaveBtn').innerText = "ပြင်ဆင်ချက်များသိမ်းမည် (Online)";
             openModal('item');
         }
 
-        // ➖ အရေအတွက် တစ်ခုချင်း အမြန်နှုတ်သည့် စနစ်
-        function executeMinusQty(id) {
-            const item = allItems.find(i => i.id === id);
-            if (!item) return;
-            const currentQty = parseInt(item.qty || 0);
-            
-            if (currentQty <= 0) { alert("ယခုပစ္စည်းသည် ဆိုင်တွင် ဝယ်ယူရန် မရှိတော့ပါ (Qty 0 ဖြစ်နေပါသည်)။"); return; }
-
-            db.collection("items").doc(id).update({ qty: currentQty - 1 })
-            .catch(err => alert("အရေအတွက်နှုတ်ရာတွင် အမှားရှိပါသည်: " + err.message));
-        }
-
-        // 🗑️ ပစ္စည်းစာရင်းတစ်ခုလုံးအား အွန်လိုင်းမှ ဖျက်ပစ်ခြင်း
-        function executeDeleteItem(id) {
-            if (confirm("ယခုပစ္စည်းစာရင်းကို အပြီးပိုင် ဖျက်ပစ်ရန် သေချာပါသလားဗျာ?")) {
-                db.collection("items").doc(id).delete()
-                .then(() => alert("ပစ္စည်းစာရင်း ဖျက်ဆီးပြီးပါပြီ။"))
-                .catch(err => alert("ဖျက်ဆီးရာတွင် အမှားရှိပါသည်: " + err.message));
-            }
-        }
-
-        // 💸 Firebase သို့ ဝင်ငွေ/အသုံးစရိတ် စာရင်းသွင်းခြင်း
-        function executeAddFinance() {
-            const type = document.getElementById('finType').value;
-            const title = document.getElementById('finTitle').value.trim();
-            const amount = parseInt(document.getElementById('finAmount').value) || 0;
-
-            if (!title || amount <= 0) { alert("ကျေးဇူးပြု၍ အကြောင်းအရာနှင့် ငွေပမာဏ ဖြည့်သွင်းပေးပါဦးဗျာ။"); return; }
-
-            db.collection("finance").add({
-                type, title, amount, timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            })
-            .then(() => {
-                alert("🎉 ငွေကြေးစာရင်း သွင်းပြီးပါပြီဗျာ။");
-                closeModal('finance');
-                document.getElementById('finTitle').value = "";
-                document.getElementById('finAmount').value = "";
-            })
-            .catch(err => alert("စာရင်းသွင်းရာတွင် အမှားရှိပါသည်: " + err.message));
-        }
-
         function executePinUpdate() {
-            const newAdmin = document.getElementById('setAdminPin').value.trim();
-            const newStore = document.getElementById('setStorePin').value.trim();
-
-            if (!newAdmin && !newStore) { alert("ပြင်ဆင်လိုသည့် PIN နံပါတ် အသစ်တစ်ခုခု ရိုက်ထည့်ပါဦး။"); return; }
-
-            let updateData = {};
-            if (newAdmin) updateData.finance_pin = newAdmin;
-            if (newStore) updateData.store_pin = newStore;
-
-            db.collection("app_settings").doc("security_pins").set(updateData, { merge: true })
-            .then(() => {
-                alert("🎉 PIN နံပါတ်များ အွန်လိုင်းပေါ်တွင် အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီဗျာ။");
-                document.getElementById('setAdminPin').value = "";
-                document.getElementById('setStorePin').value = "";
-            })
-            .catch(err => alert("အမှားအယွင်းရှိပါသည်: " + err.message));
-        }
-
-        function clearItemForm() {
-            editingItemId = null;
-            document.getElementById('itemModalTitle').innerText = "ပစ္စည်းအသစ်ထည့်သွင်းခြင်း";
-            document.getElementById('itemName').value = "";
-            document.getElementById('itemQty').value = "";
-            document.getElementById('itemPrice').value = "";
-            document.getElementById('itemSaveBtn').innerText = "သိမ်းဆည်းမည် (Online)";
+            const p = document.getElementById('setAdminPin').value;
+            if (p) db.collection("app_settings").doc("security_pins").update({ finance_pin: p }).then(() => alert("PIN Updated!"));
         }
     </script>
 </body>
