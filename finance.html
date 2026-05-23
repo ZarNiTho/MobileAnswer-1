@@ -15,11 +15,10 @@
         .balance-card { text-align: center; padding: 10px; background: #334155; border-radius: 8px; font-weight: bold; }
         .date-group { margin-top: 10px; padding: 12px; background: white; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: bold; }
         .details { display: none; padding: 10px; background: #f8fafc; border: 1px solid #ddd; border-top: none; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
-        .row { display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; border-bottom: 1px solid #eee; font-size: 14px; }
+        .row { display: flex; justify-content: space-between; padding: 8px 5px; border-bottom: 1px solid #eee; font-size: 14px; }
         .btn-main { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; color: white; }
         .remark-btn { background: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 5px; }
         .remark-text { font-size: 12px; color: #64748b; font-style: italic; padding: 2px 15px; }
-        .action-btns button { border: none; background: none; cursor: pointer; font-size: 14px; margin-left: 5px; }
     </style>
 </head>
 <body>
@@ -37,8 +36,10 @@
     <button class="btn-main" style="background:#ef4444;" onclick="openDialog('ထွက်ငွေ')">💸 ထွက်ငွေမှတ်မည်</button>
 
     <div id="historyList"></div>
-    <button class="btn-main" style="background:#64748b; margin-top:20px;" onclick="window.location.href='index.html'">🔙 ပင်မစာမျက်နှာ</button>
-    <button class="btn-main" style="background:#4f46e5;" onclick="window.location.href='logs.html'">📜 မှတ်တမ်းမှတ်ရာများ</button>
+    
+    <button class="btn-main" style="background:#5e35b1; margin-top:20px;" onclick="window.location.href='logs.html'">📜 App လုပ်ဆောင်ချက်မှတ်တမ်း</button>
+    
+    <button class="btn-main" style="background:#64748b; margin-top:5px;" onclick="window.location.href='index.html'">🔙 ပင်မစာမျက်နှာ</button>
 </div>
 
 <script>
@@ -47,65 +48,73 @@
     const db = firebase.firestore();
     let isDialogOpen = false;
 
-    async function logActivity(action, details) { await db.collection("activity_logs").add({ action, details, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); }
-
-  async function editTransaction(id, oldName, oldAmount) {
-    isDialogOpen = true;
-    const { value: formValues } = await Swal.fire({
-        title: 'ပြင်ဆင်ရန်',
-        html: `<input id="e-name" class="swal2-input" value="${oldName}">` + 
-              `<input id="e-amount" class="swal2-input" type="number" value="${oldAmount}">`,
-        preConfirm: () => ({ name: document.getElementById('e-name').value, amount: Number(document.getElementById('e-amount').value) })
-    });
-    isDialogOpen = false;
-    if(formValues) {
-        await db.collection("transactions").doc(id).update({ name: formValues.name, amount: formValues.amount });
-        // ဘာပြောင်းသွားလဲဆိုတာ ပေါ်အောင်
-        await logActivity("ငွေစာရင်းပြင်ဆင်ခြင်း", oldName + "(${oldAmount}) -> " + formValues.name + "(" + formValues.amount + ")");
-    }
-
-
-    async function deleteTransaction(id, name) {
-        const res = await Swal.fire({ title: 'ဖျက်မှာလား?', icon: 'warning', showCancelButton: true });
-        if(res.isConfirmed) { await db.collection("transactions").doc(id).delete(); await logActivity("ဖျက်ခြင်း", name + " စာရင်းအား ဖျက်လိုက်သည်။"); }
-    }
-
     async function openDialog(type) {
         isDialogOpen = true;
-        const { value: formValues } = await Swal.fire({ title: type + ' မှတ်ရန်', html: '<input id="name" class="swal2-input" placeholder="အကြောင်းအရာ">' + '<input id="amount" class="swal2-input" type="number" placeholder="ပမာဏ">', preConfirm: () => ({ name: document.getElementById('name').value, amount: Number(document.getElementById('amount').value) }) });
+        const { value: formValues } = await Swal.fire({
+            title: type + ' မှတ်ရန်',
+            html: '<input id="name" class="swal2-input" placeholder="အကြောင်းအရာ">' +
+                  '<input id="amount" class="swal2-input" type="number" placeholder="ပမာဏ">',
+            preConfirm: () => ({ name: document.getElementById('name').value, amount: Number(document.getElementById('amount').value) })
+        });
         isDialogOpen = false;
-        if(formValues && formValues.amount) { await db.collection("transactions").add({ type, name: formValues.name, amount: formValues.amount, date: new Date() }); await logActivity("မှတ်တမ်းတင်ခြင်း", type + ": " + formValues.name + " (" + formValues.amount + " Ks)"); }
+        if(formValues && formValues.amount) {
+            await db.collection("transactions").add({ type, name: formValues.name, amount: formValues.amount, date: new Date() });
+        }
     }
 
     async function addRemark(date) {
         const docId = date.replace(/\//g, '-');
         const remarkDoc = await db.collection("remarks").doc(docId).get();
-        const { value: remark } = await Swal.fire({ title: 'မှတ်ချက်', input: 'text', inputValue: remarkDoc.exists ? remarkDoc.data().text : "", showCancelButton: true });
-        if(remark !== undefined) { await db.collection("remarks").doc(docId).set({ text: remark }); await logActivity("မှတ်ချက်", date + " - " + remark); }
+        const currentText = remarkDoc.exists ? remarkDoc.data().text : "";
+
+        const { value: remark } = await Swal.fire({
+            title: 'မှတ်ချက်',
+            input: 'text',
+            inputValue: currentText,
+            inputPlaceholder: 'စာရင်းမကိုက်ညီဘူး...',
+            showCancelButton: true
+        });
+        if(remark !== undefined) {
+            await db.collection("remarks").doc(docId).set({ text: remark });
+        }
     }
 
     window.onpopstate = () => { if(isDialogOpen) Swal.close(); else window.location.href = 'index.html'; };
     function toggleDetails(id) { const el = document.getElementById(id); el.style.display = el.style.display === 'block' ? 'none' : 'block'; }
 
+    // Data ဖတ်ခြင်း
     db.collection("transactions").orderBy("date", "desc").onSnapshot(async (snap) => {
         let today = new Date().toLocaleDateString();
         let tInc = 0, tExp = 0, groups = {}, remarks = {};
+        
         const remSnap = await db.collection("remarks").get();
         remSnap.forEach(doc => remarks[doc.id] = doc.data().text);
+
         snap.forEach(doc => {
-            let d = doc.data(); let dateKey = d.date.toDate().toLocaleDateString();
+            let d = doc.data();
+            let dateKey = d.date.toDate().toLocaleDateString();
             if(!groups[dateKey]) groups[dateKey] = { inc: 0, exp: 0, logs: [] };
-            if(d.type === 'ဝင်ငွေ') { groups[dateKey].inc += d.amount; if(dateKey === today) tInc += d.amount; } else { groups[dateKey].exp += d.amount; if(dateKey === today) tExp += d.amount; }
-            groups[dateKey].logs.push({ id: doc.id, ...d });
+            if(d.type === 'ဝင်ငွေ') { groups[dateKey].inc += d.amount; if(dateKey === today) tInc += d.amount; }
+            else { groups[dateKey].exp += d.amount; if(dateKey === today) tExp += d.amount; }
+            groups[dateKey].logs.push(d);
         });
+
         document.getElementById("todayIncome").innerText = tInc.toLocaleString() + " Ks";
         document.getElementById("todayExpense").innerText = tExp.toLocaleString() + " Ks";
         document.getElementById("todayBalance").innerText = (tInc - tExp).toLocaleString() + " Ks";
+
         let html = "";
         for(let date in groups) {
             let id = date.replace(/\//g, '-');
-            html += `<div class="date-group" onclick="toggleDetails('${id}')"><span>📅 ${date} <span class="remark-btn" onclick="event.stopPropagation(); addRemark('${date}')">✏️</span></span><span style="font-size:11px; color:#666;">ဝင်:${groups[date].inc.toLocaleString()} | ထွက်:${groups[date].exp.toLocaleString()}</span></div>${remarks[id] ? `<div class="remark-text">⚠️ ${remarks[id]}</div>` : ''}<div id="${id}" class="details">`;
-            groups[date].logs.forEach(d => { html += `<div class="row"><span>${d.name}</span><span class="action-btns"><button onclick="editTransaction('${d.id}', '${d.name}', ${d.amount})">✏️</button><button onclick="deleteTransaction('${d.id}', '${d.name}')">🗑️</button><span style="color:${d.type==='ဝင်ငွေ'?'#10b981':'#ef4444'}; margin-left:10px;">${d.type==='ဝင်ငွေ'?'+':'-'}${d.amount.toLocaleString()}</span></span></div>`; });
+            html += `<div class="date-group" onclick="toggleDetails('${id}')">
+                        <span>📅 ${date} <span class="remark-btn" onclick="event.stopPropagation(); addRemark('${date}')">✏️</span></span>
+                        <span style="font-size:11px; color:#666;">ဝင်:${groups[date].inc.toLocaleString()} | ထွက်:${groups[date].exp.toLocaleString()}</span>
+                     </div>
+                     ${remarks[id] ? `<div class="remark-text">⚠️ ${remarks[id]}</div>` : ''}
+                     <div id="${id}" class="details">`;
+            groups[date].logs.forEach(d => {
+                html += `<div class="row"><span>${d.name}</span><span style="color:${d.type==='ဝင်ငွေ'?'#10b981':'#ef4444'}">${d.type==='ဝင်ငွေ'?'+':'-'}${d.amount.toLocaleString()}</span></div>`;
+            });
             html += `</div>`;
         }
         document.getElementById("historyList").innerHTML = html;
