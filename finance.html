@@ -49,12 +49,21 @@
 
     async function logActivity(action, details) { await db.collection("activity_logs").add({ action, details, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); }
 
-    async function editTransaction(id, name, amount) {
-        isDialogOpen = true;
-        const { value: formValues } = await Swal.fire({ title: 'ပြင်ဆင်ရန်', html: `<input id="e-name" class="swal2-input" value="${name}">` + `<input id="e-amount" class="swal2-input" type="number" value="${amount}">`, preConfirm: () => ({ name: document.getElementById('e-name').value, amount: Number(document.getElementById('e-amount').value) }) });
-        isDialogOpen = false;
-        if(formValues) { await db.collection("transactions").doc(id).update({ name: formValues.name, amount: formValues.amount }); await logActivity("ပြင်ဆင်ခြင်း", name + " -> " + formValues.name); }
+  async function editTransaction(id, oldName, oldAmount) {
+    isDialogOpen = true;
+    const { value: formValues } = await Swal.fire({
+        title: 'ပြင်ဆင်ရန်',
+        html: `<input id="e-name" class="swal2-input" value="${oldName}">` + 
+              `<input id="e-amount" class="swal2-input" type="number" value="${oldAmount}">`,
+        preConfirm: () => ({ name: document.getElementById('e-name').value, amount: Number(document.getElementById('e-amount').value) })
+    });
+    isDialogOpen = false;
+    if(formValues) {
+        await db.collection("transactions").doc(id).update({ name: formValues.name, amount: formValues.amount });
+        // ဘာပြောင်းသွားလဲဆိုတာ ပေါ်အောင်
+        await logActivity("ငွေစာရင်းပြင်ဆင်ခြင်း", oldName + "(${oldAmount}) -> " + formValues.name + "(" + formValues.amount + ")");
     }
+
 
     async function deleteTransaction(id, name) {
         const res = await Swal.fire({ title: 'ဖျက်မှာလား?', icon: 'warning', showCancelButton: true });
