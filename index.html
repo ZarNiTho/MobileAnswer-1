@@ -15,6 +15,7 @@
         *{ margin:0; padding:0; box-sizing:border-box; font-family:'Noto Sans Myanmar',sans-serif; }
         body{ background: var(--bg); min-height:100vh; padding-bottom:50px; }
 
+        /* Search လုပ်ရင် Search Box မပျောက်စေရအောင် ဒီကနေဖယ်ထုတ်ထားပါတယ် */
         body.is-searching .header-section, body.is-searching .summary-grid, body.is-searching .add-section, body.is-searching .form-box, body.is-searching .total-value-card { display: none !important; }
         
         .header-section {
@@ -34,7 +35,7 @@
         }
         .filter-label { color: #64748b; font-size: 13px; font-weight: 500; }
         #groupTotal { color: var(--primary); font-size: 24px; font-weight: 700; margin: 2px 0; }
-        .sales-info { color: var(--success); font-size: 14px; font-weight: 700; margin-top: 5px; display: block; }
+        .sales-info { color: #10b981; font-size: 14px; font-weight: 700; margin-top: 5px; display: block; }
 
         .search-box { background: white; border-radius: 20px; padding: 12px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; display: flex; }
         .search-box input { width: 100%; border: none; outline: none; font-size: 16px; background: transparent; }
@@ -118,6 +119,15 @@ const db = firebase.firestore();
 db.enablePersistence().catch(()=>{});
 
 let currentFilter = 'အားလုံး';
+
+// Back button handler
+window.onpopstate = function() {
+    document.getElementById("productForm").style.display = "none";
+    document.getElementById("btnToggle").innerText = "+ ပစ္စည်းအသစ်ထည့်ရန်";
+    document.getElementById("searchInput").value = "";
+    document.body.classList.remove('is-searching');
+    loadProducts();
+};
 
 function setFilter(cat, el) {
     currentFilter = cat;
@@ -203,6 +213,7 @@ function startEdit(id, n, c, s, a, p){
     document.getElementById("price").value = p;
     document.getElementById("formTitle").innerText = "🛠 ပြင်ဆင်ရန်";
     document.getElementById("productForm").style.display = "block";
+    history.pushState({view:'popup'}, '');
 }
 
 async function handleDelete(id){
@@ -232,8 +243,10 @@ function toggleForm(){
     const btn = document.getElementById("btnToggle");
     if(f.style.display === "none" || f.style.display === ""){
         f.style.display = "block"; btn.innerText = "✖ ပိတ်မည်";
+        history.pushState({view:'popup'}, '');
     } else {
         f.style.display = "none"; btn.innerText = "+ ပစ္စည်းအသစ်ထည့်ရန်"; forceClear();
+        history.back();
     }
 }
 
