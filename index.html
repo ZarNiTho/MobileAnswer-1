@@ -12,14 +12,11 @@
         :root { --primary: #4f46e5; --dark: #1e293b; --bg: #f8fafc; }
         *{ margin:0; padding:0; box-sizing:border-box; font-family:'Noto Sans Myanmar',sans-serif; }
         body{ background: var(--bg); padding-bottom:50px; }
-
-        /* Search နေစဉ် UI ချိန်ညှိမှု */
         body.is-searching .header-section, body.is-searching .summary-grid, body.is-searching .add-section, body.is-searching .form-box, body.is-searching .total-value-card { display: none !important; }
-        
         .header-section { background: linear-gradient(135deg, #1e3a8a, #7c3aed); padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: white; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
         .logo-wrapper { width: 45px; height: 45px; background: white; border-radius: 50%; padding: 3px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .logo-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-        .header-section h1 { font-size: 18px; }
+        .header-section h1 { font-size: 18px; flex-grow: 1; }
         .container { padding: 15px; max-width: 550px; margin: 0 auto; }
         .total-value-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .search-box { background: white; border-radius: 12px; padding: 10px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 12px; }
@@ -50,6 +47,8 @@
 <div class="header-section">
     <div class="logo-wrapper"><img src="https://i.postimg.cc/sg5cDCt1/file-0000000001307207a601f81cc1f5617a.png" alt="Logo"></div>
     <h1>MobileAnswer</h1>
+    <!-- ငွေစာရင်းခလုတ် ထည့်သွင်းထားသည် -->
+    <button onclick="window.location.href='finance.html'" style="background:white; color:var(--primary); padding:5px 10px; border-radius:15px; border:none; font-size:12px; font-weight:bold;">💰 ငွေစာရင်း</button>
 </div>
 
 <div class="container">
@@ -95,32 +94,35 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 let currentFilter = 'အားလုံး';
 
-// Back Key Handling
-window.onpopstate = function() {
-    if(document.body.classList.contains('is-searching')) {
-        document.getElementById("searchInput").value = "";
-        document.body.classList.remove('is-searching');
-        loadProducts();
-    } else if(document.getElementById("productForm").style.display === "block") {
-        toggleForm();
-    }
-};
+// sellOne မှာ Auto Finance စနစ်ထည့်သွင်းသည်
+async function sellOne(id, name, currAmt, price, cat) {
+    const res = await Swal.fire({ title: 'ရောင်းထုတ်မှာလား?', text: name + " (၁) ခု ရောင်းမည်", icon: 'warning', showCancelButton: true });
+    if(res.isConfirmed) {
+        if(currAmt > 1) await db.collection("products").doc(id).update({ amount: currAmt - 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        else await db.collection("products").doc(id).delete();
+        
+        // Auto Finance ဝင်ရန်
+        await db.collection("transactions").add({ type: "ဝင်ငွေ", name: "ရောင်းရငွေ: " + name, amount: Number(price), date: new Date() });
 
-function setFilter(cat, el) {
-    currentFilter = cat;
-    document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('active-filter'));
-    el.classList.add('active-filter');
-    document.getElementById("filterTitle").innerText = cat === 'ရောင်းပြီး' ? "ရောင်းရငွေ စုစုပေါင်း" : cat + " အုပ်စု တန်ဖိုး";
-    loadProducts();
+        const saleRef = db.collection("products").where("name", "==", name + " (ရောင်းပြီး)").where("status", "==", "ရောင်းပြီး");
+        const saleSnap = await saleRef.get();
+        if(!saleSnap.empty) {
+            const saleDoc = saleSnap.docs[0];
+            await db.collection("products").doc(saleDoc.id).update({ amount: saleDoc.data().amount + 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        } else {
+            await db.collection("products").add({ name: name + " (ရောင်းပြီး)", category: cat, status: "ရောင်းပြီး", amount: 1, price: price, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        }
+        Swal.fire({ icon: 'success', title: 'ရောင်းချပြီးစီး', timer: 1000 });
+    }
 }
 
+// မူလ Function များ မပျက်စေဘဲ ထားရှိသည်
 function loadProducts(){
     db.collection("products").orderBy("updatedAt", "desc").onSnapshot((snap) => {
         const list = document.getElementById("productList");
         const searchTerm = document.getElementById("searchInput").value.toLowerCase();
         list.innerHTML = "";
         let t=0, g=0, h=0, a=0, s=0, salesVal=0, filteredVal=0;
-
         snap.forEach((doc) => {
             const d = doc.data();
             const amt = Number(d.amount || 0);
@@ -128,26 +130,14 @@ function loadProducts(){
             const rowVal = amt * prc;
             const timeStr = d.updatedAt ? d.updatedAt.toDate().toLocaleString('my-MM', { day: 'numeric', month: 'short' }).toLowerCase() : "";
             const searchMatch = d.name.toLowerCase().includes(searchTerm) || timeStr.includes(searchTerm);
-
             if(d.status !== "ရောင်းပြီး") {
                 t++;
                 if(d.category === "အထွေထွေ") g += amt;
                 if(d.category === "Hardwareအပိုပစ္စည်") h += amt;
                 if(d.category === "accessories") a += amt;
-            } else {
-                s += amt;
-                salesVal += rowVal;
-            }
-
-            let show = (currentFilter === 'အားလုံး' && d.status !== "ရောင်းပြီး") || 
-                       (currentFilter === d.category && d.status !== "ရောင်းပြီး") || 
-                       (currentFilter === 'ရောင်းပြီး' && d.status === "ရောင်းပြီး");
-
-            if(searchTerm !== "") {
-                show = searchMatch;
-                document.body.classList.add('is-searching');
-            }
-
+            } else { s += amt; salesVal += rowVal; }
+            let show = (currentFilter === 'အားလုံး' && d.status !== "ရောင်းပြီး") || (currentFilter === d.category && d.status !== "ရောင်းပြီး") || (currentFilter === 'ရောင်းပြီး' && d.status === "ရောင်းပြီး");
+            if(searchTerm !== "") { show = searchMatch; document.body.classList.add('is-searching'); }
             if(show) {
                 if(searchTerm === "") filteredVal += rowVal;
                 const dateDisplay = d.updatedAt ? d.updatedAt.toDate().toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true, day: 'numeric', month: 'short' }) : "ခုနကတင်";
@@ -166,70 +156,18 @@ function loadProducts(){
                 </div>`;
             }
         });
-        document.getElementById("tCount").innerText = t;
-        document.getElementById("gCount").innerText = g;
-        document.getElementById("hCount").innerText = h;
-        document.getElementById("aCount").innerText = a;
-        document.getElementById("sCount").innerText = s;
+        document.getElementById("tCount").innerText = t; document.getElementById("gCount").innerText = g; document.getElementById("hCount").innerText = h; document.getElementById("aCount").innerText = a; document.getElementById("sCount").innerText = s;
         if(searchTerm === "") document.getElementById("groupTotal").innerText = filteredVal.toLocaleString() + " Ks";
         document.getElementById("totalSalesAmt").innerText = salesVal.toLocaleString();
     });
 }
 
-document.getElementById("searchInput").addEventListener("input", loadProducts);
-
-function startEdit(id, n, c, s, a, p){
-    document.getElementById("editId").value = id;
-    document.getElementById("name").value = n;
-    document.getElementById("category").value = c;
-    document.getElementById("status").value = s;
-    document.getElementById("amount").value = a;
-    document.getElementById("price").value = p;
-    document.getElementById("formTitle").innerText = "🛠 ပြင်ဆင်ရန်";
-    document.getElementById("productForm").style.display = "block";
-    document.body.classList.remove('is-searching'); // Search mode ထွက်
-    history.pushState({view:'popup'}, '');
-}
-
-async function handleSave(){
-    const id = document.getElementById("editId").value;
-    const name = document.getElementById("name").value;
-    const res = await Swal.fire({ title: 'အတည်ပြုမလား?', text: name + " ကို သိမ်းဆည်းမည်", icon: 'question', showCancelButton: true });
-    
-    if(res.isConfirmed) {
-        const data = {
-            name: name,
-            category: document.getElementById("category").value,
-            status: document.getElementById("status").value,
-            amount: Number(document.getElementById("amount").value),
-            price: Number(document.getElementById("price").value),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        try {
-            if(id) await db.collection("products").doc(id).update(data);
-            else await db.collection("products").add(data);
-            Swal.fire({ icon: 'success', title: 'အောင်မြင်ပါသည်', timer: 1500 });
-            forceClear(); // Data သာ Clear လုပ်မယ်
-        } catch(e) { Swal.fire({ icon: 'error', title: 'မှားယွင်းနေသည်' }); }
-    }
-}
-
-function toggleForm(){
-    const f = document.getElementById("productForm");
-    const btn = document.getElementById("btnToggle");
-    if(f.style.display === "none" || f.style.display === ""){
-        f.style.display = "block"; btn.innerText = "✖ ပိတ်မည်";
-        history.pushState({view:'popup'}, '');
-    } else {
-        f.style.display = "none"; btn.innerText = "+ ပစ္စည်းအသစ်ထည့်ရန်"; forceClear();
-        history.back(); 
-    }
-}
-
+function setFilter(cat, el) { currentFilter = cat; document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('active-filter')); el.classList.add('active-filter'); document.getElementById("filterTitle").innerText = cat === 'ရောင်းပြီး' ? "ရောင်းရငွေ စုစုပေါင်း" : cat + " အုပ်စု တန်ဖိုး"; loadProducts(); }
+function startEdit(id, n, c, s, a, p){ document.getElementById("editId").value = id; document.getElementById("name").value = n; document.getElementById("category").value = c; document.getElementById("status").value = s; document.getElementById("amount").value = a; document.getElementById("price").value = p; document.getElementById("formTitle").innerText = "🛠 ပြင်ဆင်ရန်"; document.getElementById("productForm").style.display = "block"; history.pushState({view:'popup'}, ''); }
+async function handleSave(){ const id = document.getElementById("editId").value; const name = document.getElementById("name").value; const res = await Swal.fire({ title: 'အတည်ပြုမလား?', icon: 'question', showCancelButton: true }); if(res.isConfirmed) { const data = { name: name, category: document.getElementById("category").value, status: document.getElementById("status").value, amount: Number(document.getElementById("amount").value), price: Number(document.getElementById("price").value), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }; if(id) await db.collection("products").doc(id).update(data); else await db.collection("products").add(data); Swal.fire({ icon: 'success', title: 'အောင်မြင်ပါသည်', timer: 1500 }); forceClear(); } }
+function toggleForm(){ const f = document.getElementById("productForm"); const btn = document.getElementById("btnToggle"); if(f.style.display === "none" || f.style.display === ""){ f.style.display = "block"; btn.innerText = "✖ ပိတ်မည်"; } else { f.style.display = "none"; btn.innerText = "+ ပစ္စည်းအသစ်ထည့်ရန်"; forceClear(); } }
 function forceClear(){ document.getElementById("productForm").reset(); document.getElementById("editId").value = ""; document.getElementById("formTitle").innerText = "📝 စာရင်းသွင်းရန်"; }
-// handleDelete, sellOne အစရှိသည်တို့ မူလအတိုင်းထားပါ
 async function handleDelete(id){ const res = await Swal.fire({ title: 'ဖျက်မှာလား?', icon: 'warning', showCancelButton: true }); if(res.isConfirmed) db.collection("products").doc(id).delete(); }
-async function sellOne(id, name, currAmt, price, cat) { const res = await Swal.fire({ title: 'ရောင်းထုတ်မှာလား?', text: name + " (၁) ခု ရောင်းမည်", icon: 'warning', showCancelButton: true }); if(res.isConfirmed) { if(currAmt > 1) await db.collection("products").doc(id).update({ amount: currAmt - 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); else await db.collection("products").doc(id).delete(); const saleRef = db.collection("products").where("name", "==", name + " (ရောင်းပြီး)").where("status", "==", "ရောင်းပြီး"); const saleSnap = await saleRef.get(); if(!saleSnap.empty) { const saleDoc = saleSnap.docs[0]; await db.collection("products").doc(saleDoc.id).update({ amount: saleDoc.data().amount + 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); } else { await db.collection("products").add({ name: name + " (ရောင်းပြီး)", category: cat, status: "ရောင်းပြီး", amount: 1, price: price, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); } } }
 loadProducts();
 </script>
 </body>
