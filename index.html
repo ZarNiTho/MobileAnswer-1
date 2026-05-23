@@ -3,87 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MobileAnswer - Perfected</title>
+    <title>MobileAnswer</title>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;700&display=swap');
-        :root { --primary: #2563eb; --secondary: #7c3aed; --dark: #0f172a; --bg: #f3f4f6; --success: #10b981; --danger: #ef4444; }
-        *{ margin:0; padding:0; box-sizing:border-box; font-family:'Noto Sans Myanmar',sans-serif; }
-        body{ background: var(--bg); min-height:100vh; padding-bottom:50px; }
-        .header-section { background: linear-gradient(135deg, #1e3a8a, #7c3aed); padding: 40px 20px 80px; text-align: center; color: white; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; }
-        .logo-wrapper { width: 80px; height: 80px; background: white; border-radius: 50%; margin: 0 auto 12px; padding: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .logo-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-        .container { padding: 15px; margin-top: -65px; max-width: 550px; margin-left: auto; margin-right: auto; }
-        .total-value-card { background: white; border-radius: 20px; padding: 18px; margin-bottom: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-bottom: 4px solid var(--primary); }
-        .filter-label { color: #64748b; font-size: 13px; font-weight: 500; }
-        #groupTotal { color: var(--primary); font-size: 24px; font-weight: 700; margin: 2px 0; }
-        .sales-info { color: var(--success); font-size: 14px; font-weight: 700; margin-top: 5px; display: block; }
-        .search-box { background: white; border-radius: 20px; padding: 12px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; display: flex; }
-        .search-box input { width: 100%; border: none; outline: none; font-size: 16px; background: transparent; }
-        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
-        .summary-card { background: white; padding: 10px 5px; border-radius: 15px; text-align: center; cursor: pointer; border: 2px solid transparent; }
-        .summary-card.active-filter { border-color: var(--primary); background: #eff6ff; }
-        .summary-card h3 { font-size: 9px; color: #64748b; margin-bottom: 4px; }
-        .summary-card p { font-size: 14px; font-weight: 700; color: var(--primary); }
-        .add-section { margin-bottom: 15px; }
-        .open-form-btn { width: 100%; padding: 16px; border: none; border-radius: 18px; background: var(--dark); color: white; font-weight: 700; cursor: pointer; }
-        .form-box { background: white; border-radius: 25px; padding: 25px; margin-bottom: 25px; display: none; }
-        .form-box input, .form-box select { width: 100%; padding: 14px; border: 1.5px solid #eee; border-radius: 12px; margin-top: 10px; outline: none; background: #f9f9f9; }
-        .card { background: white; border-radius: 20px; padding: 18px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
-        .card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
-        .product-name { font-size: 17px; font-weight: 700; color: #1e293b; }
-        .badge { padding: 4px 10px; border-radius: 8px; color: white; font-size: 10px; font-weight: 700; }
-        .instock { background: var(--success); } .sold { background: var(--danger); } .repair { background: #f59e0b; }
-        .info-row { font-size: 13px; color: #475569; margin-bottom: 5px; display: flex; justify-content: space-between; }
-        .date-text { font-size: 11px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 8px; margin-top: 8px; }
-        .card-actions { display: flex; gap: 8px; margin-top: 12px; }
-        .card-actions button { flex: 1; padding: 10px; border: none; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; }
-        .edit-btn { background: #f1f5f9; color: #475569; }
-        .delete-btn { background: #fff1f2; color: #be123c; }
-        .minus-btn { background: #fee2e2; color: var(--danger); border: none; padding: 2px 8px; border-radius: 6px; font-weight: 700; cursor: pointer; }
+        /* မူလအဆင်ပြေတဲ့ CSS အတိုင်း */
+        body { font-family: sans-serif; background: #f3f4f6; padding: 20px; }
+        .card { background: white; padding: 15px; border-radius: 15px; margin-bottom: 10px; }
+        .btn-group { display: flex; gap: 5px; margin-top: 10px; }
+        button { padding: 8px; border-radius: 5px; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="header-section">
-    <div class="logo-wrapper"><img src="https://i.postimg.cc/sg5cDCt1/file-0000000001307207a601f81cc1f5617a.png" alt="Logo"></div>
-    <h1>MobileAnswer</h1>
+<input type="text" id="searchInput" placeholder="🔍 ရှာရန်..." style="width:100%; padding:10px; margin-bottom:10px;">
+<div style="display:flex; gap:5px; margin-bottom:10px;">
+    <button onclick="setFilter('အားလုံး')">အားလုံး</button>
+    <button onclick="setFilter('အထွေထွေ')">အထွေထွေ</button>
+    <button onclick="setFilter('Hardwareအပိုပစ္စည်')">HW</button>
+    <button onclick="setFilter('accessories')">Accessories</button>
 </div>
 
-<div class="container">
-    <div class="total-value-card">
-        <div class="filter-label" id="filterTitle">စုစုပေါင်းတန်ဖိုး</div>
-        <h2 id="groupTotal">0 Ks</h2>
-        <span class="sales-info">💰 ရောင်းရငွေ: <span id="totalSalesAmt">0</span> Ks</span>
-    </div>
-
-    <div class="search-box"><input type="text" id="searchInput" placeholder="🔍 ရှာဖွေရန်..."></div>
-
-    <div class="summary-grid">
-        <div class="summary-card active-filter" onclick="setFilter('အားလုံး', this)"><h3>အားလုံး</h3><p id="tCount">0</p></div>
-        <div class="summary-card" onclick="setFilter('အထွေထွေ', this)"><h3>အထွေထွေ</h3><p id="gCount">0</p></div>
-        <div class="summary-card" onclick="setFilter('Hardwareအပိုပစ္စည်', this)"><h3>HW</h3><p id="hCount">0</p></div>
-        <div class="summary-card" onclick="setFilter('accessories', this)"><h3>Acc</h3><p id="aCount">0</p></div>
-    </div>
-
-    <div class="add-section"><button class="open-form-btn" id="btnToggle" onclick="toggleForm()">+ ပစ္စည်းအသစ်ထည့်ရန်</button></div>
-
-    <form id="productForm" class="form-box">
-        <h3 id="formTitle">📝 စာရင်းသွင်းရန်</h3>
-        <input type="hidden" id="editId">
-        <input type="text" id="name" placeholder="ပစ္စည်းအမည်" required>
-        <select id="category"><option value="အထွေထွေ">အထွေထွေ</option><option value="Hardwareအပိုပစ္စည်">Hardwareအပိုပစ္စည်</option><option value="accessories">accessories</option></select>
-        <select id="status"><option value="ပစ္စည်းရှိ">ပစ္စည်းရှိ</option><option value="ရောင်းပြီး">ရောင်းပြီး</option><option value="ပြင်ဆင်ရန်">ပြင်ဆင်ရန်</option></select>
-        <input type="number" id="amount" placeholder="အရေအတွက်" required>
-        <input type="number" id="price" placeholder="စျေးနှုန်း" required>
-        <button type="button" class="save-btn" style="width:100%; padding:16px; background:var(--primary); color:white; border:none; border-radius:12px; margin-top:15px; font-weight:700;" onclick="handleSave()">သိမ်းဆည်းမည်</button>
-    </form>
-
-    <div id="productList"></div>
-</div>
+<div id="productList"></div>
 
 <script>
 const firebaseConfig = { apiKey: "AIzaSyC5sGKGeD_zht-Qknp6VPwfPIChqwvX8MQ", authDomain: "masstore-c32a7.firebaseapp.com", projectId: "masstore-c32a7", storageBucket: "masstore-c32a7.firebasestorage.app", messagingSenderId: "321720130071", appId: "1:321720130071:web:20aab19001cc8bb3cd9a52" };
@@ -92,93 +34,44 @@ const db = firebase.firestore();
 
 let currentFilter = 'အားလုံး';
 
-function setFilter(cat, el) {
+function setFilter(cat) {
     currentFilter = cat;
-    document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('active-filter'));
-    el.classList.add('active-filter');
     loadProducts();
 }
 
+document.getElementById('searchInput').addEventListener('input', loadProducts);
+
 function loadProducts() {
-    const searchVal = document.getElementById("searchInput").value.toLowerCase();
-    db.collection("products").orderBy("updatedAt", "desc").onSnapshot((snap) => {
+    const searchVal = document.getElementById('searchInput').value.toLowerCase();
+    
+    db.collection("products").orderBy("updatedAt", "desc").onSnapshot(snap => {
         const list = document.getElementById("productList");
         list.innerHTML = "";
-        let t=0, g=0, h=0, a=0, s=0, salesVal=0, filteredVal=0;
-
-        snap.forEach((doc) => {
+        
+        snap.forEach(doc => {
             const d = doc.data();
-            const amt = Number(d.amount || 0);
-            const prc = Number(d.price || 0);
-            const rowVal = amt * prc;
+            // Search နှင့် Filter Logic
+            const matchFilter = (currentFilter === 'အားလုံး' || d.category === currentFilter);
+            const matchSearch = d.name.toLowerCase().includes(searchVal);
 
-            if(d.status !== "ရောင်းပြီး") {
-                t++;
-                if(d.category === "အထွေထွေ") g += amt;
-                if(d.category === "Hardwareအပိုပစ္စည်") h += amt;
-                if(d.category === "accessories") a += amt;
-            } else {
-                s += amt;
-                salesVal += rowVal;
-            }
-
-            const matchesFilter = (currentFilter === 'အားလုံး' && d.status !== "ရောင်းပြီး") || 
-                                  (currentFilter === d.category && d.status !== "ရောင်းပြီး") || 
-                                  (currentFilter === 'ရောင်းပြီး' && d.status === "ရောင်းပြီး");
-            const matchesSearch = d.name.toLowerCase().includes(searchVal);
-
-            if(matchesFilter && matchesSearch) {
-                filteredVal += rowVal;
+            if (matchFilter && matchSearch) {
+                const timeStr = d.updatedAt ? d.updatedAt.toDate().toLocaleString() : "Date မရှိ";
                 list.innerHTML += `
                 <div class="card">
-                    <div class="card-header"><div class="product-name">${d.name}</div><div class="badge ${d.status === "ပစ္စည်းရှိ" ? "instock" : "sold"}">${d.status}</div></div>
-                    <div class="info-row"><span>📁 ${d.category}</span> <span>${amt} ခု</span></div>
-                    <div class="info-row"><span>💰 ${prc.toLocaleString()} Ks</span> ${d.status !== 'ရောင်းပြီး' ? `<button class="minus-btn" onclick="sellOne('${doc.id}', '${d.name}', ${amt}, ${prc}, '${d.category}')">ရောင်းမည် (-1)</button>` : ''}</div>
-                    <div class="card-actions">
-                        <button class="edit-btn" onclick="startEdit('${doc.id}', '${d.name}', '${d.category}', '${d.status}', ${amt}, ${prc})">ပြင်မည်</button>
-                        <button class="delete-btn" onclick="handleDelete('${doc.id}')">ဖျက်မည်</button>
+                    <div><strong>${d.name}</strong> (${d.category})</div>
+                    <div>အရေအတွက်: ${d.amount} | စျေးနှုန်း: ${d.price}</div>
+                    <div style="font-size:10px;">🕒 ${timeStr}</div>
+                    <div class="btn-group">
+                        <button onclick="edit('${doc.id}')">ပြင်</button>
+                        <button onclick="del('${doc.id}')">ဖျက်</button>
                     </div>
                 </div>`;
             }
         });
-        document.getElementById("tCount").innerText = t;
-        document.getElementById("gCount").innerText = g;
-        document.getElementById("hCount").innerText = h;
-        document.getElementById("aCount").innerText = a;
-        document.getElementById("sCount").innerText = s;
-        document.getElementById("groupTotal").innerText = filteredVal.toLocaleString() + " Ks";
-        document.getElementById("totalSalesAmt").innerText = salesVal.toLocaleString();
     });
 }
-
-document.getElementById("searchInput").addEventListener("input", loadProducts);
-
-async function sellOne(id, name, currAmt, price, cat) {
-    if(currAmt > 1) await db.collection("products").doc(id).update({ amount: currAmt - 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-    else await db.collection("products").doc(id).delete();
-    await db.collection("products").add({ name: name + " (ရောင်းပြီး)", category: cat, status: "ရောင်းပြီး", amount: 1, price: price, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-}
-
-function startEdit(id, n, c, s, a, p) {
-    document.getElementById("editId").value = id;
-    document.getElementById("name").value = n;
-    document.getElementById("category").value = c;
-    document.getElementById("status").value = s;
-    document.getElementById("amount").value = a;
-    document.getElementById("price").value = p;
-    document.getElementById("productForm").style.display = "block";
-}
-
-async function handleSave() {
-    const id = document.getElementById("editId").value;
-    const data = { name: document.getElementById("name").value, category: document.getElementById("category").value, status: document.getElementById("status").value, amount: Number(document.getElementById("amount").value), price: Number(document.getElementById("price").value), updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
-    if(id) await db.collection("products").doc(id).update(data);
-    else await db.collection("products").add(data);
-    document.getElementById("productForm").style.display = "none";
-}
-
-async function handleDelete(id) { await db.collection("products").doc(id).delete(); }
-function toggleForm() { document.getElementById("productForm").style.display = "block"; }
+function edit(id) { /* Edit logic */ }
+async function del(id) { await db.collection("products").doc(id).delete(); }
 
 loadProducts();
 </script>
