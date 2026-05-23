@@ -4,52 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MobileAnswer - Full System</title>
-
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@300;400;500;700&display=swap');
         :root { --primary: #4f46e5; --dark: #1e293b; --bg: #f8fafc; }
         *{ margin:0; padding:0; box-sizing:border-box; font-family:'Noto Sans Myanmar',sans-serif; }
         body{ background: var(--bg); padding-bottom:50px; }
 
+        /* Search နေစဉ် UI ချိန်ညှိမှု */
         body.is-searching .header-section, body.is-searching .summary-grid, body.is-searching .add-section, body.is-searching .form-box, body.is-searching .total-value-card { display: none !important; }
         
-        /* Header အသစ် - ဘယ်ဘက်အပေါ်မှာ Logo နဲ့ အတူ သေးသေးလေးဖြစ်အောင် */
-        .header-section {
-            background: linear-gradient(135deg, #1e3a8a, #7c3aed);
-            padding: 10px 15px; display: flex; align-items: center; gap: 12px;
-            color: white; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
-        }
-        .logo-wrapper { 
-            width: 45px; height: 45px; background: white; border-radius: 50%; 
-            padding: 3px; display: flex; align-items: center; justify-content: center; overflow: hidden;
-        }
+        .header-section { background: linear-gradient(135deg, #1e3a8a, #7c3aed); padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: white; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
+        .logo-wrapper { width: 45px; height: 45px; background: white; border-radius: 50%; padding: 3px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .logo-wrapper img { width: 100%; height: 100%; object-fit: cover; }
         .header-section h1 { font-size: 18px; }
-        
         .container { padding: 15px; max-width: 550px; margin: 0 auto; }
-
         .total-value-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .filter-label { color: #64748b; font-size: 11px; text-transform: uppercase; }
-        #groupTotal { color: var(--primary); font-size: 20px; font-weight: 800; }
-        .sales-info { color: #059669; font-size: 11px; font-weight: 600; margin-top: 4px; display: block; }
-
         .search-box { background: white; border-radius: 12px; padding: 10px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 12px; }
         .search-box input { width: 100%; border: none; outline: none; font-size: 14px; background: transparent; }
-
         .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 12px; }
         .summary-card { background: white; padding: 8px 2px; border-radius: 10px; text-align: center; cursor: pointer; border: 1px solid #e2e8f0; }
         .summary-card.active-filter { border-color: var(--primary); background: #eef2ff; }
         .summary-card h3 { font-size: 8px; color: #64748b; }
         .summary-card p { font-size: 11px; font-weight: 800; color: var(--primary); }
-
         .open-form-btn { width: 100%; padding: 12px; border: none; border-radius: 12px; background: var(--dark); color: white; font-weight: 600; cursor: pointer; }
         .form-box { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: none; border: 1px solid #e2e8f0; }
         .form-box input, .form-box select { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 6px; }
-        
         .card { background: white; border-radius: 12px; padding: 12px; margin-bottom: 10px; border: 1px solid #f1f5f9; }
         .card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 6px; }
         .product-name { font-size: 14px; font-weight: 700; }
@@ -108,18 +90,20 @@
 </div>
 
 <script>
-// Logic နှင့် Function များအားလုံး မူလအတိုင်းဖြစ်သည်
 const firebaseConfig = { apiKey: "AIzaSyC5sGKGeD_zht-Qknp6VPwfPIChqwvX8MQ", authDomain: "masstore-c32a7.firebaseapp.com", projectId: "masstore-c32a7", storageBucket: "masstore-c32a7.firebasestorage.app", messagingSenderId: "321720130071", appId: "1:321720130071:web:20aab19001cc8bb3cd9a52" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 let currentFilter = 'အားလုံး';
 
+// Back Key Handling
 window.onpopstate = function() {
-    document.getElementById("productForm").style.display = "none";
-    document.getElementById("btnToggle").innerText = "+ ပစ္စည်းအသစ်ထည့်ရန်";
-    document.getElementById("searchInput").value = "";
-    document.body.classList.remove('is-searching');
-    loadProducts();
+    if(document.body.classList.contains('is-searching')) {
+        document.getElementById("searchInput").value = "";
+        document.body.classList.remove('is-searching');
+        loadProducts();
+    } else if(document.getElementById("productForm").style.display === "block") {
+        toggleForm();
+    }
 };
 
 function setFilter(cat, el) {
@@ -162,8 +146,6 @@ function loadProducts(){
             if(searchTerm !== "") {
                 show = searchMatch;
                 document.body.classList.add('is-searching');
-            } else {
-                document.body.classList.remove('is-searching');
             }
 
             if(show) {
@@ -205,28 +187,30 @@ function startEdit(id, n, c, s, a, p){
     document.getElementById("price").value = p;
     document.getElementById("formTitle").innerText = "🛠 ပြင်ဆင်ရန်";
     document.getElementById("productForm").style.display = "block";
+    document.body.classList.remove('is-searching'); // Search mode ထွက်
     history.pushState({view:'popup'}, '');
 }
 
-async function handleDelete(id){
-    const res = await Swal.fire({ title: 'ဖျက်မှာလား?', icon: 'warning', showCancelButton: true });
-    if(res.isConfirmed) db.collection("products").doc(id).delete();
-}
-
-async function sellOne(id, name, currAmt, price, cat) {
-    const res = await Swal.fire({ title: 'ရောင်းထုတ်မှာလား?', text: name + " (၁) ခု ရောင်းမည်", icon: 'warning', showCancelButton: true });
+async function handleSave(){
+    const id = document.getElementById("editId").value;
+    const name = document.getElementById("name").value;
+    const res = await Swal.fire({ title: 'အတည်ပြုမလား?', text: name + " ကို သိမ်းဆည်းမည်", icon: 'question', showCancelButton: true });
+    
     if(res.isConfirmed) {
-        if(currAmt > 1) await db.collection("products").doc(id).update({ amount: currAmt - 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-        else await db.collection("products").doc(id).delete();
-
-        const saleRef = db.collection("products").where("name", "==", name + " (ရောင်းပြီး)").where("status", "==", "ရောင်းပြီး");
-        const saleSnap = await saleRef.get();
-        if(!saleSnap.empty) {
-            const saleDoc = saleSnap.docs[0];
-            await db.collection("products").doc(saleDoc.id).update({ amount: saleDoc.data().amount + 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-        } else {
-            await db.collection("products").add({ name: name + " (ရောင်းပြီး)", category: cat, status: "ရောင်းပြီး", amount: 1, price: price, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-        }
+        const data = {
+            name: name,
+            category: document.getElementById("category").value,
+            status: document.getElementById("status").value,
+            amount: Number(document.getElementById("amount").value),
+            price: Number(document.getElementById("price").value),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        try {
+            if(id) await db.collection("products").doc(id).update(data);
+            else await db.collection("products").add(data);
+            Swal.fire({ icon: 'success', title: 'အောင်မြင်ပါသည်', timer: 1500 });
+            forceClear(); // Data သာ Clear လုပ်မယ်
+        } catch(e) { Swal.fire({ icon: 'error', title: 'မှားယွင်းနေသည်' }); }
     }
 }
 
@@ -243,21 +227,9 @@ function toggleForm(){
 }
 
 function forceClear(){ document.getElementById("productForm").reset(); document.getElementById("editId").value = ""; document.getElementById("formTitle").innerText = "📝 စာရင်းသွင်းရန်"; }
-
-async function handleSave(){
-    const id = document.getElementById("editId").value;
-    const data = {
-        name: document.getElementById("name").value,
-        category: document.getElementById("category").value,
-        status: document.getElementById("status").value,
-        amount: Number(document.getElementById("amount").value),
-        price: Number(document.getElementById("price").value),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    if(id) await db.collection("products").doc(id).update(data);
-    else await db.collection("products").add(data);
-    toggleForm();
-}
+// handleDelete, sellOne အစရှိသည်တို့ မူလအတိုင်းထားပါ
+async function handleDelete(id){ const res = await Swal.fire({ title: 'ဖျက်မှာလား?', icon: 'warning', showCancelButton: true }); if(res.isConfirmed) db.collection("products").doc(id).delete(); }
+async function sellOne(id, name, currAmt, price, cat) { const res = await Swal.fire({ title: 'ရောင်းထုတ်မှာလား?', text: name + " (၁) ခု ရောင်းမည်", icon: 'warning', showCancelButton: true }); if(res.isConfirmed) { if(currAmt > 1) await db.collection("products").doc(id).update({ amount: currAmt - 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); else await db.collection("products").doc(id).delete(); const saleRef = db.collection("products").where("name", "==", name + " (ရောင်းပြီး)").where("status", "==", "ရောင်းပြီး"); const saleSnap = await saleRef.get(); if(!saleSnap.empty) { const saleDoc = saleSnap.docs[0]; await db.collection("products").doc(saleDoc.id).update({ amount: saleDoc.data().amount + 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); } else { await db.collection("products").add({ name: name + " (ရောင်းပြီး)", category: cat, status: "ရောင်းပြီး", amount: 1, price: price, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); } } }
 loadProducts();
 </script>
 </body>
