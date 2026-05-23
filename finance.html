@@ -2,82 +2,94 @@
 <html lang="my">
 <head>
     <meta charset="UTF-8">
-    <title>MobileAnswer - ငွေစာရင်း</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ငွေစာရင်း</title>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { font-family: sans-serif; background: #f1f5f9; padding: 15px; }
+        body { font-family: sans-serif; background: #f1f5f9; padding: 10px; margin: 0; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 480px; }
         .summary-box { background: #1e293b; color: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
         .grid-sum { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        .balance-card { text-align: center; padding: 10px; background: #334155; border-radius: 8px; }
-        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-        .date-group { margin-top: 15px; padding: 10px; background: #e2e8f0; border-radius: 8px; font-weight: bold; display: flex; justify-content: space-between; }
-        .row { display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #f1f5f9; }
-        .btn-main { width: 100%; padding: 15px; margin: 5px 0; border-radius: 10px; border: none; color: white; font-weight: bold; cursor: pointer; }
+        .balance-card { text-align: center; padding: 10px; background: #334155; border-radius: 8px; font-weight: bold; }
+        .date-group { margin-top: 10px; padding: 12px; background: white; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: bold; }
+        .details { display: none; padding: 10px; background: #f8fafc; border: 1px solid #ddd; border-top: none; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
+        .row { display: flex; justify-content: space-between; padding: 8px 5px; border-bottom: 1px solid #eee; font-size: 14px; }
+        .btn-main { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; color: white; }
+        .remark-btn { background: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 5px; }
+        .remark-text { font-size: 12px; color: #64748b; font-style: italic; padding: 2px 15px; }
     </style>
 </head>
 <body>
 
-<div class="summary-box">
-    <div class="grid-sum">
-        <div>ဒီနေ့ဝင်ငွေ: <h3 id="todayIncome" style="color:#10b981">0 Ks</h3></div>
-        <div>ဒီနေ့ထွက်ငွေ: <h3 id="todayExpense" style="color:#ef4444">0 Ks</h3></div>
+<div class="container">
+    <div class="summary-box">
+        <div class="grid-sum">
+            <div>ဝင်ငွေ: <h3 id="todayIncome" style="color:#10b981">0 Ks</h3></div>
+            <div>ထွက်ငွေ: <h3 id="todayExpense" style="color:#ef4444">0 Ks</h3></div>
+        </div>
+        <div class="balance-card">လက်ကျန်: <span id="todayBalance">0 Ks</span></div>
     </div>
-    <div class="balance-card">ဒီနေ့လက်ကျန်: <h2 id="todayBalance">0 Ks</h2></div>
-</div>
 
-<div class="card">
-    <button class="btn-main" style="background:#10b981;" onclick="openIncomeDialog()">💰 ဝင်ငွေမှတ်မည်</button>
-    <button class="btn-main" style="background:#ef4444;" onclick="openExpenseDialog()">💸 ထွက်ငွေမှတ်မည်</button>
-</div>
+    <button class="btn-main" style="background:#10b981;" onclick="openDialog('ဝင်ငွေ')">💰 ဝင်ငွေမှတ်မည်</button>
+    <button class="btn-main" style="background:#ef4444;" onclick="openDialog('ထွက်ငွေ')">💸 ထွက်ငွေမှတ်မည်</button>
 
-<div class="card">
-    <h3>📜 ရက်စွဲအလိုက် စာရင်းချုပ်</h3>
     <div id="historyList"></div>
+    <button class="btn-main" style="background:#64748b; margin-top:20px;" onclick="window.location.href='index.html'">🔙 ပင်မစာမျက်နှာ</button>
 </div>
-
-<button class="btn-main" style="background:#64748b;" onclick="window.location.href='index.html'">🔙 ပင်မစာမျက်နှာသို့</button>
 
 <script>
     const firebaseConfig = { apiKey: "AIzaSyC5sGKGeD_zht-Qknp6VPwfPIChqwvX8MQ", authDomain: "masstore-c32a7.firebaseapp.com", projectId: "masstore-c32a7", storageBucket: "masstore-c32a7.firebasestorage.app", messagingSenderId: "321720130071", appId: "1:321720130071:web:20aab19001cc8bb3cd9a52" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    let isDialogOpen = false;
 
-    // Dialog Functions
-    async function openIncomeDialog() {
+    async function openDialog(type) {
+        isDialogOpen = true;
         const { value: formValues } = await Swal.fire({
-            title: 'ဝင်ငွေမှတ်ရန်',
-            html: '<input id="swal-name" class="swal2-input" placeholder="အသေးစိတ်">' +
-                  '<input id="swal-amount" class="swal2-input" type="number" placeholder="ပမာဏ">',
-            preConfirm: () => ({ name: document.getElementById('swal-name').value, amount: Number(document.getElementById('swal-amount').value) })
+            title: type + ' မှတ်ရန်',
+            html: '<input id="name" class="swal2-input" placeholder="အကြောင်းအရာ">' +
+                  '<input id="amount" class="swal2-input" type="number" placeholder="ပမာဏ">',
+            preConfirm: () => ({ name: document.getElementById('name').value, amount: Number(document.getElementById('amount').value) })
         });
+        isDialogOpen = false;
         if(formValues && formValues.amount) {
-            await db.collection("transactions").add({ type: 'ဝင်ငွေ', name: formValues.name, amount: formValues.amount, date: new Date() });
+            await db.collection("transactions").add({ type, name: formValues.name, amount: formValues.amount, date: new Date() });
         }
     }
 
-    async function openExpenseDialog() {
-        const { value: formValues } = await Swal.fire({
-            title: 'ထွက်ငွေမှတ်ရန်',
-            html: '<input id="swal-name" class="swal2-input" placeholder="အကြောင်းအရာ">' +
-                  '<input id="swal-amount" class="swal2-input" type="number" placeholder="ပမာဏ">',
-            preConfirm: () => ({ name: document.getElementById('swal-name').value, amount: Number(document.getElementById('swal-amount').value) })
+    async function addRemark(date) {
+        const docId = date.replace(/\//g, '-');
+        const remarkDoc = await db.collection("remarks").doc(docId).get();
+        const currentText = remarkDoc.exists ? remarkDoc.data().text : "";
+
+        const { value: remark } = await Swal.fire({
+            title: 'မှတ်ချက်',
+            input: 'text',
+            inputValue: currentText,
+            inputPlaceholder: 'စာရင်းမကိုက်ညီဘူး...',
+            showCancelButton: true
         });
-        if(formValues && formValues.amount) {
-            await db.collection("transactions").add({ type: 'ထွက်ငွေ', name: formValues.name, amount: formValues.amount, date: new Date() });
+        if(remark !== undefined) {
+            await db.collection("remarks").doc(docId).set({ text: remark });
         }
     }
 
-    db.collection("transactions").orderBy("date", "desc").onSnapshot(snap => {
+    window.onpopstate = () => { if(isDialogOpen) Swal.close(); else window.location.href = 'index.html'; };
+    function toggleDetails(id) { const el = document.getElementById(id); el.style.display = el.style.display === 'block' ? 'none' : 'block'; }
+
+    // Data ဖတ်ခြင်း
+    db.collection("transactions").orderBy("date", "desc").onSnapshot(async (snap) => {
         let today = new Date().toLocaleDateString();
-        let tInc = 0, tExp = 0;
-        let groups = {};
+        let tInc = 0, tExp = 0, groups = {}, remarks = {};
+        
+        const remSnap = await db.collection("remarks").get();
+        remSnap.forEach(doc => remarks[doc.id] = doc.data().text);
 
         snap.forEach(doc => {
             let d = doc.data();
             let dateKey = d.date.toDate().toLocaleDateString();
-            
             if(!groups[dateKey]) groups[dateKey] = { inc: 0, exp: 0, logs: [] };
             if(d.type === 'ဝင်ငွေ') { groups[dateKey].inc += d.amount; if(dateKey === today) tInc += d.amount; }
             else { groups[dateKey].exp += d.amount; if(dateKey === today) tExp += d.amount; }
@@ -90,13 +102,17 @@
 
         let html = "";
         for(let date in groups) {
-            html += `<div class="date-group">
-                        <span>${date}</span>
-                        <span style="font-size:12px; font-weight:normal;">ဝင်: ${groups[date].inc.toLocaleString()} | ထွက်: ${groups[date].exp.toLocaleString()}</span>
-                     </div>`;
+            let id = date.replace(/\//g, '-');
+            html += `<div class="date-group" onclick="toggleDetails('${id}')">
+                        <span>📅 ${date} <span class="remark-btn" onclick="event.stopPropagation(); addRemark('${date}')">✏️</span></span>
+                        <span style="font-size:11px; color:#666;">ဝင်:${groups[date].inc.toLocaleString()} | ထွက်:${groups[date].exp.toLocaleString()}</span>
+                     </div>
+                     ${remarks[id] ? `<div class="remark-text">⚠️ ${remarks[id]}</div>` : ''}
+                     <div id="${id}" class="details">`;
             groups[date].logs.forEach(d => {
                 html += `<div class="row"><span>${d.name}</span><span style="color:${d.type==='ဝင်ငွေ'?'#10b981':'#ef4444'}">${d.type==='ဝင်ငွေ'?'+':'-'}${d.amount.toLocaleString()}</span></div>`;
             });
+            html += `</div>`;
         }
         document.getElementById("historyList").innerHTML = html;
     });
