@@ -7,7 +7,6 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
@@ -17,40 +16,31 @@
         *{ margin:0; padding:0; box-sizing:border-box; font-family:'Noto Sans Myanmar',sans-serif; }
         body{ background: var(--bg); min-height:100vh; padding-bottom:50px; }
 
-        /* --- Search Mode UI --- */
+        /* အရင် UI အတိုင်း Styles များ */
         body.is-searching .header-section, 
         body.is-searching .summary-grid, 
         body.is-searching .add-section,
         body.is-searching .form-box { display: none !important; }
         body.is-searching .container { margin-top: 20px; }
 
-        /* --- Header & Logo --- */
         .header-section {
             background: linear-gradient(135deg, #1e3a8a, #7c3aed);
-            padding: 40px 20px 80px;
-            text-align: center;
-            color: white;
-            border-bottom-left-radius: 35px;
-            border-bottom-right-radius: 35px;
+            padding: 40px 20px 80px; text-align: center; color: white;
+            border-bottom-left-radius: 35px; border-bottom-right-radius: 35px;
         }
         .logo-wrapper {
-            width: 85px; height: 85px;
-            background: white; border-radius: 50%;
-            margin: 0 auto 15px; padding: 4px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
+            width: 85px; height: 85px; background: white; border-radius: 50%;
+            margin: 0 auto 15px; padding: 4px; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
         .logo-wrapper img { width: 100%; height: 100%; object-fit: cover; }
         .header-section h1 { font-size: 24px; font-weight: 700; }
 
         .container { padding: 15px; margin-top: -55px; max-width: 550px; margin-left: auto; margin-right: auto; }
 
-        /* --- UI Components --- */
         .search-box {
             background: white; border-radius: 20px; padding: 12px 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            margin-bottom: 15px; display: flex; align-items: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; display: flex; align-items: center;
         }
         .search-box input { width: 100%; border: none; outline: none; font-size: 16px; background: transparent; }
         .close-search { display: none; color: #ef4444; font-weight: 700; margin-left: 10px; cursor: pointer; }
@@ -68,7 +58,6 @@
         .form-box input, .form-box select { width: 100%; padding: 14px; border: 1.5px solid #eee; border-radius: 12px; margin-top: 10px; outline: none; background: #f9f9f9; }
         .save-btn { width: 100%; padding: 16px; margin-top: 20px; border: none; border-radius: 12px; background: #6366f1; color: white; font-weight: 700; cursor: pointer; }
 
-        /* --- Cards --- */
         .card { background: white; border-radius: 20px; padding: 18px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
         .card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px; }
         .product-name { font-size: 18px; font-weight: 700; color: #1e293b; }
@@ -130,7 +119,19 @@
 </div>
 
 <script>
-// --- Firebase Config ---
+// --- [OFFLINE ပွင့်ရန် SERVICE WORKER] ---
+const swScript = `
+const cName = 'ma-v1';
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(cName).then(c => c.addAll(['./'])));
+});
+self.addEventListener('fetch', e => {
+  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+});`;
+const blob = new Blob([swScript], {type: 'application/javascript'});
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register(URL.createObjectURL(blob)); }
+
+// --- Firebase Setup ---
 const firebaseConfig = {
     apiKey: "AIzaSyC5sGKGeD_zht-Qknp6VPwfPIChqwvX8MQ",
     authDomain: "masstore-c32a7.firebaseapp.com",
@@ -139,42 +140,29 @@ const firebaseConfig = {
     messagingSenderId: "321720130071",
     appId: "1:321720130071:web:20aab19001cc8bb3cd9a52"
 };
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// --- [OFFLINE ENABLE] အင်တာနက်မရှိလည်း အလုပ်လုပ်စေမည့် အပိုင်း ---
-db.enablePersistence()
-  .catch((err) => {
-      console.log("Offline Persistence Error: ", err.code);
-  });
+// [Offline Persistence] အင်တာနက်မရှိလည်း ဒေတာသုံးလို့ရအောင်
+db.enablePersistence().catch(err => console.log(err.code));
 
+// --- Functions များ (အရင်အတိုင်း) ---
 function toggleForm(){
     const f = document.getElementById("productForm");
     const btn = document.getElementById("btnToggle");
     if(f.style.display === "none" || f.style.display === ""){
-        f.style.display = "block";
-        btn.innerText = "✖ ပြန်ပိတ်မည်";
-        f.scrollIntoView({ behavior: "smooth" });
+        f.style.display = "block"; btn.innerText = "✖ ပြန်ပိတ်မည်"; f.scrollIntoView({ behavior: "smooth" });
     } else {
-        f.style.display = "none";
-        btn.innerText = "+ ပစ္စည်းအသစ်ထည့်ရန်";
-        forceClear();
+        f.style.display = "none"; btn.innerText = "+ ပစ္စည်းအသစ်ထည့်ရန်"; forceClear();
     }
 }
-
-function forceClear(){
-    document.getElementById("productForm").reset();
-    document.getElementById("editId").value = "";
-    document.getElementById("formTitle").innerText = "📝 စာရင်းသွင်းရန်";
-}
+function forceClear(){ document.getElementById("productForm").reset(); document.getElementById("editId").value = ""; document.getElementById("formTitle").innerText = "📝 စာရင်းသွင်းရန်"; }
 
 document.getElementById("searchInput").addEventListener("input", function() {
     const val = this.value.toLowerCase();
-    const cards = document.querySelectorAll(".card");
     if(val.length > 0) document.body.classList.add("is-searching");
     else document.body.classList.remove("is-searching");
-    cards.forEach(c => {
+    document.querySelectorAll(".card").forEach(c => {
         c.style.display = c.innerText.toLowerCase().includes(val) ? "block" : "none";
     });
 });
@@ -186,43 +174,36 @@ function closeSearch() {
 }
 
 async function handleSave(){
-    const id = document.getElementById("editId").value;
     const name = document.getElementById("name").value.trim();
-    const cat = document.getElementById("category").value;
-    const stat = document.getElementById("status").value;
-    const qty = document.getElementById("amount").value;
-    const prc = document.getElementById("price").value;
-
-    if(!name || !qty || !prc) return;
-
+    if(!name) return;
     const res = await Swal.fire({ title: 'သိမ်းဆည်းမည်?', icon: 'question', showCancelButton: true });
     if (res.isConfirmed) {
-        const data = { name, category: cat, status: stat, amount: Number(qty), price: Number(prc), updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
-        try {
-            if(id) await db.collection("products").doc(id).update(data);
-            else { data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); await db.collection("products").add(data); }
-            Swal.fire({ icon: 'success', title: 'အောင်မြင်ပါသည်', timer: 800, showConfirmButton: false });
-            forceClear();
-        } catch(e) { console.error(e); }
+        const id = document.getElementById("editId").value;
+        const data = {
+            name,
+            category: document.getElementById("category").value,
+            status: document.getElementById("status").value,
+            amount: Number(document.getElementById("amount").value),
+            price: Number(document.getElementById("price").value),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        if(id) await db.collection("products").doc(id).update(data);
+        else { data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); await db.collection("products").add(data); }
+        Swal.fire({ icon: 'success', title: 'အောင်မြင်ပါသည်', timer: 800, showConfirmButton: false });
+        forceClear();
     }
 }
 
 function loadProducts(){
-    // Snapshot သုံးထားလို့ Offline ဖြစ်နေချိန်မှာလည်း Cache ထဲက Data တွေကို ပြပေးနေမှာပါ
     db.collection("products").onSnapshot((snap) => {
         const list = document.getElementById("productList");
         list.innerHTML = "";
-        let total = 0, gAmt = 0, hAmt = 0;
-
+        let t=0, g=0, h=0;
         snap.forEach((doc) => {
-            total++;
-            const d = doc.data();
-            const amt = Number(d.amount || 0);
-            if(d.category === "အထွေထွေ") gAmt += amt;
-            if(d.category === "Hardwareအပိုပစ္စည်") hAmt += amt;
-
+            t++; const d = doc.data(); const amt = Number(d.amount || 0);
+            if(d.category === "အထွေထွေ") g += amt;
+            if(d.category === "Hardwareအပိုပစ္စည်") h += amt;
             let sCls = d.status === "ပစ္စည်းရှိ" ? "instock" : (d.status === "ရောင်းပြီး" ? "sold" : "repair");
-            
             list.innerHTML += `
                 <div class="card">
                     <div class="card-header"><div class="product-name">${d.name}</div><div class="badge ${sCls}">${d.status}</div></div>
@@ -235,21 +216,16 @@ function loadProducts(){
                     </div>
                 </div>`;
         });
-        document.getElementById("totalProducts").innerText = total;
-        document.getElementById("partsAmt").innerText = gAmt;
-        document.getElementById("hwAmt").innerText = hAmt;
-    }, (error) => {
-        console.log("Snapshot error: ", error);
+        document.getElementById("totalProducts").innerText = t;
+        document.getElementById("partsAmt").innerText = g;
+        document.getElementById("hwAmt").innerText = h;
     });
 }
 
 function startEdit(id, n, c, s, a, p){
-    document.getElementById("editId").value = id;
-    document.getElementById("name").value = n;
-    document.getElementById("category").value = c;
-    document.getElementById("status").value = s;
-    document.getElementById("amount").value = a;
-    document.getElementById("price").value = p;
+    document.getElementById("editId").value = id; document.getElementById("name").value = n;
+    document.getElementById("category").value = c; document.getElementById("status").value = s;
+    document.getElementById("amount").value = a; document.getElementById("price").value = p;
     document.getElementById("formTitle").innerText = "🛠 ပြင်ဆင်ရန်";
     document.getElementById("productForm").style.display = "block";
     document.getElementById("productForm").scrollIntoView({ behavior: "smooth" });
