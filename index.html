@@ -36,20 +36,34 @@ async function sellOne(id, name, currAmt, price, cat) {
 async function handleSave(){ 
     const id = document.getElementById("editId").value; 
     const name = document.getElementById("name").value; 
+    const amount = document.getElementById("amount").value;
+    const price = document.getElementById("price").value;
+    const category = document.getElementById("category").value;
+    
     const res = await Swal.fire({ title: 'အတည်ပြုမလား?', icon: 'question', showCancelButton: true }); 
     if(res.isConfirmed) { 
-        const data = { name: name, category: document.getElementById("category").value, status: document.getElementById("status").value, amount: Number(document.getElementById("amount").value), price: Number(document.getElementById("price").value), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }; 
+        const data = { name: name, category: category, status: document.getElementById("status").value, amount: Number(amount), price: Number(price), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }; 
+        
         if(id) {
+            // အရင် Data ကို အရင်ယူပြီး ဘာပြောင်းလဲသွားလဲ စစ်မယ်
+            const oldDoc = await db.collection("products").doc(id).get();
+            const oldData = oldDoc.data();
+            let changes = [];
+            if(oldData.name !== name) changes.push(`နာမည်(${oldData.name}->${name})`);
+            if(oldData.price != price) changes.push(`စျေး(${oldData.price}->${price})`);
+            if(oldData.amount != amount) changes.push(`အရေအတွက်(${oldData.amount}->${amount})`);
+            
             await db.collection("products").doc(id).update(data);
-            await logActivity("ပြင်ဆင်ခြင်း", name + " အား ပြင်ဆင်ခဲ့သည်။");
+            await logActivity("ပြင်ဆင်ခြင်း", name + " တွင် " + changes.join(", ") + " အား ပြင်ဆင်သည်။");
         } else {
             await db.collection("products").add(data);
-            await logActivity("ပစ္စည်းအသစ်ထည့်ခြင်း", name + " အား စာရင်းသွင်းခဲ့သည်။");
+            await logActivity("ပစ္စည်းအသစ်ထည့်ခြင်း", name + " (စျေး: " + price + ", အရေအတွက်: " + amount + ")");
         }
         Swal.fire({ icon: 'success', title: 'အောင်မြင်ပါသည်', timer: 1500 }); 
         forceClear(); 
     } 
 }
+
 
 // handleDelete function တွင် Log ထည့်ထားသည်
 async function handleDelete(id){ 
