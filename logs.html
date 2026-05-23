@@ -2,38 +2,39 @@
 <html lang="my">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>မှတ်တမ်းမှတ်ရာများ</title>
+    <title>App မှတ်တမ်း</title>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <style>
-        body { font-family: sans-serif; background: #f1f5f9; padding: 10px; }
-        .container { max-width: 480px; margin: 0 auto; }
-        .log-card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid #4f46e5; }
-        .action { font-weight: bold; color: #1e293b; display: block; }
-        .details { color: #64748b; font-size: 13px; margin: 5px 0; }
-        .time { font-size: 10px; color: #94a3b8; text-align: right; display: block; }
-        .back-btn { width: 100%; padding: 12px; background: #64748b; color: white; border: none; border-radius: 8px; margin-bottom: 15px; cursor: pointer; }
+        body { font-family: sans-serif; background: #f8fafc; padding: 10px; }
+        .card { background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid #4f46e5; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .action { font-weight: bold; color: #4f46e5; font-size: 14px; }
+        .details { font-size: 13px; color: #334155; margin-top: 4px; }
+        .time { font-size: 10px; color: #94a3b8; text-align: right; }
     </style>
 </head>
 <body>
-<div class="container">
-    <button class="back-btn" onclick="window.location.href='finance.html'">🔙 ပြန်သွားမည်</button>
-    <h3>📜 မှတ်တမ်းမှတ်ရာများ (Logs)</h3>
-    <div id="logList">Loading...</div>
-</div>
+    <h3>📜 လုပ်ဆောင်ချက်မှတ်တမ်း</h3>
+    <div id="logList"></div>
+    <button style="width:100%; padding:10px; margin-top:20px;" onclick="history.back()">⬅️ ပြန်သွားမည်</button>
+
 <script>
     const firebaseConfig = { apiKey: "AIzaSyC5sGKGeD_zht-Qknp6VPwfPIChqwvX8MQ", authDomain: "masstore-c32a7.firebaseapp.com", projectId: "masstore-c32a7", storageBucket: "masstore-c32a7.firebasestorage.app", messagingSenderId: "321720130071", appId: "1:321720130071:web:20aab19001cc8bb3cd9a52" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+
     db.collection("activity_logs").orderBy("timestamp", "desc").limit(50).onSnapshot(snap => {
         let html = "";
         snap.forEach(doc => {
             let d = doc.data();
-            let time = d.timestamp ? d.timestamp.toDate().toLocaleString('my-MM') : "";
-            html += `<div class="log-card"><span class="action">${d.action}</span><span class="details">${d.details}</span><span class="time">${time}</span></div>`;
+            let time = d.timestamp ? d.timestamp.toDate().toLocaleString() : "";
+            html += `<div class="card">
+                <div class="action">${d.action}</div>
+                <div class="details">${d.details}</div>
+                <div class="time">${time}</div>
+            </div>`;
         });
-        document.getElementById("logList").innerHTML = html || "မှတ်တမ်းမရှိသေးပါ။";
+        document.getElementById("logList").innerHTML = html;
     });
 </script>
 </body>
