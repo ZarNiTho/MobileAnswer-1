@@ -130,6 +130,7 @@
 </div>
 
 <script>
+// --- Firebase Config ---
 const firebaseConfig = {
     apiKey: "AIzaSyC5sGKGeD_zht-Qknp6VPwfPIChqwvX8MQ",
     authDomain: "masstore-c32a7.firebaseapp.com",
@@ -141,6 +142,12 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+
+// --- [OFFLINE ENABLE] အင်တာနက်မရှိလည်း အလုပ်လုပ်စေမည့် အပိုင်း ---
+db.enablePersistence()
+  .catch((err) => {
+      console.log("Offline Persistence Error: ", err.code);
+  });
 
 function toggleForm(){
     const f = document.getElementById("productForm");
@@ -201,6 +208,7 @@ async function handleSave(){
 }
 
 function loadProducts(){
+    // Snapshot သုံးထားလို့ Offline ဖြစ်နေချိန်မှာလည်း Cache ထဲက Data တွေကို ပြပေးနေမှာပါ
     db.collection("products").onSnapshot((snap) => {
         const list = document.getElementById("productList");
         list.innerHTML = "";
@@ -230,6 +238,8 @@ function loadProducts(){
         document.getElementById("totalProducts").innerText = total;
         document.getElementById("partsAmt").innerText = gAmt;
         document.getElementById("hwAmt").innerText = hAmt;
+    }, (error) => {
+        console.log("Snapshot error: ", error);
     });
 }
 
