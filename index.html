@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MobileAnswer - Perfect Inventory</title>
+    <title>MobileAnswer - Full System</title>
 
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -14,58 +14,22 @@
         :root { --primary: #2563eb; --secondary: #7c3aed; --dark: #0f172a; --bg: #f3f4f6; --success: #10b981; --danger: #ef4444; }
         *{ margin:0; padding:0; box-sizing:border-box; font-family:'Noto Sans Myanmar',sans-serif; }
         body{ background: var(--bg); min-height:100vh; padding-bottom:50px; }
-
-        /* Search လုပ်နေချိန်မှာ တခြားဟာတွေ ခေတ္တဖျောက်ထားရန် */
-        body.is-searching .header-section, body.is-searching .summary-grid, body.is-searching .total-value-card { display: none !important; }
         
-        .header-section {
-            background: linear-gradient(135deg, #1e3a8a, #7c3aed);
-            padding: 40px 20px 80px; text-align: center; color: white;
-            border-bottom-left-radius: 35px; border-bottom-right-radius: 35px;
-        }
-        .logo-wrapper { width: 70px; height: 70px; background: white; border-radius: 50%; margin: 0 auto 10px; padding: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .header-section { background: linear-gradient(135deg, #1e3a8a, #7c3aed); padding: 40px 20px 80px; text-align: center; color: white; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; }
+        .logo-wrapper { width: 80px; height: 80px; background: white; border-radius: 50%; margin: 0 auto 12px; padding: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .logo-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-        
         .container { padding: 15px; margin-top: -65px; max-width: 550px; margin-left: auto; margin-right: auto; }
-
-        .total-value-card {
-            background: white; border-radius: 20px; padding: 18px; margin-bottom: 15px;
-            text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            border-bottom: 4px solid var(--primary);
-        }
-        #groupTotal { color: var(--primary); font-size: 22px; font-weight: 700; }
-        .sales-info { color: var(--success); font-size: 13px; font-weight: 700; margin-top: 5px; display: block; }
-
-        .search-box { background: white; border-radius: 20px; padding: 12px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; display: flex; }
-        .search-box input { width: 100%; border: none; outline: none; font-size: 16px; background: transparent; }
-
-        /* Summary Grid with 5 columns for all categories */
-        .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 15px; }
+        .total-value-card { background: white; border-radius: 20px; padding: 18px; margin-bottom: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-bottom: 4px solid var(--primary); }
+        #groupTotal { color: var(--primary); font-size: 24px; font-weight: 700; }
+        .search-box { background: white; border-radius: 20px; padding: 12px 20px; margin-bottom: 15px; }
+        .search-box input { width: 100%; border: none; outline: none; font-size: 16px; }
+        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 15px; }
         .summary-card { background: white; padding: 8px 2px; border-radius: 12px; text-align: center; cursor: pointer; border: 2px solid transparent; }
         .summary-card.active-filter { border-color: var(--primary); background: #eff6ff; }
-        .summary-card h3 { font-size: 8px; color: #64748b; margin-bottom: 2px; }
-        .summary-card p { font-size: 13px; font-weight: 700; color: var(--primary); }
-
-        .add-section { margin-bottom: 15px; }
-        .open-form-btn { width: 100%; padding: 15px; border: none; border-radius: 18px; background: var(--dark); color: white; font-weight: 700; cursor: pointer; }
-
-        .form-box { background: white; border-radius: 25px; padding: 25px; margin-bottom: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); display: none; }
-        .form-box input, .form-box select { width: 100%; padding: 14px; border: 1.5px solid #eee; border-radius: 12px; margin-top: 10px; outline: none; background: #f9f9f9; }
-        
-        .card { background: white; border-radius: 20px; padding: 18px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
-        .card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
-        .product-name { font-size: 17px; font-weight: 700; color: #1e293b; }
-        .badge { padding: 4px 10px; border-radius: 8px; color: white; font-size: 10px; font-weight: 700; }
-        .instock { background: var(--success); } .sold { background: var(--danger); } .repair { background: #f59e0b; }
-        
-        .info-row { font-size: 13px; color: #475569; margin-bottom: 5px; display: flex; justify-content: space-between; }
-        .date-text { font-size: 11px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 8px; margin-top: 8px; }
-        
+        .summary-card h3 { font-size: 8px; color: #64748b; }
+        .card { background: white; border-radius: 20px; padding: 18px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
         .card-actions { display: flex; gap: 8px; margin-top: 12px; }
-        .card-actions button { flex: 1; padding: 10px; border: none; border-radius: 10px; font-weight: 700; font-size: 12px; cursor: pointer; }
-        .edit-btn { background: #f1f5f9; color: #475569; }
-        .delete-btn { background: #fff1f2; color: #be123c; }
-        .minus-btn { background: #fee2e2; color: var(--danger); border: none; padding: 4px 8px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 11px; }
+        .card-actions button { flex: 1; padding: 10px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -77,37 +41,33 @@
 
 <div class="container">
     <div class="total-value-card">
-        <div id="filterTitle" style="font-size:12px; color:#64748b;">လက်ကျန်ပစ္စည်း စုစုပေါင်း</div>
+        <div id="filterTitle">လက်ကျန်ပစ္စည်း စုစုပေါင်းတန်ဖိုး</div>
         <h2 id="groupTotal">0 Ks</h2>
-        <span class="sales-info">💰 စုစုပေါင်းရောင်းရငွေ: <span id="totalSalesAmt">0</span> Ks</span>
     </div>
 
-    <div class="search-box"><input type="text" id="searchInput" placeholder="🔍 ပစ္စည်းအမည်ဖြင့် ရှာရန်..."></div>
+    <div class="search-box"><input type="text" id="searchInput" placeholder="🔍 ရှာဖွေရန်..."></div>
 
     <div class="summary-grid">
         <div class="summary-card active-filter" onclick="setFilter('အားလုံး', this)"><h3>အားလုံး</h3><p id="tCount">0</p></div>
         <div class="summary-card" onclick="setFilter('အထွေထွေ', this)"><h3>အထွေထွေ</h3><p id="gCount">0</p></div>
         <div class="summary-card" onclick="setFilter('Hardwareအပိုပစ္စည်', this)"><h3>HW</h3><p id="hCount">0</p></div>
         <div class="summary-card" onclick="setFilter('accessories', this)"><h3>Acc</h3><p id="aCount">0</p></div>
-        <div class="summary-card" style="background:#fff1f2;" onclick="setFilter('ရောင်းပြီး', this)"><h3>ရောင်းပြီး</h3><p id="sCount">0</p></div>
     </div>
 
-    <div class="add-section"><button class="open-form-btn" id="btnToggle" onclick="toggleForm()">+ ပစ္စည်းအသစ်ထည့်ရန်</button></div>
+    <button class="open-form-btn" id="btnToggle" style="width:100%; padding:15px; border-radius:15px; border:none; margin-bottom:15px;" onclick="toggleForm()">+ ပစ္စည်းအသစ်ထည့်ရန်</button>
 
-    <form id="productForm" class="form-box">
-        <h3 id="formTitle">📝 စာရင်းသွင်းရန်</h3>
+    <div id="productForm" style="display:none; background:white; padding:20px; border-radius:20px; margin-bottom:15px;">
         <input type="hidden" id="editId">
-        <input type="text" id="name" placeholder="ပစ္စည်းအမည်" required>
-        <select id="category">
+        <input type="text" id="name" placeholder="အမည်" style="width:100%; padding:10px; margin-bottom:10px;">
+        <select id="category" style="width:100%; padding:10px; margin-bottom:10px;">
             <option value="အထွေထွေ">အထွေထွေ</option>
             <option value="Hardwareအပိုပစ္စည်">Hardwareအပိုပစ္စည်</option>
             <option value="accessories">accessories</option>
         </select>
-        <select id="status"><option value="ပစ္စည်းရှိ">ပစ္စည်းရှိ</option><option value="ရောင်းပြီး">ရောင်းပြီး</option><option value="ပြင်ဆင်ရန်">ပြင်ဆင်ရန်</option></select>
-        <input type="number" id="amount" placeholder="အရေအတွက်" required>
-        <input type="number" id="price" placeholder="စျေးနှုန်း" required>
-        <button type="button" class="save-btn" style="width:100%; padding:16px; background:var(--primary); color:white; border:none; border-radius:12px; margin-top:15px; font-weight:700;" onclick="handleSave()">သိမ်းဆည်းမည်</button>
-    </form>
+        <input type="number" id="amount" placeholder="အရေအတွက်" style="width:100%; padding:10px; margin-bottom:10px;">
+        <input type="number" id="price" placeholder="စျေးနှုန်း" style="width:100%; padding:10px; margin-bottom:10px;">
+        <button onclick="handleSave()" style="width:100%; padding:10px; background:blue; color:white; border:none; border-radius:10px;">သိမ်းဆည်းမည်</button>
+    </div>
 
     <div id="productList"></div>
 </div>
@@ -118,144 +78,86 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 let currentFilter = 'အားလုံး';
+let allData = [];
+
+// Data ဆွဲထုတ်ခြင်း
+db.collection("products").onSnapshot((snap) => {
+    allData = [];
+    snap.forEach((doc) => { allData.push({id: doc.id, ...doc.data()}); });
+    renderList();
+});
+
+function renderList() {
+    const list = document.getElementById("productList");
+    const searchVal = document.getElementById("searchInput").value.toLowerCase();
+    list.innerHTML = "";
+    let t=0, g=0, h=0, a=0, totalVal=0;
+
+    allData.forEach(d => {
+        const amt = Number(d.amount || 0);
+        const prc = Number(d.price || 0);
+        
+        // Count
+        if(d.category === "အထွေထွေ") g += amt;
+        if(d.category === "Hardwareအပိုပစ္စည်") h += amt;
+        if(d.category === "accessories") a += amt;
+        t++;
+
+        // Filter Logic & Search Logic
+        const matchFilter = (currentFilter === 'အားလုံး' || d.category === currentFilter);
+        const matchSearch = d.name.toLowerCase().includes(searchVal);
+
+        if (matchFilter && matchSearch) {
+            totalVal += (amt * prc);
+            list.innerHTML += `
+            <div class="card">
+                <div><strong>${d.name}</strong> (${d.category})</div>
+                <div>အရေအတွက်: ${amt} | စျေးနှုန်း: ${prc}</div>
+                <div class="card-actions">
+                    <button class="edit-btn" onclick="startEdit('${d.id}', '${d.name}', '${d.category}', ${amt}, ${prc})">ပြင်မည်</button>
+                    <button class="delete-btn" onclick="handleDelete('${d.id}')">ဖျက်မည်</button>
+                </div>
+            </div>`;
+        }
+    });
+
+    document.getElementById("tCount").innerText = t;
+    document.getElementById("gCount").innerText = g;
+    document.getElementById("hCount").innerText = h;
+    document.getElementById("aCount").innerText = a;
+    document.getElementById("groupTotal").innerText = totalVal.toLocaleString() + " Ks";
+}
+
+// Event Listeners
+document.getElementById("searchInput").addEventListener("input", renderList);
 
 function setFilter(cat, el) {
     currentFilter = cat;
     document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('active-filter'));
     el.classList.add('active-filter');
-    document.getElementById("filterTitle").innerText = cat === 'ရောင်းပြီး' ? "ရောင်းရငွေ စုစုပေါင်း" : cat + " အုပ်စု တန်ဖိုး";
-    loadProducts();
+    renderList();
 }
 
-function loadProducts(){
-    db.collection("products").orderBy("updatedAt", "desc").onSnapshot((snap) => {
-        const list = document.getElementById("productList");
-        list.innerHTML = "";
-        let t=0, g=0, h=0, a=0, s=0, salesVal=0, filteredVal=0;
-
-        snap.forEach((doc) => {
-            const d = doc.data();
-            const amt = Number(d.amount || 0);
-            const prc = Number(d.price || 0);
-            const rowVal = amt * prc;
-
-            if(d.status !== "ရောင်းပြီး") {
-                t++;
-                if(d.category === "အထွေထွေ") g += amt;
-                if(d.category === "Hardwareအပိုပစ္စည်") h += amt;
-                if(d.category === "accessories") a += amt;
-            } else {
-                s += amt;
-                salesVal += rowVal;
-            }
-
-            let show = (currentFilter === 'အားလုံး' && d.status !== "ရောင်းပြီး") || 
-                       (currentFilter === d.category && d.status !== "ရောင်းပြီး") || 
-                       (currentFilter === 'ရောင်းပြီး' && d.status === "ရောင်းပြီး");
-
-            if(show) {
-                filteredVal += rowVal;
-                const timeStr = d.updatedAt ? d.updatedAt.toDate().toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true, day: 'numeric', month: 'short' }) : "ခုနကတင်";
-                list.innerHTML += `
-                <div class="card" data-name="${d.name.toLowerCase()}">
-                    <div class="card-header"><div class="product-name">${d.name}</div><div class="badge ${d.status === "ပစ္စည်းရှိ" ? "instock" : (d.status === "ရောင်းပြီး" ? "sold" : "repair")}">${d.status}</div></div>
-                    <div class="info-row"><span>📁 အုပ်စု</span> <span>${d.category}</span></div>
-                    <div class="info-row"><span>📦 အရေအတွက်</span> <span>${amt} ခု ${d.status !== 'ရောင်းပြီး' ? `<button class="minus-btn" onclick="sellOne('${doc.id}', '${d.name}', ${amt}, ${prc}, '${d.category}')">ရောင်းမည် (-1)</button>` : ''}</span></div>
-                    <div class="info-row"><span>💰 စျေးနှုန်း</span> <span>${prc.toLocaleString()} Ks</span></div>
-                    <div class="info-row" style="color:var(--primary); font-weight:700;"><span>💵 ${d.status === 'ရောင်းပြီး' ? 'ရောင်းရငွေ' : 'တန်ဖိုး'}</span> <span>${rowVal.toLocaleString()} Ks</span></div>
-                    <div class="date-text">🕒 ${timeStr}</div>
-                    <div class="card-actions">
-                        <button class="edit-btn" onclick="startEdit('${doc.id}', '${d.name}', '${d.category}', '${d.status}', ${amt}, ${prc})">ပြင်မည်</button>
-                        <button class="delete-btn" onclick="handleDelete('${doc.id}')">ဖျက်မည်</button>
-                    </div>
-                </div>`;
-        });
-        document.getElementById("tCount").innerText = t;
-        document.getElementById("gCount").innerText = g;
-        document.getElementById("hCount").innerText = h;
-        document.getElementById("aCount").innerText = a;
-        document.getElementById("sCount").innerText = s;
-        document.getElementById("groupTotal").innerText = filteredVal.toLocaleString() + " Ks";
-        document.getElementById("totalSalesAmt").innerText = salesVal.toLocaleString();
-    });
-}
-
-// SEARCH FUNCTION - အစ်ကိုရှာတဲ့ဟာပဲ ပေါ်လာအောင် လုပ်ပေးထားသည်
-document.getElementById("searchInput").addEventListener("input", function() {
-    const val = this.value.toLowerCase().trim();
-    const cards = document.querySelectorAll(".card");
-    
-    if(val.length > 0) {
-        document.body.classList.add("is-searching");
-        cards.forEach(card => {
-            const name = card.getAttribute("data-name");
-            card.style.display = name.includes(val) ? "block" : "none";
-        });
-    } else {
-        document.body.classList.remove("is-searching");
-        loadProducts(); // Search မရှိရင် Filter အတိုင်း ပြန်ပြ
-    }
-});
-
-function startEdit(id, n, c, s, a, p){
+function startEdit(id, n, c, a, p) {
     document.getElementById("editId").value = id;
     document.getElementById("name").value = n;
     document.getElementById("category").value = c;
-    document.getElementById("status").value = s;
     document.getElementById("amount").value = a;
     document.getElementById("price").value = p;
-    document.getElementById("formTitle").innerText = "🛠 ပြင်ဆင်ရန်";
     document.getElementById("productForm").style.display = "block";
 }
 
-async function handleDelete(id){
-    const res = await Swal.fire({ title: 'ဖျက်မှာလား?', icon: 'warning', showCancelButton: true });
-    if(res.isConfirmed) await db.collection("products").doc(id).delete();
-}
-
-async function sellOne(id, name, currAmt, price, cat) {
-    const res = await Swal.fire({ title: 'ရောင်းထုတ်မှာလား?', text: name + " (၁) ခု ရောင်းမည်", icon: 'warning', showCancelButton: true });
-    if(res.isConfirmed) {
-        if(currAmt > 1) await db.collection("products").doc(id).update({ amount: currAmt - 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-        else await db.collection("products").doc(id).delete();
-
-        const saleRef = db.collection("products").where("name", "==", name + " (ရောင်းပြီး)").where("status", "==", "ရောင်းပြီး");
-        const saleSnap = await saleRef.get();
-        if(!saleSnap.empty) {
-            const saleDoc = saleSnap.docs[0];
-            await db.collection("products").doc(saleDoc.id).update({ amount: saleDoc.data().amount + 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-        } else {
-            await db.collection("products").add({ name: name + " (ရောင်းပြီး)", category: cat, status: "ရောင်းပြီး", amount: 1, price: price, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-        }
-    }
-}
-
-function toggleForm(){
-    const f = document.getElementById("productForm");
-    const btn = document.getElementById("btnToggle");
-    f.style.display = (f.style.display === "none" || f.style.display === "") ? "block" : "none";
-    btn.innerText = f.style.display === "block" ? "✖ ပိတ်မည်" : "+ ပစ္စည်းအသစ်ထည့်ရန်";
-    if(f.style.display === "none") forceClear();
-}
-
-function forceClear(){ document.getElementById("productForm").reset(); document.getElementById("editId").value = ""; document.getElementById("formTitle").innerText = "📝 စာရင်းသွင်းရန်"; }
-
-async function handleSave(){
+async function handleSave() {
     const id = document.getElementById("editId").value;
-    const data = {
-        name: document.getElementById("name").value,
-        category: document.getElementById("category").value,
-        status: document.getElementById("status").value,
-        amount: Number(document.getElementById("amount").value),
-        price: Number(document.getElementById("price").value),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
+    const data = { name: document.getElementById("name").value, category: document.getElementById("category").value, amount: Number(document.getElementById("amount").value), price: Number(document.getElementById("price").value) };
     if(id) await db.collection("products").doc(id).update(data);
     else await db.collection("products").add(data);
-    toggleForm();
+    document.getElementById("productForm").style.display = "none";
 }
 
-loadProducts();
+async function handleDelete(id) { await db.collection("products").doc(id).delete(); }
+function toggleForm() { document.getElementById("productForm").style.display = (document.getElementById("productForm").style.display === "none") ? "block" : "none"; }
+
 </script>
 </body>
 </html>
