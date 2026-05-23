@@ -93,7 +93,6 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 let currentFilter = 'အားလုံး';
 
-// Log Activity Function
 async function logActivity(action, details) {
     try { await db.collection("activity_logs").add({ action, details, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); } 
     catch (e) { console.error("Log error: ", e); }
@@ -159,28 +158,37 @@ function loadProducts(){
 
 function setFilter(cat, el) { currentFilter = cat; document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('active-filter')); el.classList.add('active-filter'); loadProducts(); }
 function startEdit(id, n, c, s, a, p){ document.getElementById("editId").value = id; document.getElementById("name").value = n; document.getElementById("category").value = c; document.getElementById("status").value = s; document.getElementById("amount").value = a; document.getElementById("price").value = p; document.getElementById("formTitle").innerText = "🛠 ပြင်ဆင်ရန်"; document.getElementById("productForm").style.display = "block"; }
-async function handleSave(){ 
+
+async function handleSave() { 
     const id = document.getElementById("editId").value; 
     const name = document.getElementById("name").value; 
     const amt = Number(document.getElementById("amount").value);
     const prc = Number(document.getElementById("price").value);
     const cat = document.getElementById("category").value;
     const stat = document.getElementById("status").value;
+
     const res = await Swal.fire({ title: 'အတည်ပြုမလား?', icon: 'question', showCancelButton: true }); 
     if(res.isConfirmed) { 
         const data = { name, category: cat, status: stat, amount: amt, price: prc, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }; 
         if(id) {
             const oldDoc = await db.collection("products").doc(id).get();
+            const oldData = oldDoc.data();
+            let changes = [];
+            if(oldData.name !== name) changes.push(`နာမည်(${oldData.name}→${name})`);
+            if(oldData.price != prc) changes.push(`စျေး(${oldData.price}→${prc})`);
+            if(oldData.amount != amt) changes.push(`အရေအတွက်(${oldData.amount}→${amt})`);
+            
             await db.collection("products").doc(id).update(data);
-            await logActivity("ပြင်ဆင်ခြင်း", oldDoc.data().name + " အား ပြင်ဆင်လိုက်သည်။");
+            await logActivity("ပြင်ဆင်ခြင်း", name + " တွင် " + (changes.length > 0 ? changes.join(", ") : "အချက်အလက်") + " အား ပြင်ဆင်သည်။");
         } else {
             await db.collection("products").add(data);
-            await logActivity("ပစ္စည်းအသစ်", name + " ထည့်လိုက်သည်။");
+            await logActivity("ပစ္စည်းအသစ်", name + " ထည့်သွင်းသည်။");
         }
         Swal.fire({ icon: 'success', title: 'အောင်မြင်ပါသည်', timer: 1500 }); 
         forceClear(); 
     } 
 }
+
 function toggleForm(){ const f = document.getElementById("productForm"); const btn = document.getElementById("btnToggle"); if(f.style.display === "none" || f.style.display === ""){ f.style.display = "block"; btn.innerText = "✖ ပိတ်မည်"; } else { f.style.display = "none"; btn.innerText = "+ ပစ္စည်းအသစ်ထည့်ရန်"; forceClear(); } }
 function forceClear(){ document.getElementById("productForm").reset(); document.getElementById("editId").value = ""; document.getElementById("formTitle").innerText = "📝 စာရင်းသွင်းရန်"; }
 async function handleDelete(id){ 
