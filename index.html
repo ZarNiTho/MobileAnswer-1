@@ -10,66 +10,57 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;700&display=swap');
-        :root { --primary: #2563eb; --secondary: #7c3aed; --dark: #0f172a; --bg: #f3f4f6; --success: #10b981; --danger: #ef4444; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@300;400;500;700&display=swap');
+        :root { --primary: #4f46e5; --dark: #1e293b; --bg: #f8fafc; }
         *{ margin:0; padding:0; box-sizing:border-box; font-family:'Noto Sans Myanmar',sans-serif; }
-        body{ background: var(--bg); min-height:100vh; padding-bottom:50px; }
+        body{ background: var(--bg); padding-bottom:50px; }
 
-        /* Search လုပ်ရင် Search Box မပျောက်အောင် ဒီနေရာမှာ သီးသန့်ခွဲထုတ်ထားပါတယ် */
-        body.is-searching .header-section, 
-        body.is-searching .summary-grid, 
-        body.is-searching .add-section, 
-        body.is-searching .form-box, 
-        body.is-searching .total-value-card { display: none !important; }
+        body.is-searching .header-section, body.is-searching .summary-grid, body.is-searching .add-section, body.is-searching .form-box, body.is-searching .total-value-card { display: none !important; }
         
+        /* Header အသစ် - ဘယ်ဘက်အပေါ်မှာ Logo နဲ့ အတူ သေးသေးလေးဖြစ်အောင် */
         .header-section {
             background: linear-gradient(135deg, #1e3a8a, #7c3aed);
-            padding: 40px 20px 80px; text-align: center; color: white;
-            border-bottom-left-radius: 35px; border-bottom-right-radius: 35px;
+            padding: 10px 15px; display: flex; align-items: center; gap: 12px;
+            color: white; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
         }
-        .logo-wrapper { width: 80px; height: 80px; background: white; border-radius: 50%; margin: 0 auto 12px; padding: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .logo-wrapper { 
+            width: 45px; height: 45px; background: white; border-radius: 50%; 
+            padding: 3px; display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
         .logo-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        .header-section h1 { font-size: 18px; }
         
-        .container { padding: 15px; margin-top: -65px; max-width: 550px; margin-left: auto; margin-right: auto; }
+        .container { padding: 15px; max-width: 550px; margin: 0 auto; }
 
-        .total-value-card {
-            background: white; border-radius: 20px; padding: 18px; margin-bottom: 15px;
-            text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            border-bottom: 4px solid var(--primary);
-        }
-        .filter-label { color: #64748b; font-size: 13px; font-weight: 500; }
-        #groupTotal { color: var(--primary); font-size: 24px; font-weight: 700; margin: 2px 0; }
-        .sales-info { color: #10b981; font-size: 14px; font-weight: 700; margin-top: 5px; display: block; }
+        .total-value-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .filter-label { color: #64748b; font-size: 11px; text-transform: uppercase; }
+        #groupTotal { color: var(--primary); font-size: 20px; font-weight: 800; }
+        .sales-info { color: #059669; font-size: 11px; font-weight: 600; margin-top: 4px; display: block; }
 
-        .search-box { background: white; border-radius: 20px; padding: 12px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; display: flex; z-index: 100; }
-        .search-box input { width: 100%; border: none; outline: none; font-size: 16px; background: transparent; }
+        .search-box { background: white; border-radius: 12px; padding: 10px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 12px; }
+        .search-box input { width: 100%; border: none; outline: none; font-size: 14px; background: transparent; }
 
-        .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 15px; }
-        .summary-card { background: white; padding: 10px 5px; border-radius: 15px; text-align: center; cursor: pointer; border: 2px solid transparent; }
-        .summary-card.active-filter { border-color: var(--primary); background: #eff6ff; }
-        .summary-card h3 { font-size: 9px; color: #64748b; margin-bottom: 4px; }
-        .summary-card p { font-size: 12px; font-weight: 700; color: var(--primary); }
+        .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 12px; }
+        .summary-card { background: white; padding: 8px 2px; border-radius: 10px; text-align: center; cursor: pointer; border: 1px solid #e2e8f0; }
+        .summary-card.active-filter { border-color: var(--primary); background: #eef2ff; }
+        .summary-card h3 { font-size: 8px; color: #64748b; }
+        .summary-card p { font-size: 11px; font-weight: 800; color: var(--primary); }
 
-        .add-section { margin-bottom: 15px; }
-        .open-form-btn { width: 100%; padding: 16px; border: none; border-radius: 18px; background: var(--dark); color: white; font-weight: 700; cursor: pointer; }
-
-        .form-box { background: white; border-radius: 25px; padding: 25px; margin-bottom: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); display: none; }
-        .form-box input, .form-box select { width: 100%; padding: 14px; border: 1.5px solid #eee; border-radius: 12px; margin-top: 10px; outline: none; background: #f9f9f9; }
+        .open-form-btn { width: 100%; padding: 12px; border: none; border-radius: 12px; background: var(--dark); color: white; font-weight: 600; cursor: pointer; }
+        .form-box { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: none; border: 1px solid #e2e8f0; }
+        .form-box input, .form-box select { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 6px; }
         
-        .card { background: white; border-radius: 20px; padding: 18px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
-        .card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
-        .product-name { font-size: 17px; font-weight: 700; color: #1e293b; }
-        .badge { padding: 4px 10px; border-radius: 8px; color: white; font-size: 10px; font-weight: 700; }
-        .instock { background: var(--success); } .sold { background: var(--danger); } .repair { background: #f59e0b; }
-        
-        .info-row { font-size: 13px; color: #475569; margin-bottom: 5px; display: flex; justify-content: space-between; }
-        .date-text { font-size: 11px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 8px; margin-top: 8px; }
-        
-        .card-actions { display: flex; gap: 8px; margin-top: 12px; }
-        .card-actions button { flex: 1; padding: 10px; border: none; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; }
-        .edit-btn { background: #f1f5f9; color: #475569; }
-        .delete-btn { background: #fff1f2; color: #be123c; }
-        .minus-btn { background: #fee2e2; color: var(--danger); border: none; padding: 2px 8px; border-radius: 6px; font-weight: 700; cursor: pointer; }
+        .card { background: white; border-radius: 12px; padding: 12px; margin-bottom: 10px; border: 1px solid #f1f5f9; }
+        .card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 6px; }
+        .product-name { font-size: 14px; font-weight: 700; }
+        .badge { padding: 2px 8px; border-radius: 10px; color: white; font-size: 8px; }
+        .instock { background: #10b981; } .sold { background: #ef4444; } .repair { background: #f59e0b; }
+        .info-row { font-size: 12px; color: #475569; display: flex; justify-content: space-between; }
+        .date-text { font-size: 9px; color: #94a3b8; margin-top: 6px; border-top: 1px solid #f1f5f9; padding-top: 4px; }
+        .card-actions { display: flex; gap: 6px; margin-top: 8px; }
+        .card-actions button { flex: 1; padding: 6px; border: none; border-radius: 6px; font-size: 11px; cursor: pointer; }
+        .edit-btn { background: #f1f5f9; } .delete-btn { background: #fff1f2; color: #e11d48; }
+        .minus-btn { background: #fee2e2; color: #ef4444; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -86,14 +77,14 @@
         <span class="sales-info">💰 စုစုပေါင်းရောင်းရငွေ: <span id="totalSalesAmt">0</span> Ks</span>
     </div>
 
-    <div class="search-box"><input type="text" id="searchInput" placeholder="🔍 ရှာဖွေရန် (နာမည်/ရက်စွဲ)..."></div>
+    <div class="search-box"><input type="text" id="searchInput" placeholder="🔍 ရှာဖွေရန်..."></div>
 
     <div class="summary-grid">
         <div class="summary-card active-filter" onclick="setFilter('အားလုံး', this)"><h3>အားလုံး</h3><p id="tCount">0</p></div>
         <div class="summary-card" onclick="setFilter('အထွေထွေ', this)"><h3>အထွေထွေ</h3><p id="gCount">0</p></div>
         <div class="summary-card" onclick="setFilter('Hardwareအပိုပစ္စည်', this)"><h3>HW</h3><p id="hCount">0</p></div>
         <div class="summary-card" onclick="setFilter('accessories', this)"><h3>Acc</h3><p id="aCount">0</p></div>
-        <div class="summary-card" style="background:#fff1f2;" onclick="setFilter('ရောင်းပြီး', this)"><h3>ရောင်းပြီး</h3><p id="sCount">0</p></div>
+        <div class="summary-card" onclick="setFilter('ရောင်းပြီး', this)"><h3>ရောင်း</h3><p id="sCount">0</p></div>
     </div>
 
     <div class="add-section"><button class="open-form-btn" id="btnToggle" onclick="toggleForm()">+ ပစ္စည်းအသစ်ထည့်ရန်</button></div>
@@ -110,21 +101,19 @@
         <select id="status"><option value="ပစ္စည်းရှိ">ပစ္စည်းရှိ</option><option value="ရောင်းပြီး">ရောင်းပြီး</option><option value="ပြင်ဆင်ရန်">ပြင်ဆင်ရန်</option></select>
         <input type="number" id="amount" placeholder="အရေအတွက်" required>
         <input type="number" id="price" placeholder="စျေးနှုန်း" required>
-        <button type="button" class="save-btn" style="width:100%; padding:16px; background:var(--primary); color:white; border:none; border-radius:12px; margin-top:15px; font-weight:700;" onclick="handleSave()">သိမ်းဆည်းမည်</button>
+        <button type="button" style="width:100%; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; margin-top:10px; font-weight:700;" onclick="handleSave()">သိမ်းဆည်းမည်</button>
     </form>
 
     <div id="productList"></div>
 </div>
 
 <script>
+// Logic အပိုင်းအားလုံးကို မူလအတိုင်း ထားရှိပါတယ်
 const firebaseConfig = { apiKey: "AIzaSyC5sGKGeD_zht-Qknp6VPwfPIChqwvX8MQ", authDomain: "masstore-c32a7.firebaseapp.com", projectId: "masstore-c32a7", storageBucket: "masstore-c32a7.firebasestorage.app", messagingSenderId: "321720130071", appId: "1:321720130071:web:20aab19001cc8bb3cd9a52" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-db.enablePersistence().catch(()=>{});
-
 let currentFilter = 'အားလုံး';
 
-// Back button handler: Form ပိတ်လျှင် သို့မဟုတ် Search ဖြုတ်လျှင်
 window.onpopstate = function() {
     document.getElementById("productForm").style.display = "none";
     document.getElementById("btnToggle").innerText = "+ ပစ္စည်းအသစ်ထည့်ရန်";
@@ -154,7 +143,6 @@ function loadProducts(){
             const prc = Number(d.price || 0);
             const rowVal = amt * prc;
             const timeStr = d.updatedAt ? d.updatedAt.toDate().toLocaleString('my-MM', { day: 'numeric', month: 'short' }).toLowerCase() : "";
-
             const searchMatch = d.name.toLowerCase().includes(searchTerm) || timeStr.includes(searchTerm);
 
             if(d.status !== "ရောင်းပြီး") {
@@ -171,7 +159,6 @@ function loadProducts(){
                        (currentFilter === d.category && d.status !== "ရောင်းပြီး") || 
                        (currentFilter === 'ရောင်းပြီး' && d.status === "ရောင်းပြီး");
 
-            // Search အလုပ်လုပ်နေရင် searchMatch ကိုပဲယူ
             if(searchTerm !== "") {
                 show = searchMatch;
                 document.body.classList.add('is-searching');
@@ -186,7 +173,7 @@ function loadProducts(){
                 <div class="card">
                     <div class="card-header"><div class="product-name">${d.name}</div><div class="badge ${d.status === "ပစ္စည်းရှိ" ? "instock" : (d.status === "ရောင်းပြီး" ? "sold" : "repair")}">${d.status}</div></div>
                     <div class="info-row"><span>📁 အုပ်စု</span> <span>${d.category}</span></div>
-                    <div class="info-row"><span>📦 အရေအတွက်</span> <span>${amt} ခု ${d.status !== 'ရောင်းပြီး' ? `<button class="minus-btn" onclick="sellOne('${doc.id}', '${d.name}', ${amt}, ${prc}, '${d.category}')">ရောင်းမည် (-1)</button>` : ''}</span></div>
+                    <div class="info-row"><span>📦 အရေအတွက်</span> <span>${amt} ခု ${d.status !== 'ရောင်းပြီး' ? `<button class="minus-btn" onclick="sellOne('${doc.id}', '${d.name}', ${amt}, ${prc}, '${d.category}')">ရောင်းမည်</button>` : ''}</span></div>
                     <div class="info-row"><span>💰 စျေးနှုန်း</span> <span>${prc.toLocaleString()} Ks</span></div>
                     <div class="info-row" style="color:var(--primary); font-weight:700;"><span>💵 ${d.status === 'ရောင်းပြီး' ? 'ရောင်းရငွေ' : 'တန်ဖိုး'}</span> <span>${rowVal.toLocaleString()} Ks</span></div>
                     <div class="date-text">🕒 ${dateDisplay}</div>
@@ -251,7 +238,7 @@ function toggleForm(){
         history.pushState({view:'popup'}, '');
     } else {
         f.style.display = "none"; btn.innerText = "+ ပစ္စည်းအသစ်ထည့်ရန်"; forceClear();
-        history.back(); // Back history ကို trigger လုပ်ပေးခြင်း
+        history.back(); 
     }
 }
 
@@ -271,9 +258,7 @@ async function handleSave(){
     else await db.collection("products").add(data);
     toggleForm();
 }
-
 loadProducts();
 </script>
 </body>
 </html>
-
