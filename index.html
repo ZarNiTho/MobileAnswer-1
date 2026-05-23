@@ -175,14 +175,16 @@ async function handleSave() {
             const oldData = oldDoc.data();
             let changes = [];
             if(oldData.name !== name) changes.push(`နာမည်(${oldData.name}→${name})`);
-            if(oldData.price != prc) changes.push(`စျေး(${oldData.price}→${prc})`);
-            if(oldData.amount != amt) changes.push(`အရေအတွက်(${oldData.amount}→${amt})`);
+            if(Number(oldData.price) !== prc) changes.push(`စျေး(${oldData.price}→${prc})`);
+            if(Number(oldData.amount) !== amt) changes.push(`အရေအတွက်(${oldData.amount}→${amt})`);
+            if(oldData.category !== cat) changes.push(`အုပ်စု(${oldData.category}→${cat})`);
+            if(oldData.status !== stat) changes.push(`สถานะ(${oldData.status}→${stat})`);
             
             await db.collection("products").doc(id).update(data);
             await logActivity("ပြင်ဆင်ခြင်း", name + " တွင် " + (changes.length > 0 ? changes.join(", ") : "အချက်အလက်") + " အား ပြင်ဆင်သည်။");
         } else {
             await db.collection("products").add(data);
-            await logActivity("ပစ္စည်းအသစ်", name + " ထည့်သွင်းသည်။");
+            await logActivity("ပစ္စည်းအသစ်", name + " (စျေး: " + prc + ", အရေအတွက်: " + amt + ") ထည့်သွင်းသည်။");
         }
         Swal.fire({ icon: 'success', title: 'အောင်မြင်ပါသည်', timer: 1500 }); 
         forceClear(); 
