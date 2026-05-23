@@ -2,103 +2,38 @@
 <html lang="my">
 <head>
     <meta charset="UTF-8">
-    <title>MobileAnswer - ငွေစာရင်း</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>မှတ်တမ်းမှတ်ရာများ</title>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { font-family: sans-serif; background: #f1f5f9; padding: 15px; }
-        .summary-box { background: #1e293b; color: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-        .grid-sum { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        .balance-card { text-align: center; padding: 10px; background: #334155; border-radius: 8px; }
-        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-        .date-group { margin-top: 15px; padding: 10px; background: #e2e8f0; border-radius: 8px; font-weight: bold; display: flex; justify-content: space-between; }
-        .row { display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #f1f5f9; }
-        .btn-main { width: 100%; padding: 15px; margin: 5px 0; border-radius: 10px; border: none; color: white; font-weight: bold; cursor: pointer; }
+        body { font-family: sans-serif; background: #f1f5f9; padding: 10px; }
+        .container { max-width: 480px; margin: 0 auto; }
+        .log-card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid #4f46e5; }
+        .action { font-weight: bold; color: #1e293b; display: block; }
+        .details { color: #64748b; font-size: 13px; margin: 5px 0; }
+        .time { font-size: 10px; color: #94a3b8; text-align: right; display: block; }
+        .back-btn { width: 100%; padding: 12px; background: #64748b; color: white; border: none; border-radius: 8px; margin-bottom: 15px; cursor: pointer; }
     </style>
 </head>
 <body>
-
-<div class="summary-box">
-    <div class="grid-sum">
-        <div>ဒီနေ့ဝင်ငွေ: <h3 id="todayIncome" style="color:#10b981">0 Ks</h3></div>
-        <div>ဒီနေ့ထွက်ငွေ: <h3 id="todayExpense" style="color:#ef4444">0 Ks</h3></div>
-    </div>
-    <div class="balance-card">ဒီနေ့လက်ကျန်: <h2 id="todayBalance">0 Ks</h2></div>
+<div class="container">
+    <button class="back-btn" onclick="window.location.href='finance.html'">🔙 ပြန်သွားမည်</button>
+    <h3>📜 မှတ်တမ်းမှတ်ရာများ (Logs)</h3>
+    <div id="logList">Loading...</div>
 </div>
-
-<div class="card">
-    <button class="btn-main" style="background:#10b981;" onclick="openIncomeDialog()">💰 ဝင်ငွေမှတ်မည်</button>
-    <button class="btn-main" style="background:#ef4444;" onclick="openExpenseDialog()">💸 ထွက်ငွေမှတ်မည်</button>
-</div>
-
-<div class="card">
-    <h3>📜 ရက်စွဲအလိုက် စာရင်းချုပ်</h3>
-    <div id="historyList"></div>
-</div>
-
-<button class="btn-main" style="background:#64748b;" onclick="window.location.href='index.html'">🔙 ပင်မစာမျက်နှာသို့</button>
-
 <script>
     const firebaseConfig = { apiKey: "AIzaSyC5sGKGeD_zht-Qknp6VPwfPIChqwvX8MQ", authDomain: "masstore-c32a7.firebaseapp.com", projectId: "masstore-c32a7", storageBucket: "masstore-c32a7.firebasestorage.app", messagingSenderId: "321720130071", appId: "1:321720130071:web:20aab19001cc8bb3cd9a52" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-
-    // Dialog Functions
-    async function openIncomeDialog() {
-        const { value: formValues } = await Swal.fire({
-            title: 'ဝင်ငွေမှတ်ရန်',
-            html: '<input id="swal-name" class="swal2-input" placeholder="အသေးစိတ်">' +
-                  '<input id="swal-amount" class="swal2-input" type="number" placeholder="ပမာဏ">',
-            preConfirm: () => ({ name: document.getElementById('swal-name').value, amount: Number(document.getElementById('swal-amount').value) })
-        });
-        if(formValues && formValues.amount) {
-            await db.collection("transactions").add({ type: 'ဝင်ငွေ', name: formValues.name, amount: formValues.amount, date: new Date() });
-        }
-    }
-
-    async function openExpenseDialog() {
-        const { value: formValues } = await Swal.fire({
-            title: 'ထွက်ငွေမှတ်ရန်',
-            html: '<input id="swal-name" class="swal2-input" placeholder="အကြောင်းအရာ">' +
-                  '<input id="swal-amount" class="swal2-input" type="number" placeholder="ပမာဏ">',
-            preConfirm: () => ({ name: document.getElementById('swal-name').value, amount: Number(document.getElementById('swal-amount').value) })
-        });
-        if(formValues && formValues.amount) {
-            await db.collection("transactions").add({ type: 'ထွက်ငွေ', name: formValues.name, amount: formValues.amount, date: new Date() });
-        }
-    }
-
-    db.collection("transactions").orderBy("date", "desc").onSnapshot(snap => {
-        let today = new Date().toLocaleDateString();
-        let tInc = 0, tExp = 0;
-        let groups = {};
-
+    db.collection("activity_logs").orderBy("timestamp", "desc").limit(50).onSnapshot(snap => {
+        let html = "";
         snap.forEach(doc => {
             let d = doc.data();
-            let dateKey = d.date.toDate().toLocaleDateString();
-            
-            if(!groups[dateKey]) groups[dateKey] = { inc: 0, exp: 0, logs: [] };
-            if(d.type === 'ဝင်ငွေ') { groups[dateKey].inc += d.amount; if(dateKey === today) tInc += d.amount; }
-            else { groups[dateKey].exp += d.amount; if(dateKey === today) tExp += d.amount; }
-            groups[dateKey].logs.push(d);
+            let time = d.timestamp ? d.timestamp.toDate().toLocaleString('my-MM') : "";
+            html += `<div class="log-card"><span class="action">${d.action}</span><span class="details">${d.details}</span><span class="time">${time}</span></div>`;
         });
-
-        document.getElementById("todayIncome").innerText = tInc.toLocaleString() + " Ks";
-        document.getElementById("todayExpense").innerText = tExp.toLocaleString() + " Ks";
-        document.getElementById("todayBalance").innerText = (tInc - tExp).toLocaleString() + " Ks";
-
-        let html = "";
-        for(let date in groups) {
-            html += `<div class="date-group">
-                        <span>${date}</span>
-                        <span style="font-size:12px; font-weight:normal;">ဝင်: ${groups[date].inc.toLocaleString()} | ထွက်: ${groups[date].exp.toLocaleString()}</span>
-                     </div>`;
-            groups[date].logs.forEach(d => {
-                html += `<div class="row"><span>${d.name}</span><span style="color:${d.type==='ဝင်ငွေ'?'#10b981':'#ef4444'}">${d.type==='ဝင်ငွေ'?'+':'-'}${d.amount.toLocaleString()}</span></div>`;
-            });
-        }
-        document.getElementById("historyList").innerHTML = html;
+        document.getElementById("logList").innerHTML = html || "မှတ်တမ်းမရှိသေးပါ။";
     });
 </script>
 </body>
