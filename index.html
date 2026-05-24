@@ -13,10 +13,11 @@
         *{ margin:0; padding:0; box-sizing:border-box; font-family:'Noto Sans Myanmar',sans-serif; }
         body{ background: var(--bg); padding-bottom:50px; }
         body.is-searching .header-section, body.is-searching .summary-grid, body.is-searching .add-section, body.is-searching .form-box, body.is-searching .total-value-card { display: none !important; }
-        .header-section { background: linear-gradient(135deg, #1e3a8a, #7c3aed); padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: white; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
+        .header-section { background: linear-gradient(135deg, #1e3a8a, #7c3aed); padding: 10px 15px; display: flex; align-items: center; gap: 8px; color: white; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
         .logo-wrapper { width: 45px; height: 45px; background: white; border-radius: 50%; padding: 3px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .logo-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-        .header-section h1 { font-size: 18px; flex-grow: 1; }
+        .header-section h1 { font-size: 16px; flex-grow: 1; }
+        .nav-btn { background:white; color:var(--primary); padding:5px 8px; border-radius:15px; border:none; font-size:10px; font-weight:bold; cursor:pointer; }
         .container { padding: 15px; max-width: 550px; margin: 0 auto; }
         .total-value-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .search-box { background: white; border-radius: 12px; padding: 10px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 12px; }
@@ -35,7 +36,6 @@
         .badge { padding: 2px 8px; border-radius: 10px; color: white; font-size: 8px; }
         .instock { background: #10b981; } .sold { background: #ef4444; } .repair { background: #f59e0b; }
         .info-row { font-size: 12px; color: #475569; display: flex; justify-content: space-between; }
-        .date-text { font-size: 9px; color: #94a3b8; margin-top: 6px; border-top: 1px solid #f1f5f9; padding-top: 4px; }
         .card-actions { display: flex; gap: 6px; margin-top: 8px; }
         .card-actions button { flex: 1; padding: 6px; border: none; border-radius: 6px; font-size: 11px; cursor: pointer; }
         .edit-btn { background: #f1f5f9; } .delete-btn { background: #fff1f2; color: #e11d48; }
@@ -47,7 +47,8 @@
 <div class="header-section">
     <div class="logo-wrapper"><img src="https://i.postimg.cc/sg5cDCt1/file-0000000001307207a601f81cc1f5617a.png" alt="Logo"></div>
     <h1>MobileAnswer</h1>
-    <button onclick="window.location.href='finance.html'" style="background:white; color:var(--primary); padding:5px 10px; border-radius:15px; border:none; font-size:12px; font-weight:bold;">💰 ငွေစာရင်း</button>
+    <button class="nav-btn" onclick="window.location.href='repair.html'">🛠 Repair</button>
+    <button class="nav-btn" onclick="window.location.href='finance.html'">💰 ငွေစာရင်း</button>
 </div>
 
 <div class="container">
@@ -57,7 +58,7 @@
         <span class="sales-info">💰 စုစုပေါင်းရောင်းရငွေ: <span id="totalSalesAmt">0</span> Ks</span>
     </div>
 
-    <div class="search-box"><input type="text" id="searchInput" placeholder="🔍 ရှာဖွေရန်..."></div>
+    <div class="search-box"><input type="text" id="searchInput" placeholder="🔍 ရှာဖွေရန်..." oninput="loadProducts()"></div>
 
     <div class="summary-grid">
         <div class="summary-card active-filter" onclick="setFilter('အားလုံး', this)"><h3>အားလုံး</h3><p id="tCount">0</p></div>
@@ -136,6 +137,7 @@ function loadProducts(){
             } else { s += amt; salesVal += rowVal; }
             let show = (currentFilter === 'အားလုံး' && d.status !== "ရောင်းပြီး") || (currentFilter === d.category && d.status !== "ရောင်းပြီး") || (currentFilter === 'ရောင်းပြီး' && d.status === "ရောင်းပြီး");
             if(searchTerm !== "") { show = searchMatch; document.body.classList.add('is-searching'); }
+            else { document.body.classList.remove('is-searching'); }
             if(show) {
                 if(searchTerm === "") filteredVal += rowVal;
                 list.innerHTML += `<div class="card">
