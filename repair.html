@@ -31,7 +31,11 @@
     let repairMap = new Map();
 
     async function logActivity(details) {
-        await db.collection("activity_logs").add({ action: "Repairပြင်ဆင်ခြင်း", details, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+        await db.collection("activity_logs").add({ 
+            action: "Repairပြင်ဆင်ခြင်း", 
+            details: details, 
+            timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+        });
     }
 
     async function showForm(data = null) {
@@ -44,8 +48,8 @@
                    <input id="location" class="swal2-input" placeholder="ဒေသ" value="${data ? data.location : ''}">
                    <input id="remark" class="swal2-input" placeholder="မှတ်ချက်" value="${data ? data.remark : ''}">
                    <select id="status" class="swal2-select">
-                       <option value="ပြင်ဆင်နေဆဲ" ${data?.status === 'ပြင်ဆင်နေဆဲ' ? 'selected' : ''}>⏳ ပြင်ဆင်နေဆဲ (Loading)</option>
-                       <option value="ပြီးစီး" ${data?.status === 'ပြီးစီး' ? 'selected' : ''}>✅ ပြီးစီး (Done)</option>
+                       <option value="ပြင်ဆင်နေဆဲ" ${data?.status === 'ပြင်ဆင်နေဆဲ' ? 'selected' : ''}>⏳ ပြင်ဆင်နေဆဲ</option>
+                       <option value="ပြီးစီး" ${data?.status === 'ပြီးစီး' ? 'selected' : ''}>✅ ပြီးစီး</option>
                    </select>
                    <input id="cost" class="swal2-input" type="number" placeholder="ရင်းငွေ" value="${data ? data.cost : 0}">
                    <input id="income" class="swal2-input" type="number" placeholder="ရငွေ" value="${data ? data.income : 0}">`,
@@ -61,8 +65,17 @@
         if(!formValues || !formValues.name) return;
 
         if(data) {
+            // ပြောင်းလဲမှုများကို စစ်ဆေးခြင်း
+            let changes = [];
+            if(data.status !== formValues.status) changes.push(`Status:${data.status}->${formValues.status}`);
+            if(data.cost !== formValues.cost) changes.push(`Cost:${data.cost}->${formValues.cost}`);
+            if(data.income !== formValues.income) changes.push(`Income:${data.income}->${formValues.income}`);
+            if(data.issue !== formValues.issue) changes.push(`Issue:${data.issue}->${formValues.issue}`);
+            
+            let logMsg = `VR:${formValues.vrno} ကို ပြင်ဆင်သည်။ ${changes.length > 0 ? "ပြောင်းလဲမှုများ: " + changes.join(", ") : "(အချက်အလက်များ မပြောင်းလဲပါ)"}`;
+
             await db.collection("repairs").doc(data.id).update(formValues);
-            await logActivity(`VR:${formValues.vrno} ကို ပြင်ဆင်သည်။`);
+            await logActivity(logMsg);
             Swal.fire('အောင်မြင်ပါသည်', '', 'success');
         } else {
             await db.collection("repairs").add({...formValues, date: new Date().toLocaleDateString() });
@@ -99,9 +112,9 @@
     function filterRepair() {
         const term = document.getElementById("searchInput").value.toLowerCase();
         renderList(allData.filter(d => 
-            d.name.toLowerCase().includes(term) || 
-            d.vrno.toLowerCase().includes(term) || 
-            d.model.toLowerCase().includes(term)
+            (d.name || '').toLowerCase().includes(term) || 
+            (d.vrno || '').toLowerCase().includes(term) || 
+            (d.model || '').toLowerCase().includes(term)
         ));
     }
 
