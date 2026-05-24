@@ -12,14 +12,13 @@
         :root { --primary: #4f46e5; --dark: #1e293b; --bg: #f8fafc; }
         *{ margin:0; padding:0; box-sizing:border-box; font-family:'Noto Sans Myanmar',sans-serif; }
         body{ background: var(--bg); padding-bottom:50px; }
-        body.is-searching .header-section, body.is-searching .summary-grid, body.is-searching .add-section, body.is-searching .form-box, body.is-searching .total-value-card { display: none !important; }
+        body.is-searching .header-section, body.is-searching .summary-grid, body.is-searching .add-section, body.is-searching .form-box { display: none !important; }
         .header-section { background: linear-gradient(135deg, #1e3a8a, #7c3aed); padding: 10px 15px; display: flex; align-items: center; gap: 8px; color: white; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
         .logo-wrapper { width: 45px; height: 45px; background: white; border-radius: 50%; padding: 3px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .logo-wrapper img { width: 100%; height: 100%; object-fit: cover; }
         .header-section h1 { font-size: 16px; flex-grow: 1; }
         .nav-btn { background:white; color:var(--primary); padding:5px 8px; border-radius:15px; border:none; font-size:10px; font-weight:bold; cursor:pointer; }
         .container { padding: 15px; max-width: 550px; margin: 0 auto; }
-        .total-value-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .search-box { background: white; border-radius: 12px; padding: 10px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 12px; }
         .search-box input { width: 100%; border: none; outline: none; font-size: 14px; background: transparent; }
         .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 12px; }
@@ -52,12 +51,6 @@
 </div>
 
 <div class="container">
-    <div class="total-value-card">
-        <div class="filter-label" id="filterTitle">လက်ကျန်ပစ္စည်း စုစုပေါင်းတန်ဖိုး</div>
-        <h2 id="groupTotal">0 Ks</h2>
-        <span class="sales-info">💰 စုစုပေါင်းရောင်းရငွေ: <span id="totalSalesAmt">0</span> Ks</span>
-    </div>
-
     <div class="search-box"><input type="text" id="searchInput" placeholder="🔍 ရှာဖွေရန်..." oninput="loadProducts()"></div>
 
     <div class="summary-grid">
@@ -122,24 +115,22 @@ function loadProducts(){
         const list = document.getElementById("productList");
         const searchTerm = document.getElementById("searchInput").value.toLowerCase();
         list.innerHTML = "";
-        let t=0, g=0, h=0, a=0, s=0, salesVal=0, filteredVal=0;
+        let t=0, g=0, h=0, a=0, s=0;
         snap.forEach((doc) => {
             const d = doc.data();
             const amt = Number(d.amount || 0);
             const prc = Number(d.price || 0);
-            const rowVal = amt * prc;
             const searchMatch = d.name.toLowerCase().includes(searchTerm);
             if(d.status !== "ရောင်းပြီး") {
                 t++;
                 if(d.category === "အထွေထွေ") g += amt;
                 if(d.category === "Hardwareအပိုပစ္စည်") h += amt;
                 if(d.category === "accessories") a += amt;
-            } else { s += amt; salesVal += rowVal; }
+            } else { s += amt; }
             let show = (currentFilter === 'အားလုံး' && d.status !== "ရောင်းပြီး") || (currentFilter === d.category && d.status !== "ရောင်းပြီး") || (currentFilter === 'ရောင်းပြီး' && d.status === "ရောင်းပြီး");
             if(searchTerm !== "") { show = searchMatch; document.body.classList.add('is-searching'); }
             else { document.body.classList.remove('is-searching'); }
             if(show) {
-                if(searchTerm === "") filteredVal += rowVal;
                 list.innerHTML += `<div class="card">
                     <div class="card-header"><div class="product-name">${d.name}</div><div class="badge ${d.status === "ပစ္စည်းရှိ" ? "instock" : (d.status === "ရောင်းပြီး" ? "sold" : "repair")}">${d.status}</div></div>
                     <div class="info-row"><span>📁 အုပ်စု</span> <span>${d.category}</span></div>
@@ -153,8 +144,6 @@ function loadProducts(){
             }
         });
         document.getElementById("tCount").innerText = t; document.getElementById("gCount").innerText = g; document.getElementById("hCount").innerText = h; document.getElementById("aCount").innerText = a; document.getElementById("sCount").innerText = s;
-        if(searchTerm === "") document.getElementById("groupTotal").innerText = filteredVal.toLocaleString() + " Ks";
-        document.getElementById("totalSalesAmt").innerText = salesVal.toLocaleString();
     });
 }
 
