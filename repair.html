@@ -142,10 +142,26 @@
         if(!formValues) return;
 
         if(data) {
+            // [အသစ်ပြင်ဆင်လိုက်သော အပိုင်း] ပြောင်းလဲမှုများကို အသေးစိတ် စစ်ဆေးခြင်း
             let changes = [];
-            if(data.status !== formValues.status) changes.push(`Status:${data.status}->${formValues.status}`);
+            
+            if (data.name !== formValues.name) changes.push(`အမည်: ${data.name} ➡️ ${formValues.name}`);
+            if (data.model !== formValues.model) changes.push(`မော်ဒယ်: ${data.model} ➡️ ${formValues.model}`);
+            if (data.issue !== formValues.issue) changes.push(`ပြစ်ချက်: ${data.issue} ➡️ ${formValues.issue}`);
+            if (data.status !== formValues.status) changes.push(`အခြေအနေ: ${data.status} ➡️ ${formValues.status}`);
+            if (Number(data.cost) !== Number(formValues.cost)) changes.push(`ရင်းငွေ: ${data.cost} ➡️ ${formValues.cost}`);
+            if (Number(data.income) !== Number(formValues.income)) changes.push(`ရငွေ: ${data.income} ➡️ ${formValues.income}`);
+            if ((data.remark || '') !== formValues.remark) changes.push(`မှတ်ချက်: ${(data.remark || '-')} ➡️ ${formValues.remark}`);
+            if ((data.phone || '') !== formValues.phone) changes.push(`ဖုန်းနံပါတ်: ${(data.phone || '-')} ➡️ ${formValues.phone}`);
+            if ((data.vrno || '') !== formValues.vrno) changes.push(`VR-No: ${(data.vrno || '-')} ➡️ ${formValues.vrno}`);
+
+            let logDetails = changes.length > 0 
+                ? `ဖုန်းအပ်နှံမှု [${formValues.name}] ကို ပြင်ဆင်သည်။ ပြောင်းလဲမှု -> (${changes.join(", ")})`
+                : `ဖုန်းအပ်နှံမှု [${formValues.name}] ၏ Profile ကို ပြန်လည်သိမ်းဆည်းသည် (အချက်အလက် ပြောင်းလဲမှုမရှိ)`;
+
             await db.collection("repairs").doc(data.id).update(formValues);
-            await logActivity(`ဖုန်းအပ်နှံမှု ${formValues.name} ကို ပြင်ဆင်သည်။ ${changes.length > 0 ? "ပြောင်းလဲမှု: " + changes.join(", ") : ""}`);
+            await logActivity(logDetails);
+
             Swal.fire('အောင်မြင်ပါသည်', 'အချက်အလက်များကို ပြင်ဆင်ပြီးပါပြီ', 'success');
         } else {
             await db.collection("repairs").add({ ...formValues, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
