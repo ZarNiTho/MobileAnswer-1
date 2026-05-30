@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ငွေစာရင်း</title>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -37,17 +38,31 @@
 <script>
     const firebaseConfig = { apiKey: "AIzaSyC5sGKGeD_zht-Qknp6VPwfPIChqwvX8MQ", authDomain: "masstore-c32a7.firebaseapp.com", projectId: "masstore-c32a7", storageBucket: "masstore-c32a7.firebasestorage.app", messagingSenderId: "321720130071", appId: "1:321720130071:web:20aab19001cc8bb3cd9a52" };
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const auth = firebase.auth();
     const db = firebase.firestore();
+    
+    let currentUser = null;
     let isDialogOpen = false;
-
     let txData = [], rpData = [], rmData = {};
 
-    db.collection("transactions").onSnapshot(snap => { txData = []; snap.forEach(doc => txData.push({id: doc.id, ...doc.data()})); renderHistory(); });
-    db.collection("repairs").onSnapshot(snap => { rpData = []; snap.forEach(doc => rpData.push({id: doc.id, ...doc.data()})); renderHistory(); });
-    db.collection("remarks").onSnapshot(snap => { rmData = {}; snap.forEach(doc => rmData[doc.id] = doc.data().text); renderHistory(); });
+    auth.onAuthStateChanged(user => {
+        if(user) {
+            currentUser = user;
+            initFinance();
+        } else {
+            window.location.href = 'login.html';
+        }
+    });
+
+    function initFinance() {
+        db.collection("transactions").onSnapshot(snap => { txData = []; snap.forEach(doc => txData.push({id: doc.id, ...doc.data()})); renderHistory(); });
+        db.collection("repairs").onSnapshot(snap => { rpData = []; snap.forEach(doc => rpData.push({id: doc.id, ...doc.data()})); renderHistory(); });
+        db.collection("remarks").onSnapshot(snap => { rmData = {}; snap.forEach(doc => rmData[doc.id] = doc.data().text); renderHistory(); });
+    }
 
     async function logActivity(action, details) {
-        try { await db.collection("activity_logs").add({ action, details, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); } 
+        let uName = currentUser ? (currentUser.displayName || currentUser.email) : "Unknown";
+        try { await db.collection("activity_logs").add({ action: `[${uName}] ${action}`, details, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); } 
         catch (e) { console.error("Log error: ", e); }
     }
 
@@ -96,14 +111,13 @@
     function toggleDetails(id) { const el = document.getElementById(id); el.style.display = el.style.display === 'block' ? 'none' : 'block'; }
 
     function renderHistory() {
-        let monthVal = document.getElementById('monthFilter').value; // 'YYYY-MM'
+        let monthVal = document.getElementById('monthFilter').value; 
         let groups = {};
 
-        // 1. Transactions ပေါင်းထည့်ခြင်း
         txData.forEach(d => {
             if(!d.date) return;
             let dateObj = d.date.toDate ? d.date.toDate() : new Date(d.date);
-            let dStr = dateObj.toLocaleDateString('en-CA'); // 'YYYY-MM-DD' Format
+            let dStr = dateObj.toLocaleDateString('en-CA'); 
             if(monthVal && !dStr.startsWith(monthVal)) return;
 
             if(!groups[dStr]) groups[dStr] = { inc: 0, exp: 0, logs: [] };
@@ -111,10 +125,9 @@
             groups[dStr].logs.push({...d, source: 'tx'});
         });
 
-        // 2. Repairs မှ ဝင်ငွေ၊ ထွက်ငွေ Auto ပေါင်းထည့်ခြင်း (Double Entry မဖြစ်စေပါ)
         rpData.forEach(d => {
             if(d.status !== 'ပြီးစီး') return;
-            let dStr = d.date; // Repairs က YYYY-MM-DD သိမ်းထားပြီးဖြစ်သည်
+            let dStr = d.date; 
             if(!dStr) return;
             if(monthVal && !dStr.startsWith(monthVal)) return;
 
@@ -129,7 +142,6 @@
             }
         });
 
-        // Sorting & Rendering (မူလ UI အတိုင်း)
         let sortedDates = Object.keys(groups).sort((a,b) => new Date(b) - new Date(a));
         let html = "";
         
@@ -147,11 +159,10 @@
                 let safeGroup = d.group ? d.group : 'Service';
                 let groupBadge = `<span class="group-badge" ${d.source==='rp'?'style="background:#fef08a"':''}>${safeGroup}</span>`;
                 
-                // Repair ကလာတဲ့ စာရင်းတွေကို ဒီမှာ ပြင်လို့/ဖျက်လို့မရအောင် ကာကွယ်ထားပါတယ် (Repair Page ကနေပဲ ပြင်ရပါမည်)
                 let actionBtns = d.source === 'tx' 
                     ? `<span class="remark-btn" onclick="editTransaction('${d.id}', '${safeGroup}', '${escapedName}', ${d.amount}, '${d.type}')">✏️</span>
                        <span class="remark-btn delete-btn" onclick="deleteTransaction('${d.id}', '${escapedName}', ${d.amount}, '${d.type}')">🗑️</span>`
-                    : ``; // Repair စာရင်းဆိုရင် ခလုတ်မပြပါ
+                    : ``; 
 
                 html += `<div class="row">
                             <div>${groupBadge}<span>${d.name}</span> ${actionBtns}</div>
