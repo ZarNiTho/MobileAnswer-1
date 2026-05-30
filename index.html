@@ -34,7 +34,7 @@
         .product-name { font-size: 14px; font-weight: 700; }
         .badge { padding: 2px 8px; border-radius: 10px; color: white; font-size: 8px; }
         .instock { background: #10b981; } .sold { background: #ef4444; } .repair { background: #f59e0b; }
-        .info-row { font-size: 12px; color: #475569; display: flex; justify-content: space-between; }
+        .info-row { font-size: 12px; color: #475569; display: flex; justify-content: space-between; margin-bottom: 3px;}
         .card-actions { display: flex; gap: 6px; margin-top: 8px; }
         .card-actions button { flex: 1; padding: 6px; border: none; border-radius: 6px; font-size: 11px; cursor: pointer; }
         .edit-btn { background: #f1f5f9; } .delete-btn { background: #fff1f2; color: #e11d48; }
@@ -74,7 +74,8 @@
         </select>
         <select id="status"><option value="ပစ္စည်းရှိ">ပစ္စည်းရှိ</option><option value="ရောင်းပြီး">ရောင်းပြီး</option><option value="ပြင်ဆင်ရန်">ပြင်ဆင်ရန်</option></select>
         <input type="number" id="amount" placeholder="အရေအတွက်" required>
-        <input type="number" id="price" placeholder="စျေးနှုန်း" required>
+        <input type="number" id="costPrice" placeholder="ရင်းနှီးမြှုပ်နှံမှုစျေး (Cost Price)" required>
+        <input type="number" id="price" placeholder="ရောင်းစျေး (Selling Price)" required>
         <button type="button" style="width:100%; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; margin-top:10px; font-weight:700;" onclick="handleSave()">သိမ်းဆည်းမည်</button>
     </form>
 
@@ -83,7 +84,7 @@
 
 <script>
 const firebaseConfig = { apiKey: "AIzaSyC5sGKGeD_zht-Qknp6VPwfPIChqwvX8MQ", authDomain: "masstore-c32a7.firebaseapp.com", projectId: "masstore-c32a7", storageBucket: "masstore-c32a7.firebasestorage.app", messagingSenderId: "321720130071", appId: "1:321720130071:web:20aab19001cc8bb3cd9a52" };
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 const db = firebase.firestore();
 let currentFilter = 'အားလုံး';
 
@@ -92,19 +93,19 @@ async function logActivity(action, details) {
     catch (e) { console.error("Log error: ", e); }
 }
 
-async function sellOne(id, name, currAmt, price, cat) {
+async function sellOne(id, name, currAmt, price, costPrice, cat) {
     const res = await Swal.fire({ title: 'ရောင်းထုတ်မှာလား?', text: name + " (၁) ခု ရောင်းမည်", icon: 'warning', showCancelButton: true });
     if(res.isConfirmed) {
         if(currAmt > 1) await db.collection("products").doc(id).update({ amount: currAmt - 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
         else await db.collection("products").doc(id).delete();
-        await db.collection("transactions").add({ type: "ဝင်ငွေ", name: "ရောင်းရငွေ: " + name, amount: Number(price), date: new Date() });
+        await db.collection("transactions").add({ type: "ဝင်ငွေ", group: "Sales", name: "ရောင်းရငွေ: " + name, amount: Number(price), date: new Date() });
         await logActivity("ရောင်းချခြင်း", name + " (၁) ခု ရောင်းချပြီး " + price + " Ks ရရှိသည်။");
         const saleSnap = await db.collection("products").where("name", "==", name + " (ရောင်းပြီး)").where("status", "==", "ရောင်းပြီး").get();
         if(!saleSnap.empty) {
             const saleDoc = saleSnap.docs[0];
             await db.collection("products").doc(saleDoc.id).update({ amount: saleDoc.data().amount + 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
         } else {
-            await db.collection("products").add({ name: name + " (ရောင်းပြီး)", category: cat, status: "ရောင်းပြီး", amount: 1, price: price, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+            await db.collection("products").add({ name: name + " (ရောင်းပြီး)", category: cat, status: "ရောင်းပြီး", amount: 1, costPrice: costPrice, price: price, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
         }
         Swal.fire({ icon: 'success', title: 'ရောင်းချပြီးစီး', timer: 1000 });
     }
@@ -120,6 +121,7 @@ function loadProducts(){
             const d = doc.data();
             const amt = Number(d.amount || 0);
             const prc = Number(d.price || 0);
+            const cost = Number(d.costPrice || 0);
             const searchMatch = d.name.toLowerCase().includes(searchTerm);
             if(d.status !== "ရောင်းပြီး") {
                 t++;
@@ -134,10 +136,10 @@ function loadProducts(){
                 list.innerHTML += `<div class="card">
                     <div class="card-header"><div class="product-name">${d.name}</div><div class="badge ${d.status === "ပစ္စည်းရှိ" ? "instock" : (d.status === "ရောင်းပြီး" ? "sold" : "repair")}">${d.status}</div></div>
                     <div class="info-row"><span>📁 အုပ်စု</span> <span>${d.category}</span></div>
-                    <div class="info-row"><span>📦 အရေအတွက်</span> <span>${amt} ခု ${d.status !== 'ရောင်းပြီး' ? `<button class="minus-btn" onclick="sellOne('${doc.id}', '${d.name}', ${amt}, ${prc}, '${d.category}')">ရောင်းမည်</button>` : ''}</span></div>
-                    <div class="info-row"><span>💰 စျေးနှုန်း</span> <span>${prc.toLocaleString()} Ks</span></div>
+                    <div class="info-row"><span>📦 အရေအတွက်</span> <span>${amt} ခု ${d.status !== 'ရောင်းပြီး' ? `<button class="minus-btn" onclick="sellOne('${doc.id}', '${d.name}', ${amt}, ${prc}, ${cost}, '${d.category}')">ရောင်းမည်</button>` : ''}</span></div>
+                    <div class="info-row"><span>💵 ရင်း / ရောင်း</span> <span style="font-weight:bold;">${cost.toLocaleString()} / ${prc.toLocaleString()} Ks</span></div>
                     <div class="card-actions">
-                        <button class="edit-btn" onclick="startEdit('${doc.id}', '${d.name}', '${d.category}', '${d.status}', ${amt}, ${prc})">ပြင်မည်</button>
+                        <button class="edit-btn" onclick="startEdit('${doc.id}', '${d.name}', '${d.category}', '${d.status}', ${amt}, ${prc}, ${cost})">ပြင်မည်</button>
                         <button class="delete-btn" onclick="handleDelete('${doc.id}')">ဖျက်မည်</button>
                     </div>
                 </div>`;
@@ -148,34 +150,26 @@ function loadProducts(){
 }
 
 function setFilter(cat, el) { currentFilter = cat; document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('active-filter')); el.classList.add('active-filter'); loadProducts(); }
-function startEdit(id, n, c, s, a, p){ document.getElementById("editId").value = id; document.getElementById("name").value = n; document.getElementById("category").value = c; document.getElementById("status").value = s; document.getElementById("amount").value = a; document.getElementById("price").value = p; document.getElementById("formTitle").innerText = "🛠 ပြင်ဆင်ရန်"; document.getElementById("productForm").style.display = "block"; }
+function startEdit(id, n, c, s, a, p, cp){ document.getElementById("editId").value = id; document.getElementById("name").value = n; document.getElementById("category").value = c; document.getElementById("status").value = s; document.getElementById("amount").value = a; document.getElementById("price").value = p; document.getElementById("costPrice").value = cp; document.getElementById("formTitle").innerText = "🛠 ပြင်ဆင်ရန်"; document.getElementById("productForm").style.display = "block"; }
 
 async function handleSave() { 
     const id = document.getElementById("editId").value; 
     const name = document.getElementById("name").value; 
     const amt = Number(document.getElementById("amount").value);
     const prc = Number(document.getElementById("price").value);
+    const cp = Number(document.getElementById("costPrice").value);
     const cat = document.getElementById("category").value;
     const stat = document.getElementById("status").value;
 
     const res = await Swal.fire({ title: 'အတည်ပြုမလား?', icon: 'question', showCancelButton: true }); 
     if(res.isConfirmed) { 
-        const data = { name, category: cat, status: stat, amount: amt, price: prc, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }; 
+        const data = { name, category: cat, status: stat, amount: amt, price: prc, costPrice: cp, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }; 
         if(id) {
-            const oldDoc = await db.collection("products").doc(id).get();
-            const oldData = oldDoc.data();
-            let changes = [];
-            if(oldData.name !== name) changes.push(`နာမည်(${oldData.name}→${name})`);
-            if(Number(oldData.price) !== prc) changes.push(`စျေး(${oldData.price}→${prc})`);
-            if(Number(oldData.amount) !== amt) changes.push(`အရေအတွက်(${oldData.amount}→${amt})`);
-            if(oldData.category !== cat) changes.push(`အုပ်စု(${oldData.category}→${cat})`);
-            if(oldData.status !== stat) changes.push(`สถานะ(${oldData.status}→${stat})`);
-            
             await db.collection("products").doc(id).update(data);
-            await logActivity("ပြင်ဆင်ခြင်း", name + " တွင် " + (changes.length > 0 ? changes.join(", ") : "အချက်အလက်") + " အား ပြင်ဆင်သည်။");
+            await logActivity("ပြင်ဆင်ခြင်း", name + " ကို ပြင်ဆင်သည်။");
         } else {
             await db.collection("products").add(data);
-            await logActivity("ပစ္စည်းအသစ်", name + " (စျေး: " + prc + ", အရေအတွက်: " + amt + ") ထည့်သွင်းသည်။");
+            await logActivity("ပစ္စည်းအသစ်", name + " (ရောင်းစျေး: " + prc + ", အရေအတွက်: " + amt + ") ထည့်သွင်းသည်။");
         }
         Swal.fire({ icon: 'success', title: 'အောင်မြင်ပါသည်', timer: 1500 }); 
         forceClear(); 
