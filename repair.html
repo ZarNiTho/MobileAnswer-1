@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="my">
 <head>
@@ -8,124 +9,181 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { font-family: sans-serif; background: #f8fafc; padding: 10px; }
-        .date-group { margin-top: 15px; padding: 10px; background: #e2e8f0; border-radius: 8px; font-weight: bold; display: flex; justify-content: space-between; font-size: 14px; }
-        .card { background: white; padding: 12px; margin: 5px 0; border-radius: 8px; border-left: 5px solid #ccc; }
-        .btn-add { width: 100%; padding: 12px; background: #f59e0b; color: white; border: none; border-radius: 8px; font-weight: bold; margin-bottom: 10px; cursor: pointer; }
-        .btn-edit { background: #4f46e5; border: none; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; }
-        .search-box { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .row { display: flex; justify-content: space-between; font-size: 13px; margin-top: 5px; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@300;400;500;700&display=swap');
+        
+        body { font-family: 'Noto Sans Myanmar', sans-serif; background: #f8fafc; padding: 15px; color: #334155; }
+        h3 { color: #0f172a; margin-bottom: 15px; border-left: 4px solid #0284c7; padding-left: 10px; }
+        
+        .date-group { margin-top: 20px; padding: 12px; background: #e2e8f0; border-radius: 8px; font-weight: bold; display: flex; justify-content: space-between; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .card { background: white; padding: 15px; margin: 8px 0; border-radius: 10px; border-left: 5px solid #ccc; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        
+        .btn-add { width: 100%; padding: 14px; background: #0284c7; color: white; border: none; border-radius: 8px; font-weight: bold; margin-bottom: 15px; cursor: pointer; font-size: 15px; box-shadow: 0 2px 4px rgba(2,132,199,0.3); transition: 0.2s; }
+        .btn-add:hover { background: #0369a1; }
+        
+        .btn-edit { background: #4f46e5; border: none; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: 0.2s; }
+        .btn-delete { background: #ef4444; border: none; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; margin-left: 5px; transition: 0.2s; }
+        .btn-edit:hover { opacity: 0.8; }
+        
+        .search-box { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        .search-box:focus { outline: none; border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2,132,199,0.2); }
+        
+        .row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; margin-top: 8px; }
+        .info-text { color: #475569; font-size: 13px; line-height: 1.6; }
     </style>
 </head>
 <body>
-    <h3>🛠 ဖုန်းပြင်ဆင်မှု (Repair)</h3>
+    <h3>🛠 ဖုန်းပြင်ဆင်မှု စာရင်း</h3>
     <button class="btn-add" onclick="showForm()">+ အပ်ထားသော ဖုန်းအသစ်</button>
     <input type="text" id="searchInput" class="search-box" placeholder="🔍 VR-No, နာမည် သို့မဟုတ် ဖုန်းအမျိုးအစားဖြင့် ရှာရန်..." onkeyup="filterRepair()">
     <div id="repairList"></div>
 
 <script>
     const firebaseConfig = { apiKey: "AIzaSyC5sGKGeD_zht-Qknp6VPwfPIChqwvX8MQ", authDomain: "masstore-c32a7.firebaseapp.com", projectId: "masstore-c32a7", storageBucket: "masstore-c32a7.firebasestorage.app", messagingSenderId: "321720130071", appId: "1:321720130071:web:20aab19001cc8bb3cd9a52" };
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.firestore();
+    
     let allData = [];
     let repairMap = new Map();
 
     async function logActivity(details) {
-        await db.collection("activity_logs").add({ 
-            action: "Repairပြင်ဆင်ခြင်း", 
-            details: details, 
-            timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+        await db.collection("activity_logs").add({ action: "Repairပြင်ဆင်ခြင်း", details: details, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+    }
+
+    function getNextVRNo() {
+        if (!allData || allData.length === 0) return "1"; 
+        let maxNum = 0;
+        allData.forEach(d => {
+            if (d.vrno) {
+                let match = String(d.vrno).match(/\d+/); 
+                if (match) { let num = parseInt(match[0], 10); if (num > maxNum) maxNum = num; }
+            }
         });
+        return maxNum > 0 ? String(maxNum + 1) : "1";
     }
 
     async function showForm(data = null) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const defaultDate = data?.date || todayStr;
+        const defaultVR = data ? (data.vrno || '') : getNextVRNo();
+
         const { value: formValues } = await Swal.fire({
             title: data ? 'အချက်အလက်ပြင်ရန်' : 'ဖုန်းအသစ်အပ်ရန်',
-            html: `<input id="vrno" class="swal2-input" placeholder="VR-No" value="${data ? data.vrno : ''}">
-                   <input id="name" class="swal2-input" placeholder="နာမည်" value="${data ? data.name : ''}">
-                   <input id="model" class="swal2-input" placeholder="ဖုန်းအမျိုးအစား" value="${data ? data.model : ''}">
-                   <input id="issue" class="swal2-input" placeholder="ပြစ်ချက်" value="${data ? data.issue : ''}">
-                   <input id="location" class="swal2-input" placeholder="ဒေသ" value="${data ? data.location : ''}">
-                   <input id="remark" class="swal2-input" placeholder="မှတ်ချက်" value="${data ? data.remark : ''}">
-                   <select id="status" class="swal2-select">
-                       <option value="ပြင်ဆင်နေဆဲ" ${data?.status === 'ပြင်ဆင်နေဆဲ' ? 'selected' : ''}>⏳ ပြင်ဆင်နေဆဲ</option>
-                       <option value="ပြီးစီး" ${data?.status === 'ပြီးစီး' ? 'selected' : ''}>✅ ပြီးစီး</option>
-                   </select>
-                   <input id="cost" class="swal2-input" type="number" placeholder="ရင်းငွေ" value="${data ? data.cost : 0}">
-                   <input id="income" class="swal2-input" type="number" placeholder="ရငွေ" value="${data ? data.income : 0}">`,
-            preConfirm: () => ({ 
-                vrno: document.getElementById('vrno').value, name: document.getElementById('name').value, 
-                model: document.getElementById('model').value, issue: document.getElementById('issue').value,
-                location: document.getElementById('location').value, remark: document.getElementById('remark').value,
-                status: document.getElementById('status').value,
-                cost: Number(document.getElementById('cost').value), income: Number(document.getElementById('income').value)
-            })
+            width: '600px',
+            html: `
+                <style>
+                    .swal-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; margin-top: 10px; }
+                    .swal-form .full { grid-column: span 2; }
+                    .swal-form label { font-size: 13px; font-weight: bold; color: #475569; margin-bottom: 5px; display: block; }
+                    .swal-form input, .swal-form select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+                    .swal-form input:focus, .swal-form select:focus { outline: none; border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2,132,199,0.2); }
+                </style>
+                <div class="swal-form">
+                    <div><label>ဘောင်ချာနံပါတ် (VR-No)</label> <input id="vrno" value="${defaultVR}" placeholder="ဥပမာ - 6395"></div>
+                    <div><label>ရက်စွဲ (Date) *</label><input type="date" id="date" value="${defaultDate}"></div>
+                    <div class="full"><label>နာမည် *</label><input id="name" placeholder="Customer Name" value="${data ? data.name : ''}"></div>
+                    <div class="full"><label>ဖုန်းနံပါတ်</label><input id="phone" placeholder="09..." value="${data ? (data.phone||'') : ''}"></div>
+                    <div><label>ဖုန်းအမျိုးအစား *</label><input id="model" placeholder="Model" value="${data ? data.model : ''}"></div>
+                    <div><label>ပြစ်ချက် *</label><input id="issue" placeholder="Issue" value="${data ? data.issue : ''}"></div>
+                    <div>
+                        <label>အခြေအနေ</label>
+                        <select id="status">
+                            <option value="ပြင်ဆင်နေဆဲ" ${data?.status === 'ပြင်ဆင်နေဆဲ' ? 'selected' : ''}>⏳ ပြင်ဆင်နေဆဲ</option>
+                            <option value="ပြီးစီး" ${data?.status === 'ပြီးစီး' ? 'selected' : ''}>✅ ပြီးစီး</option>
+                        </select>
+                    </div>
+                    <div><label>ဒေသ (Location)</label><input id="location" placeholder="City/Town" value="${data ? data.location : ''}"></div>
+                    <div><label>ရင်းငွေ (Cost)</label><input id="cost" type="number" value="${data ? data.cost : 0}"></div>
+                    <div><label>ရငွေ (Income)</label><input id="income" type="number" value="${data ? data.income : 0}"></div>
+                    <div class="full"><label>မှတ်ချက် (Remark)</label><input id="remark" placeholder="Extra notes..." value="${data ? data.remark : ''}"></div>
+                </div>
+            `,
+            focusConfirm: false, showCancelButton: true, confirmButtonText: 'သိမ်းမည်', cancelButtonText: 'ပိတ်မည်',
+            preConfirm: () => {
+                const vrno = document.getElementById('vrno').value.trim();
+                const date = document.getElementById('date').value;
+                const name = document.getElementById('name').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const model = document.getElementById('model').value.trim();
+                const issue = document.getElementById('issue').value.trim();
+
+                if (!date || !name || !model || !issue) {
+                    Swal.showValidationMessage('ကျေးဇူးပြု၍ ( * ) ပြထားသော အချက်အလက်များကို ပြည့်စုံစွာ ထည့်ပေးပါ'); return false;
+                }
+                return { 
+                    vrno, date, name, phone, model, issue, location: document.getElementById('location').value, 
+                    remark: document.getElementById('remark').value, status: document.getElementById('status').value,
+                    cost: Number(document.getElementById('cost').value), income: Number(document.getElementById('income').value)
+                }
+            }
         });
 
-        if(!formValues || !formValues.name) return;
+        if(!formValues) return;
 
         if(data) {
-            // ပြောင်းလဲမှုများကို စစ်ဆေးခြင်း
             let changes = [];
             if(data.status !== formValues.status) changes.push(`Status:${data.status}->${formValues.status}`);
-            if(data.cost !== formValues.cost) changes.push(`Cost:${data.cost}->${formValues.cost}`);
-            if(data.income !== formValues.income) changes.push(`Income:${data.income}->${formValues.income}`);
-            if(data.issue !== formValues.issue) changes.push(`Issue:${data.issue}->${formValues.issue}`);
-            
-            let logMsg = `VR:${formValues.vrno} ကို ပြင်ဆင်သည်။ ${changes.length > 0 ? "ပြောင်းလဲမှုများ: " + changes.join(", ") : "(အချက်အလက်များ မပြောင်းလဲပါ)"}`;
-
             await db.collection("repairs").doc(data.id).update(formValues);
-            await logActivity(logMsg);
-            Swal.fire('အောင်မြင်ပါသည်', '', 'success');
+            await logActivity(`ဖုန်းအပ်နှံမှု ${formValues.name} ကို ပြင်ဆင်သည်။ ${changes.length > 0 ? "ပြောင်းလဲမှု: " + changes.join(", ") : ""}`);
+            Swal.fire('အောင်မြင်ပါသည်', 'အချက်အလက်များကို ပြင်ဆင်ပြီးပါပြီ', 'success');
         } else {
-            await db.collection("repairs").add({...formValues, date: new Date().toLocaleDateString() });
-            await logActivity(`VR:${formValues.vrno} အသစ်ထည့်သွင်းသည်။`);
+            await db.collection("repairs").add({ ...formValues, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            await logActivity(`ဖုန်းအသစ် ${formValues.name} ထည့်သွင်းသည်။`);
             Swal.fire('ထည့်သွင်းပြီးပါပြီ', '', 'success');
+        }
+    }
+
+    async function deleteRepair(id, vrno, name) {
+        const result = await Swal.fire({ title: 'သေချာပြီလား?', text: `ဖောက်သည် ${name} ၏ အချက်အလက်ကို ဖျက်မှာ သေချာပါသလား?`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#94a3b8', confirmButtonText: 'ဖျက်မည်', cancelButtonText: 'မဖျက်ပါ' });
+        if (result.isConfirmed) {
+            await db.collection("repairs").doc(id).delete();
+            await logActivity(`${name} ၏ စာရင်းကို ဖျက်လိုက်ပါသည်။`);
+            Swal.fire('ဖျက်ပြီးပါပြီ', '', 'success');
         }
     }
 
     function renderList(data) {
         let groups = {};
-        data.forEach(d => {
-            if(!groups[d.date]) groups[d.date] = [];
-            groups[d.date].push(d);
-        });
-
+        data.forEach(d => { let dDate = d.date || "ရက်စွဲမရှိ"; if(!groups[dDate]) groups[dDate] = []; groups[dDate].push(d); });
+        let sortedDates = Object.keys(groups).sort((a, b) => new Date(b) - new Date(a));
         let html = "";
-        for(let date in groups) {
+        sortedDates.forEach(date => {
             html += `<div class="date-group"><span>📅 ${date}</span> <span>စုစုပေါင်း: ${groups[date].length} လုံး</span></div>`;
             groups[date].forEach(d => {
                 let statusColor = d.status === 'ပြီးစီး' ? '#10b981' : '#f59e0b';
-                let statusText = d.status === 'ပြီးစီး' ? '✅ Done' : '⏳ Loading';
-                html += `<div class="card" style="border-left: 5px solid ${statusColor}">
-                    <div class="row"><b>${d.vrno} | ${d.name}</b> <span style="color:${statusColor}">${statusText}</span></div>
-                    <div>📱 ${d.model} | 📍 ${d.location}</div>
-                    <div>⚠️ ${d.issue}</div>
-                    <div style="font-size:11px; color:#666;">မှတ်ချက်: ${d.remark}</div>
-                    <div class="row"><span>ရင်း:${d.cost} | ရ:${d.income}</span> <button class="btn-edit" onclick="showForm(repairMap.get('${d.id}'))">ပြင်မည်</button></div>
+                let statusText = d.status === 'ပြီးစီး' ? '✅ Done' : '⏳ Pending';
+                let profit = Number(d.income) - Number(d.cost);
+                let profitColor = profit > 0 ? '#10b981' : (profit < 0 ? '#ef4444' : '#475569');
+                let displayVR = d.vrno ? `${d.vrno} | ` : '';
+
+                html += `
+                <div class="card" style="border-left-color: ${statusColor}">
+                    <div class="row"><b style="font-size: 15px;">${displayVR}${d.name}</b> <span style="color:${statusColor}; font-weight:bold; font-size: 13px;">${statusText}</span></div>
+                    <div class="info-text" style="margin-top: 5px;">📱 ${d.model} | 📍 ${d.location || '-'}</div>
+                    <div class="info-text">📞 ဖုန်း: <b>${d.phone || '-'}</b></div>
+                    <div class="info-text">⚠️ <b>ပြစ်ချက်:</b> ${d.issue}</div>
+                    <div class="info-text" style="font-size:12px; margin-top:5px;"><i>မှတ်ချက်: ${d.remark || '-'}</i></div>
+                    <hr style="border: 0; border-top: 1px dashed #cbd5e1; margin: 10px 0;">
+                    <div class="row">
+                        <span style="font-size: 13px;">ရင်း: ${d.cost} | ရ: ${d.income} <br><b style="color: ${profitColor}">အမြတ်: ${profit}</b></span> 
+                        <div>
+                            <button class="btn-edit" onclick="showForm(repairMap.get('${d.id}'))">ပြင်မည်</button>
+                            <button class="btn-delete" onclick="deleteRepair('${d.id}', '${d.vrno}', '${d.name}')">ဖျက်မည်</button>
+                        </div>
+                    </div>
                 </div>`;
             });
-        }
-        document.getElementById("repairList").innerHTML = html;
+        });
+        document.getElementById("repairList").innerHTML = html || "<p style='text-align:center; padding: 20px; color:#94a3b8;'>အချက်အလက် မရှိသေးပါ</p>";
     }
 
     function filterRepair() {
         const term = document.getElementById("searchInput").value.toLowerCase();
-        renderList(allData.filter(d => 
-            (d.name || '').toLowerCase().includes(term) || 
-            (d.vrno || '').toLowerCase().includes(term) || 
-            (d.model || '').toLowerCase().includes(term)
-        ));
+        renderList(allData.filter(d => (d.name || '').toLowerCase().includes(term) || (d.vrno || '').toLowerCase().includes(term) || (d.model || '').toLowerCase().includes(term) || (d.phone || '').includes(term) ));
     }
 
     db.collection("repairs").orderBy("date", "desc").onSnapshot(snap => {
         allData = []; repairMap.clear();
-        snap.forEach(doc => {
-            let d = { id: doc.id, ...doc.data() };
-            allData.push(d);
-            repairMap.set(doc.id, d);
-        });
-        renderList(allData);
+        snap.forEach(doc => { let d = { id: doc.id, ...doc.data() }; allData.push(d); repairMap.set(doc.id, d); }); filterRepair();
     });
 </script>
 </body>
