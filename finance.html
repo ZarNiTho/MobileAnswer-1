@@ -18,11 +18,14 @@
         .delete-btn { background: #fee2e2; color: #ef4444; }
         .remark-text { font-size: 12px; color: #64748b; font-style: italic; padding: 2px 15px; }
         .group-badge { background: #e2e8f0; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-right: 6px; font-weight: normal; }
+        .filter-input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 14px; margin-bottom: 10px;}
     </style>
 </head>
 <body>
 
 <div class="container">
+    <input type="month" id="monthFilter" class="filter-input" onchange="renderHistory()" placeholder="လအလိုက်ရှာရန်">
+    
     <button class="btn-main" style="background:#10b981;" onclick="openDialog('ဝင်ငွေ')">💰 ဝင်ငွေမှတ်မည်</button>
     <button class="btn-main" style="background:#ef4444;" onclick="openDialog('ထွက်ငွေ')">💸 ထွက်ငွေမှတ်မည်</button>
 
@@ -33,154 +36,132 @@
 
 <script>
     const firebaseConfig = { apiKey: "AIzaSyC5sGKGeD_zht-Qknp6VPwfPIChqwvX8MQ", authDomain: "masstore-c32a7.firebaseapp.com", projectId: "masstore-c32a7", storageBucket: "masstore-c32a7.firebasestorage.app", messagingSenderId: "321720130071", appId: "1:321720130071:web:20aab19001cc8bb3cd9a52" };
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.firestore();
     let isDialogOpen = false;
 
-    // Log လုပ်ဆောင်ချက်
+    let txData = [], rpData = [], rmData = {};
+
+    db.collection("transactions").onSnapshot(snap => { txData = []; snap.forEach(doc => txData.push({id: doc.id, ...doc.data()})); renderHistory(); });
+    db.collection("repairs").onSnapshot(snap => { rpData = []; snap.forEach(doc => rpData.push({id: doc.id, ...doc.data()})); renderHistory(); });
+    db.collection("remarks").onSnapshot(snap => { rmData = {}; snap.forEach(doc => rmData[doc.id] = doc.data().text); renderHistory(); });
+
     async function logActivity(action, details) {
         try { await db.collection("activity_logs").add({ action, details, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); } 
         catch (e) { console.error("Log error: ", e); }
     }
 
-    // စာရင်းအသစ်ထည့်ရန် (Service / Office Group ရွေးချယ်မှု ပါဝင်သည်)
     async function openDialog(type) {
         isDialogOpen = true;
         const { value: formValues } = await Swal.fire({
             title: type + ' မှတ်ရန်',
-            html: '<select id="group" class="swal2-input" style="width: 80%;">' +
-                  '<option value="Service">Service</option>' +
-                  '<option value="Office">Office</option>' +
-                  '</select>' +
-                  '<input id="name" class="swal2-input" placeholder="အကြောင်းအရာ">' +
-                  '<input id="amount" class="swal2-input" type="number" placeholder="ပမာဏ">',
-            preConfirm: () => ({ 
-                group: document.getElementById('group').value,
-                name: document.getElementById('name').value, 
-                amount: Number(document.getElementById('amount').value) 
-            })
+            html: '<select id="group" class="swal2-input" style="width: 80%;"><option value="Service">Service</option><option value="Office">Office</option></select><input id="name" class="swal2-input" placeholder="အကြောင်းအရာ"><input id="amount" class="swal2-input" type="number" placeholder="ပမာဏ">',
+            preConfirm: () => ({ group: document.getElementById('group').value, name: document.getElementById('name').value, amount: Number(document.getElementById('amount').value) })
         });
         isDialogOpen = false;
         if(formValues && formValues.amount) {
-            await db.collection("transactions").add({ 
-                type, 
-                group: formValues.group,
-                name: formValues.name, 
-                amount: formValues.amount, 
-                date: new Date() 
-            });
+            await db.collection("transactions").add({ type, group: formValues.group, name: formValues.name, amount: formValues.amount, date: new Date() });
             await logActivity("ငွေစာရင်း သွင်းခြင်း", `[${formValues.group}] ${type} - ${formValues.name} (${formValues.amount} Ks) ကို စာရင်းသွင်းခဲ့သည်။`);
         }
     }
 
-    async function addRemark(date) {
-        const docId = date.replace(/\//g, '-');
-        const remarkDoc = await db.collection("remarks").doc(docId).get();
-        const currentText = remarkDoc.exists ? remarkDoc.data().text : "";
-
-        const { value: remark } = await Swal.fire({
-            title: 'မှတ်ချက်',
-            input: 'text',
-            inputValue: currentText,
-            inputPlaceholder: 'စာရင်းမကိုက်ညီဘူး...',
-            showCancelButton: true
-        });
-        if(remark !== undefined) {
-            await db.collection("remarks").doc(docId).set({ text: remark });
-        }
-    }
-
-    // စာရင်းပြင်ရန် Function
     async function editTransaction(id, oldGroup, oldName, oldAmount, type) {
         isDialogOpen = true;
         let safeOldGroup = (!oldGroup || oldGroup === 'undefined') ? 'Service' : oldGroup;
-        
         const { value: formValues } = await Swal.fire({
             title: 'စာရင်းပြင်ရန်',
-            html: `<select id="editGroup" class="swal2-input" style="width: 80%;">
-                    <option value="Service" ${safeOldGroup === 'Service' ? 'selected' : ''}>Service</option>
-                    <option value="Office" ${safeOldGroup === 'Office' ? 'selected' : ''}>Office</option>
-                   </select>
-                   <input id="editName" class="swal2-input" value="${oldName}" placeholder="အကြောင်းအရာ">
-                   <input id="editAmount" class="swal2-input" type="number" value="${oldAmount}" placeholder="ပမာဏ">`,
-            preConfirm: () => ({ 
-                group: document.getElementById('editGroup').value,
-                name: document.getElementById('editName').value, 
-                amount: Number(document.getElementById('editAmount').value) 
-            }),
+            html: `<select id="editGroup" class="swal2-input" style="width: 80%;"><option value="Service" ${safeOldGroup === 'Service' ? 'selected' : ''}>Service</option><option value="Office" ${safeOldGroup === 'Office' ? 'selected' : ''}>Office</option></select><input id="editName" class="swal2-input" value="${oldName}" placeholder="အကြောင်းအရာ"><input id="editAmount" class="swal2-input" type="number" value="${oldAmount}" placeholder="ပမာဏ">`,
+            preConfirm: () => ({ group: document.getElementById('editGroup').value, name: document.getElementById('editName').value, amount: Number(document.getElementById('editAmount').value) }),
             showCancelButton: true
         });
         isDialogOpen = false;
-
         if(formValues && formValues.amount) {
-            if(formValues.name !== oldName || formValues.amount !== oldAmount || formValues.group !== safeOldGroup) {
-                await db.collection("transactions").doc(id).update({ 
-                    group: formValues.group,
-                    name: formValues.name, 
-                    amount: formValues.amount 
-                });
-                await logActivity("ငွေစာရင်း ပြင်ဆင်ခြင်း", `${type} - [${safeOldGroup}] ${oldName} (${oldAmount}) အား [${formValues.group}] ${formValues.name} (${formValues.amount} Ks) သို့ ပြင်ဆင်ခဲ့သည်။`);
-                Swal.fire({ icon: 'success', title: 'အောင်မြင်ပါသည်', timer: 1000, showConfirmButton: false });
-            }
+            await db.collection("transactions").doc(id).update({ group: formValues.group, name: formValues.name, amount: formValues.amount });
+            Swal.fire({ icon: 'success', title: 'အောင်မြင်ပါသည်', timer: 1000, showConfirmButton: false });
         }
     }
 
-    // စာရင်းဖျက်ရန် Function
     async function deleteTransaction(id, name, amount, type) {
         const res = await Swal.fire({ title: 'ဖျက်မှာလား?', text: `${type} - ${name} (${amount} Ks)`, icon: 'warning', showCancelButton: true });
-        if(res.isConfirmed) {
-            await db.collection("transactions").doc(id).delete();
-            await logActivity("ငွေစာရင်း ဖျက်ခြင်း", `${type} - ${name} (${amount} Ks) ကို စာရင်းမှ ဖျက်လိုက်သည်။`);
-            Swal.fire({ icon: 'success', title: 'ဖျက်ပြီးပါပြီ', timer: 1000, showConfirmButton: false });
-        }
+        if(res.isConfirmed) { await db.collection("transactions").doc(id).delete(); Swal.fire({ icon: 'success', title: 'ဖျက်ပြီးပါပြီ', timer: 1000, showConfirmButton: false }); }
+    }
+
+    async function addRemark(date) {
+        const docId = date; 
+        const { value: remark } = await Swal.fire({ title: 'မှတ်ချက်', input: 'text', inputValue: rmData[docId]||"", inputPlaceholder: 'စာရင်းမကိုက်ညီဘူး...', showCancelButton: true });
+        if(remark !== undefined) { await db.collection("remarks").doc(docId).set({ text: remark }); }
     }
 
     window.onpopstate = () => { if(isDialogOpen) Swal.close(); else window.location.href = 'index.html'; };
     function toggleDetails(id) { const el = document.getElementById(id); el.style.display = el.style.display === 'block' ? 'none' : 'block'; }
 
-    // Data ဖတ်ခြင်း
-    db.collection("transactions").orderBy("date", "desc").onSnapshot(async (snap) => {
-        let groups = {}, remarks = {};
-        
-        const remSnap = await db.collection("remarks").get();
-        remSnap.forEach(doc => remarks[doc.id] = doc.data().text);
+    function renderHistory() {
+        let monthVal = document.getElementById('monthFilter').value; // 'YYYY-MM'
+        let groups = {};
 
-        snap.forEach(doc => {
-            let d = doc.data();
-            let dateKey = d.date.toDate().toLocaleDateString();
-            if(!groups[dateKey]) groups[dateKey] = { inc: 0, exp: 0, logs: [] };
-            if(d.type === 'ဝင်ငွေ') groups[dateKey].inc += d.amount;
-            else groups[dateKey].exp += d.amount; 
-            groups[dateKey].logs.push({ id: doc.id, ...d });
+        // 1. Transactions ပေါင်းထည့်ခြင်း
+        txData.forEach(d => {
+            if(!d.date) return;
+            let dateObj = d.date.toDate ? d.date.toDate() : new Date(d.date);
+            let dStr = dateObj.toLocaleDateString('en-CA'); // 'YYYY-MM-DD' Format
+            if(monthVal && !dStr.startsWith(monthVal)) return;
+
+            if(!groups[dStr]) groups[dStr] = { inc: 0, exp: 0, logs: [] };
+            if(d.type === 'ဝင်ငွေ') groups[dStr].inc += d.amount; else groups[dStr].exp += d.amount;
+            groups[dStr].logs.push({...d, source: 'tx'});
         });
 
+        // 2. Repairs မှ ဝင်ငွေ၊ ထွက်ငွေ Auto ပေါင်းထည့်ခြင်း (Double Entry မဖြစ်စေပါ)
+        rpData.forEach(d => {
+            if(d.status !== 'ပြီးစီး') return;
+            let dStr = d.date; // Repairs က YYYY-MM-DD သိမ်းထားပြီးဖြစ်သည်
+            if(!dStr) return;
+            if(monthVal && !dStr.startsWith(monthVal)) return;
+
+            if(!groups[dStr]) groups[dStr] = { inc: 0, exp: 0, logs: [] };
+            if(d.income > 0) {
+                groups[dStr].inc += Number(d.income);
+                groups[dStr].logs.push({id: d.id, source: 'rp', type: 'ဝင်ငွေ', group: 'Repair', name: (d.vrno?d.vrno+'|':'') + d.name + ' (ဖုန်းပြင်ခ)', amount: Number(d.income)});
+            }
+            if(d.cost > 0) {
+                groups[dStr].exp += Number(d.cost);
+                groups[dStr].logs.push({id: d.id, source: 'rp', type: 'ထွက်ငွေ', group: 'Repair', name: (d.vrno?d.vrno+'|':'') + d.name + ' (ပစ္စည်းဖိုး)', amount: Number(d.cost)});
+            }
+        });
+
+        // Sorting & Rendering (မူလ UI အတိုင်း)
+        let sortedDates = Object.keys(groups).sort((a,b) => new Date(b) - new Date(a));
         let html = "";
-        for(let date in groups) {
-            let id = date.replace(/\//g, '-');
-            html += `<div class="date-group" onclick="toggleDetails('${id}')">
-                        <span>📅 ${date} <span class="remark-btn" onclick="event.stopPropagation(); addRemark('${date}')">✏️</span></span>
+        
+        sortedDates.forEach(date => {
+            let safeId = date.replace(/\//g, '-');
+            html += `<div class="date-group" onclick="toggleDetails('${safeId}')">
+                        <span>📅 ${date} <span class="remark-btn" onclick="event.stopPropagation(); addRemark('${safeId}')">✏️</span></span>
                         <span style="font-size:11px; color:#666;">ဝင်:${groups[date].inc.toLocaleString()} | ထွက်:${groups[date].exp.toLocaleString()}</span>
                      </div>
-                     ${remarks[id] ? `<div class="remark-text">⚠️ ${remarks[id]}</div>` : ''}
-                     <div id="${id}" class="details">`;
+                     ${rmData[safeId] ? `<div class="remark-text">⚠️ ${rmData[safeId]}</div>` : ''}
+                     <div id="${safeId}" class="details">`;
+            
             groups[date].logs.forEach(d => {
                 let escapedName = d.name.replace(/'/g, "\\'"); 
-                let safeGroup = d.group ? d.group : 'Service'; // Data အဟောင်းတွေအတွက် Default ပါ
-                let groupBadge = d.group ? `<span class="group-badge">${d.group}</span>` : '';
+                let safeGroup = d.group ? d.group : 'Service';
+                let groupBadge = `<span class="group-badge" ${d.source==='rp'?'style="background:#fef08a"':''}>${safeGroup}</span>`;
                 
+                // Repair ကလာတဲ့ စာရင်းတွေကို ဒီမှာ ပြင်လို့/ဖျက်လို့မရအောင် ကာကွယ်ထားပါတယ် (Repair Page ကနေပဲ ပြင်ရပါမည်)
+                let actionBtns = d.source === 'tx' 
+                    ? `<span class="remark-btn" onclick="editTransaction('${d.id}', '${safeGroup}', '${escapedName}', ${d.amount}, '${d.type}')">✏️</span>
+                       <span class="remark-btn delete-btn" onclick="deleteTransaction('${d.id}', '${escapedName}', ${d.amount}, '${d.type}')">🗑️</span>`
+                    : ``; // Repair စာရင်းဆိုရင် ခလုတ်မပြပါ
+
                 html += `<div class="row">
-                            <div>
-                                ${groupBadge}<span>${d.name}</span>
-                                <span class="remark-btn" onclick="editTransaction('${d.id}', '${safeGroup}', '${escapedName}', ${d.amount}, '${d.type}')">✏️</span>
-                                <span class="remark-btn delete-btn" onclick="deleteTransaction('${d.id}', '${escapedName}', ${d.amount}, '${d.type}')">🗑️</span>
-                            </div>
+                            <div>${groupBadge}<span>${d.name}</span> ${actionBtns}</div>
                             <span style="color:${d.type==='ဝင်ငွေ'?'#10b981':'#ef4444'}; font-weight:bold;">${d.type==='ဝင်ငွေ'?'+':'-'}${d.amount.toLocaleString()}</span>
                          </div>`;
             });
             html += `</div>`;
-        }
-        document.getElementById("historyList").innerHTML = html;
-    });
+        });
+        document.getElementById("historyList").innerHTML = html || "<p style='text-align:center; padding: 20px;'>စာရင်းမရှိသေးပါ</p>";
+    }
 </script>
 </body>
 </html>
