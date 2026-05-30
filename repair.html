@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="my">
 <head>
@@ -6,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ဖုန်းပြင်ဆင်မှု မှတ်တမ်း</title>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@300;400;500;700&display=swap');
         
         body { font-family: 'Noto Sans Myanmar', sans-serif; background: #f8fafc; padding: 15px; color: #334155; }
-        h3 { color: #0f172a; margin-bottom: 15px; border-left: 4px solid #0284c7; padding-left: 10px; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        h3 { color: #0f172a; margin: 0; border-left: 4px solid #0284c7; padding-left: 10px; }
+        .home-btn { padding: 6px 12px; background: #475569; color: white; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold; }
         
         .date-group { margin-top: 20px; padding: 12px; background: #e2e8f0; border-radius: 8px; font-weight: bold; display: flex; justify-content: space-between; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .card { background: white; padding: 15px; margin: 8px 0; border-radius: 10px; border-left: 5px solid #ccc; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
@@ -32,7 +34,11 @@
     </style>
 </head>
 <body>
-    <h3>🛠 ဖုန်းပြင်ဆင်မှု စာရင်း</h3>
+    <div class="header-row">
+        <h3>🛠 ဖုန်းပြင်ဆင်မှု စာရင်း</h3>
+        <a href="index.html" class="home-btn">🔙 ပင်မသို့</a>
+    </div>
+    
     <button class="btn-add" onclick="showForm()">+ အပ်ထားသော ဖုန်းအသစ်</button>
     <input type="text" id="searchInput" class="search-box" placeholder="🔍 VR-No, နာမည် သို့မဟုတ် ဖုန်းအမျိုးအစားဖြင့် ရှာရန်..." onkeyup="filterRepair()">
     <div id="repairList"></div>
@@ -40,13 +46,29 @@
 <script>
     const firebaseConfig = { apiKey: "AIzaSyC5sGKGeD_zht-Qknp6VPwfPIChqwvX8MQ", authDomain: "masstore-c32a7.firebaseapp.com", projectId: "masstore-c32a7", storageBucket: "masstore-c32a7.firebasestorage.app", messagingSenderId: "321720130071", appId: "1:321720130071:web:20aab19001cc8bb3cd9a52" };
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const auth = firebase.auth();
     const db = firebase.firestore();
     
+    let currentUser = null;
     let allData = [];
     let repairMap = new Map();
 
+    auth.onAuthStateChanged(user => {
+        if(user) { 
+            currentUser = user; 
+            fetchRepairs();
+        } else { 
+            window.location.href = 'login.html'; 
+        }
+    });
+
     async function logActivity(details) {
-        await db.collection("activity_logs").add({ action: "Repairပြင်ဆင်ခြင်း", details: details, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+        let uName = currentUser ? (currentUser.displayName || currentUser.email) : "Unknown";
+        await db.collection("activity_logs").add({ 
+            action: `[${uName}] Repairပြင်ဆင်ခြင်း`, 
+            details: details, 
+            timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+        });
     }
 
     function getNextVRNo() {
@@ -181,10 +203,13 @@
         renderList(allData.filter(d => (d.name || '').toLowerCase().includes(term) || (d.vrno || '').toLowerCase().includes(term) || (d.model || '').toLowerCase().includes(term) || (d.phone || '').includes(term) ));
     }
 
-    db.collection("repairs").orderBy("date", "desc").onSnapshot(snap => {
-        allData = []; repairMap.clear();
-        snap.forEach(doc => { let d = { id: doc.id, ...doc.data() }; allData.push(d); repairMap.set(doc.id, d); }); filterRepair();
-    });
+    function fetchRepairs() {
+        if(!currentUser) return;
+        db.collection("repairs").orderBy("date", "desc").onSnapshot(snap => {
+            allData = []; repairMap.clear();
+            snap.forEach(doc => { let d = { id: doc.id, ...doc.data() }; allData.push(d); repairMap.set(doc.id, d); }); filterRepair();
+        });
+    }
 </script>
 </body>
 </html>
