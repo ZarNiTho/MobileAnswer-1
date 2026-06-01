@@ -95,13 +95,23 @@ let currentUser = null;
 let currentFilter = 'အားလုံး';
 
 // Login Check
-auth.onAuthStateChanged(user => {
+auth.onAuthStateChanged(user => { 
     if(user) { 
         currentUser = user; 
-        loadProducts(); // Auth ဝင်ပြီးမှသာ Data များကိုခေါ်မည်
+        
+        // 🟢 ဝန်ထမ်း Online ဖြစ်ကြောင်းကို ဝင်လာတဲ့ User Data ဖြင့် Auto မှတ်မည့်အပိုင်း
+        db.collection("users").doc(user.uid).set({
+            username: user.displayName || user.email.split('@')[0], // နာမည်မရှိရင် Email ရဲ့ ရှေ့ပိုင်းကို ယူမည်
+            email: user.email,
+            lastOnline: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        // မူလရှိပြီးသား Data ခေါ်သည့် Function များ ဆက်ထည့်ရန် (ဥပမာ - fetchRepairs(); )
+        // ...
+        
     } else { 
         window.location.href = 'login.html'; 
-    }
+    } 
 });
 
 // Log Function Updated
@@ -214,4 +224,3 @@ async function handleDelete(id){
 </script>
 </body>
 </html>
-
