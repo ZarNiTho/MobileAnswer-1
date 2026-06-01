@@ -9,30 +9,159 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { font-family: sans-serif; background: #f1f5f9; padding: 15px 10px; margin: 0; display: flex; justify-content: center; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@300;400;500;700&display=swap');
+        
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #6366f1;
+            --success: #10b981;
+            --danger: #ef4444;
+            --border: #334155;
+        }
+
+        body { 
+            font-family: 'Noto Sans Myanmar', sans-serif; 
+            background: var(--bg-main); 
+            color: var(--text-main);
+            padding: 15px 10px; 
+            margin: 0; 
+            display: flex; 
+            justify-content: center; 
+        }
+
         .container { width: 100%; max-width: 480px; }
-        .date-group { margin-top: 10px; padding: 12px; background: white; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: bold; }
-        .details { display: none; padding: 10px; background: #f8fafc; border: 1px solid #ddd; border-top: none; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
-        .row { display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; border-bottom: 1px solid #eee; font-size: 14px; }
-        .btn-main { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; color: white; }
-        .remark-btn { background: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 5px; cursor: pointer; }
-        .delete-btn { background: #fee2e2; color: #ef4444; }
-        .remark-text { font-size: 12px; color: #64748b; font-style: italic; padding: 2px 15px; }
-        .group-badge { background: #e2e8f0; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-right: 6px; font-weight: normal; }
-        .filter-input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 14px; margin-bottom: 10px;}
+        
+        .page-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary);
+            padding-left: 10px;
+            color: var(--text-main);
+        }
+
+        .filter-input { 
+            width: 100%; 
+            padding: 12px; 
+            background: var(--bg-card);
+            border: 1px solid var(--border); 
+            border-radius: 12px; 
+            box-sizing: border-box; 
+            font-size: 14px; 
+            color: var(--text-main);
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-main { 
+            width: 100%; 
+            padding: 14px; 
+            border-radius: 12px; 
+            border: none; 
+            font-weight: bold; 
+            cursor: pointer; 
+            color: white; 
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: transform 0.1s;
+        }
+        .btn-main:active { transform: scale(0.98); }
+
+        .date-group { 
+            margin-top: 12px; 
+            padding: 14px; 
+            background: var(--bg-card); 
+            border: 1px solid var(--border); 
+            border-radius: 12px; 
+            cursor: pointer; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            font-size: 13px; 
+            font-weight: bold; 
+        }
+        
+        .details { 
+            display: none; 
+            padding: 12px; 
+            background: #151f32; 
+            border: 1px solid var(--border); 
+            border-top: none; 
+            border-bottom-left-radius: 12px; 
+            border-bottom-right-radius: 12px; 
+            margin-top: -4px;
+        }
+
+        .row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 10px 5px; 
+            border-bottom: 1px solid var(--border); 
+            font-size: 14px; 
+        }
+        .row:last-child { border-bottom: none; }
+
+        .remark-btn { 
+            background: #334155; 
+            color: #cbd5e1;
+            padding: 3px 8px; 
+            border-radius: 6px; 
+            font-size: 11px; 
+            margin-left: 5px; 
+            cursor: pointer; 
+        }
+        .delete-btn { background: #451a1a; color: var(--danger); }
+        
+        .remark-text { 
+            font-size: 12px; 
+            color: #fbbf24; 
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            padding: 6px 12px; 
+            border-radius: 8px;
+            margin-top: 6px;
+        }
+
+        .group-badge { 
+            background: #334155; 
+            color: #94a3b8; 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-size: 10px; 
+            margin-right: 8px; 
+            font-weight: normal; 
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <div class="page-title">💰 ငွေစာရင်းချုပ်</div>
+    
     <input type="month" id="monthFilter" class="filter-input" onchange="renderHistory()" placeholder="လအလိုက်ရှာရန်">
     
-    <button class="btn-main" style="background:#10b981;" onclick="openDialog('ဝင်ငွေ')">💰 ဝင်ငွေမှတ်မည်</button>
-    <button class="btn-main" style="background:#ef4444;" onclick="openDialog('ထွက်ငွေ')">💸 ထွက်ငွေမှတ်မည်</button>
+    <div class="btn-grid">
+        <button class="btn-main" style="background: var(--success);" onclick="openDialog('ဝင်ငွေ')">💰 ဝင်ငွေမှတ်မည်</button>
+        <button class="btn-main" style="background: var(--danger);" onclick="openDialog('ထွက်ငွေ')">💸 ထွက်ငွေမှတ်မည်</button>
+    </div>
 
     <div id="historyList"></div>
     
-    <button class="btn-main" style="background:#64748b; margin-top:20px;" onclick="window.location.href='index.html'">🔙 ပင်မစာမျက်နှာ</button>
+    <button class="btn-main" style="background: #475569; margin-top:20px;" onclick="window.location.href='index.html'">🔙 ပင်မစာမျက်နှာ</button>
 </div>
 
 <script>
@@ -45,9 +174,17 @@
     let isDialogOpen = false;
     let txData = [], rpData = [], rmData = {};
 
-    auth.onAuthStateChanged(user => {
+        auth.onAuthStateChanged(user => {
         if(user) {
             currentUser = user;
+            
+            // 🟢 ဝန်ထမ်း Online ဖြစ်ကြောင်းကို Auto မှတ်မည့်အပိုင်း
+            db.collection("users").doc(user.uid).set({
+                username: user.displayName || user.email.split('@')[0], 
+                email: user.email,
+                lastOnline: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
             initFinance();
         } else {
             window.location.href = 'login.html';
@@ -70,7 +207,9 @@
         isDialogOpen = true;
         const { value: formValues } = await Swal.fire({
             title: type + ' မှတ်ရန်',
-            html: '<select id="group" class="swal2-input" style="width: 80%;"><option value="Service">Service</option><option value="Office">Office</option></select><input id="name" class="swal2-input" placeholder="အကြောင်းအရာ"><input id="amount" class="swal2-input" type="number" placeholder="ပမာဏ">',
+            background: '#1e293b',
+            color: '#f8fafc',
+            html: '<select id="group" class="swal2-input" style="width: 80%; background:#0f172a; color:#fff; border:1px solid #334155;"><option value="Service">Service</option><option value="Office">Office</option></select><input id="name" class="swal2-input" style="background:#0f172a; color:#fff; border:1px solid #334155;" placeholder="အကြောင်းအရာ"><input id="amount" class="swal2-input" style="background:#0f172a; color:#fff; border:1px solid #334155;" type="number" placeholder="ပမာဏ">',
             preConfirm: () => ({ group: document.getElementById('group').value, name: document.getElementById('name').value, amount: Number(document.getElementById('amount').value) })
         });
         isDialogOpen = false;
@@ -85,25 +224,27 @@
         let safeOldGroup = (!oldGroup || oldGroup === 'undefined') ? 'Service' : oldGroup;
         const { value: formValues } = await Swal.fire({
             title: 'စာရင်းပြင်ရန်',
-            html: `<select id="editGroup" class="swal2-input" style="width: 80%;"><option value="Service" ${safeOldGroup === 'Service' ? 'selected' : ''}>Service</option><option value="Office" ${safeOldGroup === 'Office' ? 'selected' : ''}>Office</option></select><input id="editName" class="swal2-input" value="${oldName}" placeholder="အကြောင်းအရာ"><input id="editAmount" class="swal2-input" type="number" value="${oldAmount}" placeholder="ပမာဏ">`,
+            background: '#1e293b',
+            color: '#f8fafc',
+            html: `<select id="editGroup" class="swal2-input" style="width: 80%; background:#0f172a; color:#fff; border:1px solid #334155;"><option value="Service" ${safeOldGroup === 'Service' ? 'selected' : ''}>Service</option><option value="Office" ${safeOldGroup === 'Office' ? 'selected' : ''}>Office</option></select><input id="editName" class="swal2-input" style="background:#0f172a; color:#fff; border:1px solid #334155;" value="${oldName}" placeholder="အကြောင်းအရာ"><input id="editAmount" class="swal2-input" style="background:#0f172a; color:#fff; border:1px solid #334155;" type="number" value="${oldAmount}" placeholder="ပမာဏ">`,
             preConfirm: () => ({ group: document.getElementById('editGroup').value, name: document.getElementById('editName').value, amount: Number(document.getElementById('editAmount').value) }),
             showCancelButton: true
         });
         isDialogOpen = false;
         if(formValues && formValues.amount) {
             await db.collection("transactions").doc(id).update({ group: formValues.group, name: formValues.name, amount: formValues.amount });
-            Swal.fire({ icon: 'success', title: 'အောင်မြင်ပါသည်', timer: 1000, showConfirmButton: false });
+            Swal.fire({ icon: 'success', title: 'အောင်မြင်ပါသည်', timer: 1000, showConfirmButton: false, background: '#1e293b', color: '#f8fafc' });
         }
     }
 
     async function deleteTransaction(id, name, amount, type) {
-        const res = await Swal.fire({ title: 'ဖျက်မှာလား?', text: `${type} - ${name} (${amount} Ks)`, icon: 'warning', showCancelButton: true });
-        if(res.isConfirmed) { await db.collection("transactions").doc(id).delete(); Swal.fire({ icon: 'success', title: 'ဖျက်ပြီးပါပြီ', timer: 1000, showConfirmButton: false }); }
+        const res = await Swal.fire({ title: 'ဖျက်မှာလား?', text: `${type} - ${name} (${amount} Ks)`, icon: 'warning', showCancelButton: true, background: '#1e293b', color: '#f8fafc' });
+        if(res.isConfirmed) { await db.collection("transactions").doc(id).delete(); Swal.fire({ icon: 'success', title: 'ဖျက်ပြီးပါပြီ', timer: 1000, showConfirmButton: false, background: '#1e293b', color: '#f8fafc' }); }
     }
 
     async function addRemark(date) {
         const docId = date; 
-        const { value: remark } = await Swal.fire({ title: 'မှတ်ချက်', input: 'text', inputValue: rmData[docId]||"", inputPlaceholder: 'စာရင်းမကိုက်ညီဘူး...', showCancelButton: true });
+        const { value: remark } = await Swal.fire({ title: 'မှတ်ချက်', input: 'text', inputValue: rmData[docId]||"", inputPlaceholder: 'စာရင်းမကိုက်ညီဘူး...', showCancelButton: true, background: '#1e293b', color: '#f8fafc' });
         if(remark !== undefined) { await db.collection("remarks").doc(docId).set({ text: remark }); }
     }
 
@@ -149,7 +290,7 @@
             let safeId = date.replace(/\//g, '-');
             html += `<div class="date-group" onclick="toggleDetails('${safeId}')">
                         <span>📅 ${date} <span class="remark-btn" onclick="event.stopPropagation(); addRemark('${safeId}')">✏️</span></span>
-                        <span style="font-size:11px; color:#666;">ဝင်:${groups[date].inc.toLocaleString()} | ထွက်:${groups[date].exp.toLocaleString()}</span>
+                        <span style="font-size:11px; color:#a3e635;">ဝင်:${groups[date].inc.toLocaleString()} | ထွက်:${groups[date].exp.toLocaleString()}</span>
                      </div>
                      ${rmData[safeId] ? `<div class="remark-text">⚠️ ${rmData[safeId]}</div>` : ''}
                      <div id="${safeId}" class="details">`;
@@ -157,7 +298,7 @@
             groups[date].logs.forEach(d => {
                 let escapedName = d.name.replace(/'/g, "\\'"); 
                 let safeGroup = d.group ? d.group : 'Service';
-                let groupBadge = `<span class="group-badge" ${d.source==='rp'?'style="background:#fef08a"':''}>${safeGroup}</span>`;
+                let groupBadge = `<span class="group-badge" ${d.source==='rp'?'style="background:#854d0e; color:#fef08a;"':''}>${safeGroup}</span>`;
                 
                 let actionBtns = d.source === 'tx' 
                     ? `<span class="remark-btn" onclick="editTransaction('${d.id}', '${safeGroup}', '${escapedName}', ${d.amount}, '${d.type}')">✏️</span>
@@ -165,13 +306,13 @@
                     : ``; 
 
                 html += `<div class="row">
-                            <div>${groupBadge}<span>${d.name}</span> ${actionBtns}</div>
-                            <span style="color:${d.type==='ဝင်ငွေ'?'#10b981':'#ef4444'}; font-weight:bold;">${d.type==='ဝင်ငွေ'?'+':'-'}${d.amount.toLocaleString()}</span>
+                            <div>${groupBadge}<span style="color:var(--text-main);">${d.name}</span> ${actionBtns}</div>
+                            <span style="color:${d.type==='ဝင်ငွေ'?'var(--success)':'var(--danger)'}; font-weight:bold;">${d.type==='ဝင်ငွေ'?'+':'-'}${d.amount.toLocaleString()}</span>
                          </div>`;
             });
             html += `</div>`;
         });
-        document.getElementById("historyList").innerHTML = html || "<p style='text-align:center; padding: 20px;'>စာရင်းမရှိသေးပါ</p>";
+        document.getElementById("historyList").innerHTML = html || "<p style='text-align:center; padding: 20px; color:var(--text-muted);'>စာရင်းမရှိသေးပါ</p>";
     }
 </script>
 </body>
