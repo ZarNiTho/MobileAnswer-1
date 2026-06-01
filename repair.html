@@ -95,7 +95,22 @@
         if (Swal.isVisible()) { Swal.close(); history.pushState({ page: 'main' }, null, ''); }
     });
 
-    auth.onAuthStateChanged(user => { if(user) { currentUser = user; fetchRepairs(); } else { window.location.href = 'login.html'; } });
+     auth.onAuthStateChanged(user => { 
+        if(user) { 
+            currentUser = user; 
+            
+            // 🟢 ဝန်ထမ်း Online ဖြစ်ကြောင်းကို Auto မှတ်မည့်အပိုင်း
+            db.collection("users").doc(user.uid).set({
+                username: user.displayName || user.email.split('@')[0], 
+                email: user.email,
+                lastOnline: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
+            fetchRepairs(); 
+        } else { 
+            window.location.href = 'login.html'; 
+        } 
+    });
 
     async function logActivity(details) {
         let uName = currentUser ? (currentUser.displayName || currentUser.email) : "Unknown";
