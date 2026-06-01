@@ -11,17 +11,16 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@300;400;500;700&display=swap');
         
-        /* Light Theme အရောင်များ သတ်မှတ်ခြင်း */
         :root {
-            --bg-main: #f0f4f8;       /* နောက်ခံအရောင် (မီးခိုးဖျော့) */
-            --bg-card: #ffffff;       /* ကတ်နောက်ခံ (အဖြူ) */
-            --text-main: #1e293b;     /* စာသားအရောင် (အမည်း) */
-            --text-muted: #64748b;    /* စာသားအရောင် (မီးခိုးရင့်) */
-            --primary: #0284c7;       /* အဓိကအရောင် (အပြာ) */
-            --success: #059669;       /* အောင်မြင်မှု (အစိမ်းရင့်) */
-            --warning: #d97706;       /* သတိပေးမှု (လိမ္မော်ရင့်) */
-            --danger: #dc2626;        /* အန္တရာယ် (အနီရင့်) */
-            --border: #cbd5e1;        /* ဘောင်အရောင် (မီးခိုး) */
+            --bg-main: #f0f4f8;       
+            --bg-card: #ffffff;       
+            --text-main: #1e293b;     
+            --text-muted: #64748b;    
+            --primary: #0284c7;       
+            --success: #059669;       
+            --warning: #d97706;       
+            --danger: #dc2626;        
+            --border: #cbd5e1;        
         }
 
         body { font-family: 'Noto Sans Myanmar', sans-serif; background: var(--bg-main); padding: 15px; color: var(--text-main); margin:0; }
@@ -30,7 +29,16 @@
         .home-btn { padding: 6px 14px; background: #e2e8f0; color: #1e293b; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; border: 1px solid var(--border); transition: 0.2s; }
         .home-btn:hover { background: #cbd5e1; }
         
-        .date-group { margin-top: 15px; padding: 12px; background: #e2e8f0; border-radius: 10px; font-weight: bold; display: flex; justify-content: space-between; font-size: 13px; border: 1px solid var(--border); color: #0f172a; }
+        /* နှိပ်လို့ရမှန်းသိသာအောင် ပြောင်းလဲထားသော Date Group Style */
+        .date-group { margin-top: 12px; padding: 14px; background: #e2e8f0; border-radius: 10px; font-weight: bold; display: flex; justify-content: space-between; font-size: 14px; border: 1px solid var(--border); color: #0f172a; cursor: pointer; user-select: none; transition: background 0.2s; }
+        .date-group:hover { background: #cbd5e1; }
+        .date-group::after { content: ' 🔽'; font-size: 11px; margin-left: 5px; transition: transform 0.2s; }
+        .date-group.active::after { content: ' 🔼'; }
+        
+        /* အစပိုင်းတွင် ဖုန်းစာရင်းများကို ဝှက်ထားရန် Wrapper */
+        .cards-container { display: none; margin-bottom: 10px; }
+        .cards-container.open { display: block; }
+
         .card { background: var(--bg-card); padding: 15px; margin: 10px 0; border-radius: 12px; border-left: 5px solid #ccc; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
         
         .btn-add { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; margin-bottom: 15px; cursor: pointer; font-size: 15px; box-shadow: 0 4px 12px rgba(2,132,199,0.2); transition: 0.2s; }
@@ -77,22 +85,21 @@
     let currentUser = null;
     let allData = [];
     let repairMap = new Map();
+    // ဖွင့်ထားဆဲ ရက်စွဲများကို မှတ်ထားရန် ID စာရင်း
+    let openedGroups = new Set();
 
-    // ဖုန်း Back Key အလုပ်လုပ်ပုံကို ထိန်းချုပ်ရန် (History State)
     history.pushState({ page: 'main' }, null, '');
     window.addEventListener('popstate', function(event) {
         const searchInput = document.getElementById("searchInput");
-        
         if (Swal.isVisible()) {
             Swal.close();
-            history.pushState({ page: 'main' }, null, ''); // Form ပိတ်ပေမယ့် App ထဲမှာပဲ ဆက်နေရန်
+            history.pushState({ page: 'main' }, null, ''); 
         } else if (document.activeElement === searchInput || searchInput.value.trim() !== "") {
             searchInput.value = "";
             searchInput.blur();
             filterRepair();
-            history.pushState({ page: 'main' }, null, ''); // Search ပိတ်ပေမယ့် App ထဲမှာပဲ ဆက်နေရန်
+            history.pushState({ page: 'main' }, null, ''); 
         } else {
-            // တကယ်ပဲ Home ကိုပြန်သွားရန်
             window.location.href = "index.html";
         }
     });
@@ -132,7 +139,6 @@
         const defaultDate = data?.date || todayStr;
         const defaultVR = data ? (data.vrno || '') : getNextVRNo();
 
-        // ၄ မျိုးဖြစ်အောင် ပြင်ဆင်ထားသော Status များ
         const statusOptions = [
             { value: 'ပြုပြင်နေဆဲ', label: '⏳ ပြုပြင်နေဆဲ' },
             { value: 'ပြုပြင်ပြီ', label: '✅ ပြုပြင်ပြီ' },
@@ -144,7 +150,6 @@
             let currentStatus = data?.status;
             if (currentStatus === 'ပြင်ဆင်နေဆဲ') currentStatus = 'ပြုပြင်နေဆဲ';
             if (currentStatus === 'ပြီးစီး') currentStatus = 'ထုတ်ယူပြီး';
-            
             const isSelected = currentStatus === opt.value ? 'selected' : '';
             return `<option value="${opt.value}" ${isSelected}>${opt.label}</option>`;
         }).join('');
@@ -152,7 +157,6 @@
         const { value: formValues } = await Swal.fire({
             title: data ? 'အချက်အလက်ပြင်ရန်' : 'ဖုန်းအသစ်အပ်ရန်',
             width: '600px',
-            /* Light Theme အတွက် Swal ကို ပြင်ဆင်ထားခြင်း */
             background: '#ffffff',
             color: '#1e293b',
             html: `
@@ -226,26 +230,38 @@
         }
     }
 
+    // ရက်စွဲအုပ်စု ခေါက်ခြင်း/ပွင့်ခြင်း လုပ်ဆောင်ချက်
+    function toggleGroup(domId, key) {
+        const container = document.getElementById(domId);
+        const header = container.previousElementSibling;
+        if(container.classList.contains('open')) {
+            container.classList.remove('open');
+            header.classList.remove('active');
+            openedGroups.delete(key);
+        } else {
+            container.classList.add('open');
+            header.classList.add('active');
+            openedGroups.add(key);
+        }
+    }
+
     function renderList(data) {
         const viewMode = document.getElementById("viewMode").value;
+        const searchTerm = document.getElementById("searchInput").value.trim();
         let groups = {};
         
-        // နေ့စဉ်၊ အပတ်စဉ်၊ လစဉ် အလိုက် Data များကို အုပ်စုခွဲခြင်း
         data.forEach(d => { 
             let dDate = d.date;
             let groupKey = "ရက်စွဲမရှိ";
 
             if (dDate) {
-                if (viewMode === 'daily') {
-                    groupKey = dDate;
-                } else if (viewMode === 'monthly') {
-                    groupKey = dDate.substring(0, 7); // ဥပမာ - 2024-06
-                } else if (viewMode === 'weekly') {
+                if (viewMode === 'daily') groupKey = dDate;
+                else if (viewMode === 'monthly') groupKey = dDate.substring(0, 7);
+                else if (viewMode === 'weekly') {
                     let dateObj = new Date(dDate);
-                    let day = dateObj.getDay() || 7; // တနင်္ဂနွေ (0) ကို 7 အဖြစ်ပြောင်း
-                    dateObj.setDate(dateObj.getDate() - day + 1); // အပတ်တစ်ခု၏ တနင်္လာနေ့ ရက်စွဲကို ယူရန်
-                    let mondayStr = dateObj.toISOString().split('T')[0];
-                    groupKey = `Week: ${mondayStr}`;
+                    let day = dateObj.getDay() || 7; 
+                    dateObj.setDate(dateObj.getDate() - day + 1); 
+                    groupKey = `Week: ${dateObj.toISOString().split('T')[0]}`;
                 }
             }
             
@@ -260,29 +276,44 @@
         });
 
         let html = "";
+        let groupIndex = 0;
+
         sortedKeys.forEach(key => {
-            // Group Title ပြသရန် စာသားပြင်ဆင်ခြင်း
             let displayTitle = key;
             if (viewMode === 'monthly' && key !== "ရက်စွဲမရှိ") displayTitle = `🗓 လစဉ်: ${key}`;
             else if (viewMode === 'weekly' && key !== "ရက်စွဲမရှိ") displayTitle = `📆 အပတ်စဉ်: ${key.replace('Week: ', '')} မှစ၍`;
             else if (viewMode === 'daily' && key !== "ရက်စွဲမရှိ") displayTitle = `📅 နေ့စဉ်: ${key}`;
 
-            html += `<div class="date-group"><span>${displayTitle}</span> <span>စုစုပေါင်း: ${groups[key].length} လုံး</span></div>`;
+            // **အရေးကြီး - တစ်ရက်တည်းအောက်ရှိ စာရင်းများကို VR-No အကြီးဆုံးမှ အသေးဆုံးသို့ စီခြင်း**
+            groups[key].sort((a, b) => {
+                let numA = parseInt(String(a.vrno || '').match(/\d+/)?.[0] || 0, 10);
+                let numB = parseInt(String(b.vrno || '').match(/\d+/)?.[0] || 0, 10);
+                if (numA !== numB) return numB - numA; // နံပါတ်ကြီးတာ အပေါ်ကလာမည်
+                return String(b.vrno || '').localeCompare(String(a.vrno || '')); // စာသားပါကလည်း အကြီးက အပေါ်ကလာမည်
+            });
+
+            groupIndex++;
+            const domId = `group-container-${groupIndex}`;
             
+            // ရှာဖွေနေချိန်တွင် (သို့မဟုတ် ယခင်က ဖွင့်ထားခဲ့လျှင်) တန်းပွင့်နေစေရန်
+            const isOpened = searchTerm !== "" || openedGroups.has(key);
+            const openClass = isOpened ? 'open' : '';
+            const activeClass = isOpened ? 'active' : '';
+
+            html += `
+            <div class="date-group ${activeClass}" onclick="toggleGroup('${domId}', '${key}')">
+                <span>${displayTitle}</span> 
+                <span>စုစုပေါင်း: ${groups[key].length} လုံး</span>
+            </div>
+            <div id="${domId}" class="cards-container ${openClass}">`;
+
             groups[key].forEach(d => {
                 let statusColor = 'var(--warning)';
                 let statusText = '⏳ ပြုပြင်နေဆဲ';
 
-                if (d.status === 'ပြုပြင်ပြီ') {
-                    statusColor = 'var(--primary)'; 
-                    statusText = '✅ ပြုပြင်ပြီ';
-                } else if (d.status === 'ပြုပြင်မရ') {
-                    statusColor = 'var(--danger)'; 
-                    statusText = '❌ ပြုပြင်မရ';
-                } else if (d.status === 'ထုတ်ယူပြီး' || d.status === 'ပြီးစီး') { 
-                    statusColor = 'var(--success)'; 
-                    statusText = '📦 ထုတ်ယူပြီး';
-                }
+                if (d.status === 'ပြုပြင်ပြီ') { statusColor = 'var(--primary)'; statusText = '✅ ပြုပြင်ပြီ'; }
+                else if (d.status === 'ပြုပြင်မရ') { statusColor = 'var(--danger)'; statusText = '❌ ပြုပြင်မရ'; }
+                else if (d.status === 'ထုတ်ယူပြီး' || d.status === 'ပြီးစီး') { statusColor = 'var(--success)'; statusText = '📦 ထုတ်ယူပြီး'; }
 
                 let profit = Number(d.income) - Number(d.cost);
                 let profitColor = profit > 0 ? 'var(--success)' : (profit < 0 ? 'var(--danger)' : 'var(--text-main)');
@@ -305,6 +336,7 @@
                     </div>
                 </div>`;
             });
+            html += `</div>`;
         });
         document.getElementById("repairList").innerHTML = html || "<p style='text-align:center; padding: 20px; color:var(--text-muted);'>အချက်အလက် မရှိသေးပါ</p>";
     }
