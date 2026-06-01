@@ -35,12 +35,11 @@
         .btn-status-update { flex: 1; padding: 14px; background: var(--purple); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 14px; box-shadow: 0 4px 12px rgba(124,58,237,0.2); transition: 0.2s; }
         .btn-add:active, .btn-status-update:active { transform: scale(0.99); }
 
-        .date-group { margin-top: 12px; padding: 14px; background: #e2e8f0; border-radius: 10px; font-weight: bold; display: flex; justify-content: space-between; flex-direction: column; gap: 5px; font-size: 14px; border: 1px solid var(--border); color: #0f172a; cursor: pointer; user-select: none; transition: background 0.2s; }
+        /* တိုတိုတုတ်တုတ်နှင့် သပ်ရပ်သွားသော Date Group Style */
+        .date-group { margin-top: 12px; padding: 14px; background: #e2e8f0; border-radius: 10px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-size: 14px; border: 1px solid var(--border); color: #0f172a; cursor: pointer; user-select: none; transition: background 0.2s; }
         .date-group:hover { background: #cbd5e1; }
-        .date-group-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .date-group-header::after { content: ' 🔽'; font-size: 11px; margin-left: 5px; transition: transform 0.2s; }
-        .date-group.active .date-group-header::after { content: ' 🔼'; }
-        .date-summary { font-size: 12px; color: var(--text-muted); font-weight: normal; display: flex; gap: 15px; border-top: 1px solid #cbd5e1; padding-top: 5px; margin-top: 5px; }
+        .date-group::after { content: ' 🔽'; font-size: 11px; margin-left: 5px; transition: transform 0.2s; }
+        .date-group.active::after { content: ' 🔼'; }
 
         .cards-container { display: none; margin-bottom: 10px; }
         .cards-container.open { display: block; }
@@ -110,7 +109,7 @@
         return maxNum > 0 ? String(maxNum + 1) : "1";
     }
 
-    // ၁။ ဖုန်းအသစ်အပ်နှံရန် Form (ရိုးရှင်းလွယ်ကူအောင် နာမည်နဲ့ဖုန်းပဲ သွင်းရုံ)
+    // ၁။ ဖုန်းအသစ်အပ်နှံရန် Form
     async function showForm(data = null) {
         const todayStr = new Date().toISOString().split('T')[0];
         const defaultDate = data?.date || todayStr;
@@ -151,7 +150,7 @@
                     phone: document.getElementById('phone').value.trim(),
                     location: document.getElementById('location').value.trim(),
                     remark: document.getElementById('remark').value.trim(),
-                    status: data ? data.status : 'စစ်ဆေးပြုပြင်နေဆဲ', // အသစ်ဆိုရင် အလိုအလျောက် စစ်ဆေးဆဲ
+                    status: data ? data.status : 'စစ်ဆေးပြုပြင်နေဆဲ',
                     cost: data ? data.cost : 0,
                     income: data ? data.income : 0
                 }
@@ -168,7 +167,7 @@
         }
     }
 
-    // ၂။ ဒုတိယ Form အသစ် - VR နံပါတ်ရိုက်ထည့်ပြီး ရင်း၊ ရ၊ Done/Not Done၊ ရွေး/မရွေး သွင်းရမည့် Form
+    // ၂။ ဒုတိယ Form - ဈေးနှုန်းနှင့် Status သွင်းရန် Form
     async function showStatusPriceForm() {
         const { value: vrInput } = await Swal.fire({
             title: 'VR နံပါတ် ရိုက်ထည့်ပါ',
@@ -181,7 +180,6 @@
 
         if (!vrInput) return;
 
-        // ရိုက်ထည့်လိုက်တဲ့ VR နံပါတ်နဲ့ ကိုက်ညီတဲ့ ဖုန်းကို ရှာဖွေခြင်း
         let foundData = allData.find(d => String(d.vrno).trim() === String(vrInput).trim());
 
         if (!foundData) {
@@ -189,9 +187,8 @@
             return;
         }
 
-        // ရှိပြီးသား Status အဟောင်းတွေကို လက်ရှိစနစ်နဲ့ ကိုက်ညီအောင် ခွဲထုတ်ခြင်း
-        let currentDoneStatus = 'not_done'; // done, not_done
-        let currentCollectStatus = 'not_collected'; // collected, not_collected
+        let currentDoneStatus = 'not_done';
+        let currentCollectStatus = 'not_collected';
 
         if (foundData.status.includes('ပြင်ပြီး') || foundData.status.includes('အောင်မြင်')) currentDoneStatus = 'done';
         if (foundData.status.includes('ပြင်မရ')) currentDoneStatus = 'not_done';
@@ -236,7 +233,6 @@
                 const done = document.getElementById('update_done').value;
                 const collect = document.getElementById('update_collect').value;
 
-                // Done/Not Done နဲ့ ရွေး/မရွေး အပေါ်မူတည်ပြီး Status စာသား သတ်မှတ်ခြင်း
                 let finalStatus = 'စစ်ဆေးပြုပြင်နေဆဲ';
                 if (done === 'done' && collect === 'not_collected') finalStatus = 'ပြင်ပြီး-မရွေးသေး';
                 if (done === 'not_done' && collect === 'not_collected') finalStatus = 'ပြင်မရ-မရွေးသေး';
@@ -249,7 +245,6 @@
 
         if (!updateValues) return;
 
-        // Firebase မှာ Update လုပ်ခြင်း
         await db.collection("repairs").doc(foundData.id).update(updateValues);
         await logActivity(`VR-${foundData.vrno} (${foundData.name}) ၏ ဈေးနှုန်းနှင့် Status ကို အပ်ဒိတ်လုပ်သည်။`);
         Swal.fire('သိမ်းဆည်းပြီးပါပြီ', '', 'success');
@@ -262,7 +257,7 @@
 
     function toggleGroup(domId, key) {
         const container = document.getElementById(domId);
-        const header = container.parentElement;
+        const header = container.previousElementSibling;
         if(container.classList.contains('open')) { container.classList.remove('open'); header.classList.remove('active'); openedGroups.delete(key); } 
         else { container.classList.add('open'); header.classList.add('active'); openedGroups.add(key); }
     }
@@ -299,27 +294,15 @@
             else if (viewMode === 'weekly') displayTitle = `📆 အပတ်စဉ်: ${key.replace('Week: ', '')} မှစ၍`;
             else if (viewMode === 'daily') displayTitle = `📅 နေ့စဉ်: ${key}`;
 
-            let groupTotalCost = 0; let groupTotalIncome = 0; let groupTotalProfit = 0;
-            groups[key].forEach(item => {
-                groupTotalCost += (Number(item.cost) || 0);
-                groupTotalIncome += (Number(item.income) || 0);
-                groupTotalProfit += ((Number(item.income) || 0) - (Number(item.cost) || 0));
-            });
-
             groups[key].sort((a, b) => { return parseInt(b.vrno || 0) - parseInt(a.vrno || 0); });
             groupIndex++;
             const domId = `group-container-${groupIndex}`;
             const isOpened = searchTerm !== "" || openedGroups.has(key);
 
+            // **စုစုပေါင်းငွေစာရင်း (Total Amounts) ပြတဲ့ စာတန်းကို ဖယ်ရှားလိုက်ပါပြီ**
             html += `
-            <div class="date-group ${isOpened ? 'active' : ''}">
-                <div class="date-group-header" onclick="toggleGroup('${domId}', '${key}')">
-                    <span>${displayTitle}</span> <span>စုစုပေါင်း: ${groups[key].length} လုံး</span>
-                </div>
-                <div class="date-summary">
-                    <span>ရငွေပေါင်း: <b style="color:var(--primary)">${groupTotalIncome}</b></span>
-                    <span style="color: ${groupTotalProfit >= 0 ? 'var(--success)' : 'var(--danger)'}">အမြတ်ပေါင်း: <b>${groupTotalProfit}</b></span>
-                </div>
+            <div class="date-group ${isOpened ? 'active' : ''}" onclick="toggleGroup('${domId}', '${key}')">
+                <span>${displayTitle}</span> <span>စုစုပေါင်း: ${groups[key].length} လုံး</span>
             </div>
             <div id="${domId}" class="cards-container ${isOpened ? 'open' : ''}">`;
 
