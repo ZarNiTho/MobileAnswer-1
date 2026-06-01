@@ -11,36 +11,61 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@300;400;500;700&display=swap');
         
-        body { font-family: 'Noto Sans Myanmar', sans-serif; background: #f8fafc; padding: 15px; color: #334155; }
+        /* Light Theme အရောင်များ သတ်မှတ်ခြင်း */
+        :root {
+            --bg-main: #f0f4f8;       /* နောက်ခံအရောင် (မီးခိုးဖျော့) */
+            --bg-card: #ffffff;       /* ကတ်နောက်ခံ (အဖြူ) */
+            --text-main: #1e293b;     /* စာသားအရောင် (အမည်း) */
+            --text-muted: #64748b;    /* စာသားအရောင် (မီးခိုးရင့်) */
+            --primary: #0284c7;       /* အဓိကအရောင် (အပြာ) */
+            --success: #059669;       /* အောင်မြင်မှု (အစိမ်းရင့်) */
+            --warning: #d97706;       /* သတိပေးမှု (လိမ္မော်ရင့်) */
+            --danger: #dc2626;        /* အန္တရာယ် (အနီရင့်) */
+            --border: #cbd5e1;        /* ဘောင်အရောင် (မီးခိုး) */
+        }
+
+        body { font-family: 'Noto Sans Myanmar', sans-serif; background: var(--bg-main); padding: 15px; color: var(--text-main); margin:0; }
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        h3 { color: #0f172a; margin: 0; border-left: 4px solid #0284c7; padding-left: 10px; }
-        .home-btn { padding: 6px 12px; background: #475569; color: white; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold; }
+        h3 { color: var(--text-main); margin: 0; border-left: 4px solid var(--primary); padding-left: 10px; font-size: 16px; font-weight: bold; }
+        .home-btn { padding: 6px 14px; background: #e2e8f0; color: #1e293b; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; border: 1px solid var(--border); transition: 0.2s; }
+        .home-btn:hover { background: #cbd5e1; }
         
-        .date-group { margin-top: 20px; padding: 12px; background: #e2e8f0; border-radius: 8px; font-weight: bold; display: flex; justify-content: space-between; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .card { background: white; padding: 15px; margin: 8px 0; border-radius: 10px; border-left: 5px solid #ccc; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .date-group { margin-top: 15px; padding: 12px; background: #e2e8f0; border-radius: 10px; font-weight: bold; display: flex; justify-content: space-between; font-size: 13px; border: 1px solid var(--border); color: #0f172a; }
+        .card { background: var(--bg-card); padding: 15px; margin: 10px 0; border-radius: 12px; border-left: 5px solid #ccc; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
         
-        .btn-add { width: 100%; padding: 14px; background: #0284c7; color: white; border: none; border-radius: 8px; font-weight: bold; margin-bottom: 15px; cursor: pointer; font-size: 15px; box-shadow: 0 2px 4px rgba(2,132,199,0.3); transition: 0.2s; }
-        .btn-add:hover { background: #0369a1; }
+        .btn-add { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; margin-bottom: 15px; cursor: pointer; font-size: 15px; box-shadow: 0 4px 12px rgba(2,132,199,0.2); transition: 0.2s; }
+        .btn-add:active { transform: scale(0.99); }
         
-        .btn-edit { background: #4f46e5; border: none; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: 0.2s; }
-        .btn-delete { background: #ef4444; border: none; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; margin-left: 5px; transition: 0.2s; }
-        .btn-edit:hover { opacity: 0.8; }
+        .btn-edit { background: #4f46e5; border: none; color: white; padding: 6px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+        .btn-delete { background: #fee2e2; color: var(--danger); border: 1px solid #fca5a5; padding: 6px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; margin-left: 5px; }
         
-        .search-box { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-        .search-box:focus { outline: none; border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2,132,199,0.2); }
+        .filter-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .search-box { flex: 1; padding: 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; box-sizing: border-box; font-size: 14px; color: var(--text-main); outline: none; }
+        .view-select { padding: 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; font-size: 13px; color: var(--text-main); outline: none; font-weight: bold; cursor: pointer; }
+        
+        .search-box:focus, .view-select:focus { border-color: var(--primary); }
         
         .row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; margin-top: 8px; }
-        .info-text { color: #475569; font-size: 13px; line-height: 1.6; }
+        .info-text { color: var(--text-muted); font-size: 13px; line-height: 1.6; }
     </style>
 </head>
 <body>
     <div class="header-row">
         <h3>🛠 ဖုန်းပြင်ဆင်မှု စာရင်း</h3>
-        <a href="index.html" class="home-btn">🔙 ပင်မသို့</a>
+        <a href="index.html" class="home-btn" id="homeBtn">🔙 ပင်မသို့</a>
     </div>
     
     <button class="btn-add" onclick="showForm()">+ အပ်ထားသော ဖုန်းအသစ်</button>
-    <input type="text" id="searchInput" class="search-box" placeholder="🔍 VR-No, နာမည် သို့မဟုတ် ဖုန်းအမျိုးအစားဖြင့် ရှာရန်..." onkeyup="filterRepair()">
+    
+    <div class="filter-row">
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 ရှာဖွေရန် (အမည်၊ VR...)" onkeyup="filterRepair()">
+        <select id="viewMode" class="view-select" onchange="filterRepair()">
+            <option value="daily">📅 နေ့စဉ်</option>
+            <option value="weekly">📆 အပတ်စဉ်</option>
+            <option value="monthly">🗓 လစဉ်</option>
+        </select>
+    </div>
+
     <div id="repairList"></div>
 
 <script>
@@ -52,6 +77,25 @@
     let currentUser = null;
     let allData = [];
     let repairMap = new Map();
+
+    // ဖုန်း Back Key အလုပ်လုပ်ပုံကို ထိန်းချုပ်ရန် (History State)
+    history.pushState({ page: 'main' }, null, '');
+    window.addEventListener('popstate', function(event) {
+        const searchInput = document.getElementById("searchInput");
+        
+        if (Swal.isVisible()) {
+            Swal.close();
+            history.pushState({ page: 'main' }, null, ''); // Form ပိတ်ပေမယ့် App ထဲမှာပဲ ဆက်နေရန်
+        } else if (document.activeElement === searchInput || searchInput.value.trim() !== "") {
+            searchInput.value = "";
+            searchInput.blur();
+            filterRepair();
+            history.pushState({ page: 'main' }, null, ''); // Search ပိတ်ပေမယ့် App ထဲမှာပဲ ဆက်နေရန်
+        } else {
+            // တကယ်ပဲ Home ကိုပြန်သွားရန်
+            window.location.href = "index.html";
+        }
+    });
 
     auth.onAuthStateChanged(user => {
         if(user) { 
@@ -88,16 +132,36 @@
         const defaultDate = data?.date || todayStr;
         const defaultVR = data ? (data.vrno || '') : getNextVRNo();
 
+        // ၄ မျိုးဖြစ်အောင် ပြင်ဆင်ထားသော Status များ
+        const statusOptions = [
+            { value: 'ပြုပြင်နေဆဲ', label: '⏳ ပြုပြင်နေဆဲ' },
+            { value: 'ပြုပြင်ပြီ', label: '✅ ပြုပြင်ပြီ' },
+            { value: 'ပြုပြင်မရ', label: '❌ ပြုပြင်မရ' },
+            { value: 'ထုတ်ယူပြီး', label: '📦 ထုတ်ယူပြီး' }
+        ];
+
+        let statusHtml = statusOptions.map(opt => {
+            let currentStatus = data?.status;
+            if (currentStatus === 'ပြင်ဆင်နေဆဲ') currentStatus = 'ပြုပြင်နေဆဲ';
+            if (currentStatus === 'ပြီးစီး') currentStatus = 'ထုတ်ယူပြီး';
+            
+            const isSelected = currentStatus === opt.value ? 'selected' : '';
+            return `<option value="${opt.value}" ${isSelected}>${opt.label}</option>`;
+        }).join('');
+
         const { value: formValues } = await Swal.fire({
             title: data ? 'အချက်အလက်ပြင်ရန်' : 'ဖုန်းအသစ်အပ်ရန်',
             width: '600px',
+            /* Light Theme အတွက် Swal ကို ပြင်ဆင်ထားခြင်း */
+            background: '#ffffff',
+            color: '#1e293b',
             html: `
                 <style>
                     .swal-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; margin-top: 10px; }
                     .swal-form .full { grid-column: span 2; }
                     .swal-form label { font-size: 13px; font-weight: bold; color: #475569; margin-bottom: 5px; display: block; }
-                    .swal-form input, .swal-form select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
-                    .swal-form input:focus, .swal-form select:focus { outline: none; border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2,132,199,0.2); }
+                    .swal-form input, .swal-form select { width: 100%; padding: 10px; background:#f8fafc; color:#1e293b; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+                    .swal-form input:focus, .swal-form select:focus { outline: none; border-color: #0284c7; background:#ffffff;}
                 </style>
                 <div class="swal-form">
                     <div><label>ဘောင်ချာနံပါတ် (VR-No)</label> <input id="vrno" value="${defaultVR}" placeholder="ဥပမာ - 6395"></div>
@@ -109,8 +173,7 @@
                     <div>
                         <label>အခြေအနေ</label>
                         <select id="status">
-                            <option value="ပြင်ဆင်နေဆဲ" ${data?.status === 'ပြင်ဆင်နေဆဲ' ? 'selected' : ''}>⏳ ပြင်ဆင်နေဆဲ</option>
-                            <option value="ပြီးစီး" ${data?.status === 'ပြီးစီး' ? 'selected' : ''}>✅ ပြီးစီး</option>
+                            ${statusHtml}
                         </select>
                     </div>
                     <div><label>ဒေသ (Location)</label><input id="location" placeholder="City/Town" value="${data ? data.location : ''}"></div>
@@ -142,67 +205,99 @@
         if(!formValues) return;
 
         if(data) {
-            // [အသစ်ပြင်ဆင်လိုက်သော အပိုင်း] ပြောင်းလဲမှုများကို အသေးစိတ် စစ်ဆေးခြင်း
             let changes = [];
-            
-            if (data.name !== formValues.name) changes.push(`အမည်: ${data.name} ➡️ ${formValues.name}`);
-            if (data.model !== formValues.model) changes.push(`မော်ဒယ်: ${data.model} ➡️ ${formValues.model}`);
-            if (data.issue !== formValues.issue) changes.push(`ပြစ်ချက်: ${data.issue} ➡️ ${formValues.issue}`);
-            if (data.status !== formValues.status) changes.push(`အခြေအနေ: ${data.status} ➡️ ${formValues.status}`);
-            if (Number(data.cost) !== Number(formValues.cost)) changes.push(`ရင်းငွေ: ${data.cost} ➡️ ${formValues.cost}`);
-            if (Number(data.income) !== Number(formValues.income)) changes.push(`ရငွေ: ${data.income} ➡️ ${formValues.income}`);
-            if ((data.remark || '') !== formValues.remark) changes.push(`မှတ်ချက်: ${(data.remark || '-')} ➡️ ${formValues.remark}`);
-            if ((data.phone || '') !== formValues.phone) changes.push(`ဖုန်းနံပါတ်: ${(data.phone || '-')} ➡️ ${formValues.phone}`);
-            if ((data.vrno || '') !== formValues.vrno) changes.push(`VR-No: ${(data.vrno || '-')} ➡️ ${formValues.vrno}`);
-
-            let logDetails = changes.length > 0 
-                ? `ဖုန်းအပ်နှံမှု [${formValues.name}] ကို ပြင်ဆင်သည်။ ပြောင်းလဲမှု -> (${changes.join(", ")})`
-                : `ဖုန်းအပ်နှံမှု [${formValues.name}] ၏ Profile ကို ပြန်လည်သိမ်းဆည်းသည် (အချက်အလက် ပြောင်းလဲမှုမရှိ)`;
-
+            if(data.status !== formValues.status) changes.push(`Status:${data.status}->${formValues.status}`);
             await db.collection("repairs").doc(data.id).update(formValues);
-            await logActivity(logDetails);
-
-            Swal.fire('အောင်မြင်ပါသည်', 'အချက်အလက်များကို ပြင်ဆင်ပြီးပါပြီ', 'success');
+            await logActivity(`ဖုန်းအပ်နှံမှု ${formValues.name} ကို ပြင်ဆင်သည်။ ${changes.length > 0 ? "ပြောင်းလဲမှု: " + changes.join(", ") : ""}`);
+            Swal.fire({title: 'အောင်မြင်ပါသည်', text: 'အချက်အလက်များကို ပြင်ဆင်ပြီးပါပြီ', icon: 'success'});
         } else {
             await db.collection("repairs").add({ ...formValues, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
             await logActivity(`ဖုန်းအသစ် ${formValues.name} ထည့်သွင်းသည်။`);
-            Swal.fire('ထည့်သွင်းပြီးပါပြီ', '', 'success');
+            Swal.fire({title: 'ထည့်သွင်းပြီးပါပြီ', icon: 'success'});
         }
     }
 
     async function deleteRepair(id, vrno, name) {
-        const result = await Swal.fire({ title: 'သေချာပြီလား?', text: `ဖောက်သည် ${name} ၏ အချက်အလက်ကို ဖျက်မှာ သေချာပါသလား?`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#94a3b8', confirmButtonText: 'ဖျက်မည်', cancelButtonText: 'မဖျက်ပါ' });
+        const result = await Swal.fire({ title: 'သေချာပြီလား?', text: `ဖောက်သည် ${name} ၏ အချက်အလက်ကို ဖျက်မှာ သေချာပါသလား?`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', cancelButtonColor: '#64748b', confirmButtonText: 'ဖျက်မည်', cancelButtonText: 'မဖျက်ပါ' });
         if (result.isConfirmed) {
             await db.collection("repairs").doc(id).delete();
             await logActivity(`${name} ၏ စာရင်းကို ဖျက်လိုက်ပါသည်။`);
-            Swal.fire('ဖျက်ပြီးပါပြီ', '', 'success');
+            Swal.fire({title: 'ဖျက်ပြီးပါပြီ', icon: 'success'});
         }
     }
 
     function renderList(data) {
+        const viewMode = document.getElementById("viewMode").value;
         let groups = {};
-        data.forEach(d => { let dDate = d.date || "ရက်စွဲမရှိ"; if(!groups[dDate]) groups[dDate] = []; groups[dDate].push(d); });
-        let sortedDates = Object.keys(groups).sort((a, b) => new Date(b) - new Date(a));
+        
+        // နေ့စဉ်၊ အပတ်စဉ်၊ လစဉ် အလိုက် Data များကို အုပ်စုခွဲခြင်း
+        data.forEach(d => { 
+            let dDate = d.date;
+            let groupKey = "ရက်စွဲမရှိ";
+
+            if (dDate) {
+                if (viewMode === 'daily') {
+                    groupKey = dDate;
+                } else if (viewMode === 'monthly') {
+                    groupKey = dDate.substring(0, 7); // ဥပမာ - 2024-06
+                } else if (viewMode === 'weekly') {
+                    let dateObj = new Date(dDate);
+                    let day = dateObj.getDay() || 7; // တနင်္ဂနွေ (0) ကို 7 အဖြစ်ပြောင်း
+                    dateObj.setDate(dateObj.getDate() - day + 1); // အပတ်တစ်ခု၏ တနင်္လာနေ့ ရက်စွဲကို ယူရန်
+                    let mondayStr = dateObj.toISOString().split('T')[0];
+                    groupKey = `Week: ${mondayStr}`;
+                }
+            }
+            
+            if(!groups[groupKey]) groups[groupKey] = []; 
+            groups[groupKey].push(d); 
+        });
+        
+        let sortedKeys = Object.keys(groups).sort((a, b) => {
+            if(a === "ရက်စွဲမရှိ") return 1;
+            if(b === "ရက်စွဲမရှိ") return -1;
+            return b.localeCompare(a); 
+        });
+
         let html = "";
-        sortedDates.forEach(date => {
-            html += `<div class="date-group"><span>📅 ${date}</span> <span>စုစုပေါင်း: ${groups[date].length} လုံး</span></div>`;
-            groups[date].forEach(d => {
-                let statusColor = d.status === 'ပြီးစီး' ? '#10b981' : '#f59e0b';
-                let statusText = d.status === 'ပြီးစီး' ? '✅ Done' : '⏳ Pending';
+        sortedKeys.forEach(key => {
+            // Group Title ပြသရန် စာသားပြင်ဆင်ခြင်း
+            let displayTitle = key;
+            if (viewMode === 'monthly' && key !== "ရက်စွဲမရှိ") displayTitle = `🗓 လစဉ်: ${key}`;
+            else if (viewMode === 'weekly' && key !== "ရက်စွဲမရှိ") displayTitle = `📆 အပတ်စဉ်: ${key.replace('Week: ', '')} မှစ၍`;
+            else if (viewMode === 'daily' && key !== "ရက်စွဲမရှိ") displayTitle = `📅 နေ့စဉ်: ${key}`;
+
+            html += `<div class="date-group"><span>${displayTitle}</span> <span>စုစုပေါင်း: ${groups[key].length} လုံး</span></div>`;
+            
+            groups[key].forEach(d => {
+                let statusColor = 'var(--warning)';
+                let statusText = '⏳ ပြုပြင်နေဆဲ';
+
+                if (d.status === 'ပြုပြင်ပြီ') {
+                    statusColor = 'var(--primary)'; 
+                    statusText = '✅ ပြုပြင်ပြီ';
+                } else if (d.status === 'ပြုပြင်မရ') {
+                    statusColor = 'var(--danger)'; 
+                    statusText = '❌ ပြုပြင်မရ';
+                } else if (d.status === 'ထုတ်ယူပြီး' || d.status === 'ပြီးစီး') { 
+                    statusColor = 'var(--success)'; 
+                    statusText = '📦 ထုတ်ယူပြီး';
+                }
+
                 let profit = Number(d.income) - Number(d.cost);
-                let profitColor = profit > 0 ? '#10b981' : (profit < 0 ? '#ef4444' : '#475569');
+                let profitColor = profit > 0 ? 'var(--success)' : (profit < 0 ? 'var(--danger)' : 'var(--text-main)');
                 let displayVR = d.vrno ? `${d.vrno} | ` : '';
 
                 html += `
                 <div class="card" style="border-left-color: ${statusColor}">
-                    <div class="row"><b style="font-size: 15px;">${displayVR}${d.name}</b> <span style="color:${statusColor}; font-weight:bold; font-size: 13px;">${statusText}</span></div>
+                    <div class="row"><b style="font-size: 15px; color:var(--text-main);">${displayVR}${d.name}</b> <span style="color:${statusColor}; font-weight:bold; font-size: 13px;">${statusText}</span></div>
                     <div class="info-text" style="margin-top: 5px;">📱 ${d.model} | 📍 ${d.location || '-'}</div>
-                    <div class="info-text">📞 ဖုန်း: <b>${d.phone || '-'}</b></div>
+                    <div class="info-text">📞 ဖုန်း: <b style="color:var(--text-main);">${d.phone || '-'}</b></div>
                     <div class="info-text">⚠️ <b>ပြစ်ချက်:</b> ${d.issue}</div>
                     <div class="info-text" style="font-size:12px; margin-top:5px;"><i>မှတ်ချက်: ${d.remark || '-'}</i></div>
-                    <hr style="border: 0; border-top: 1px dashed #cbd5e1; margin: 10px 0;">
+                    <hr style="border: 0; border-top: 1px dashed var(--border); margin: 10px 0;">
                     <div class="row">
-                        <span style="font-size: 13px;">ရင်း: ${d.cost} | ရ: ${d.income} <br><b style="color: ${profitColor}">အမြတ်: ${profit}</b></span> 
+                        <span style="font-size: 13px; color: var(--text-muted);">ရင်း: ${d.cost} | ရ: ${d.income} <br><b style="color: ${profitColor}">အမြတ်: ${profit}</b></span> 
                         <div>
                             <button class="btn-edit" onclick="showForm(repairMap.get('${d.id}'))">ပြင်မည်</button>
                             <button class="btn-delete" onclick="deleteRepair('${d.id}', '${d.vrno}', '${d.name}')">ဖျက်မည်</button>
@@ -211,12 +306,13 @@
                 </div>`;
             });
         });
-        document.getElementById("repairList").innerHTML = html || "<p style='text-align:center; padding: 20px; color:#94a3b8;'>အချက်အလက် မရှိသေးပါ</p>";
+        document.getElementById("repairList").innerHTML = html || "<p style='text-align:center; padding: 20px; color:var(--text-muted);'>အချက်အလက် မရှိသေးပါ</p>";
     }
 
     function filterRepair() {
         const term = document.getElementById("searchInput").value.toLowerCase();
-        renderList(allData.filter(d => (d.name || '').toLowerCase().includes(term) || (d.vrno || '').toLowerCase().includes(term) || (d.model || '').toLowerCase().includes(term) || (d.phone || '').includes(term) ));
+        let filteredData = allData.filter(d => (d.name || '').toLowerCase().includes(term) || (d.vrno || '').toLowerCase().includes(term) || (d.model || '').toLowerCase().includes(term) || (d.phone || '').includes(term));
+        renderList(filteredData);
     }
 
     function fetchRepairs() {
