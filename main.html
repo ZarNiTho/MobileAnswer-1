@@ -77,7 +77,6 @@ let currentFilter = 'အားလုံး';
 let currentSearchTerm = '';
 let unsubscribeProducts = null;
 
-// Helper: Escape HTML
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -85,12 +84,10 @@ function escapeHtml(str) {
         if (m === '<') return '&lt;';
         if (m === '>') return '&gt;';
         return m;
-    }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-        return c;
     });
 }
 
-// Auth State
+// Auth
 auth.onAuthStateChanged(async user => { 
     if(user) { 
         currentUser = user; 
@@ -99,13 +96,12 @@ auth.onAuthStateChanged(async user => {
             email: user.email,
             lastOnline: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
-        loadProducts(); // start listener
+        loadProducts();
     } else { 
         window.location.href = 'login.html'; 
     } 
 });
 
-// Log function
 async function logActivity(action, details) {
     try { 
         let uName = currentUser ? (currentUser.displayName || currentUser.email) : "Unknown";
@@ -117,11 +113,10 @@ async function logActivity(action, details) {
     } catch (e) { console.error("Log error: ", e); }
 }
 
-// -------- Product List with single listener ----------
+// Product listener
 function loadProducts() {
     if (unsubscribeProducts) unsubscribeProducts();
     unsubscribeProducts = db.collection("products").orderBy("updatedAt", "desc").onSnapshot((snap) => {
-        const listDiv = document.getElementById("productList");
         const searchTerm = document.getElementById("searchInput").value.toLowerCase();
         currentSearchTerm = searchTerm;
         
@@ -148,7 +143,6 @@ function loadProducts() {
         document.getElementById("aCount").innerText = accCount;
         document.getElementById("sCount").innerText = soldCount;
         
-        // Filter and render
         let filtered = allProducts.filter(p => {
             const matchSearch = p.name.toLowerCase().includes(searchTerm);
             if (!matchSearch) return false;
@@ -177,23 +171,60 @@ function renderProductList(products) {
         const cost = Number(p.costPrice || 0);
         const price = Number(p.price || 0);
         const sellButton = (p.status !== 'ရောင်းပြီး') 
-            ? `<button class="minus-btn" onclick="sellOne('${p.id}', ${JSON.stringify(p.name)}, ${amt}, ${price}, ${cost}, ${JSON.stringify(p.category)})">ရောင်းမည်</button>` 
+            ? `<button class="minus-btn" data-id="${p.id}" data-name="${escapeHtml(p.name)}" data-amt="${amt}" data-price="${price}" data-cost="${cost}" data-cat="${escapeHtml(p.category)}">ရောင်းမည်</button>` 
             : '';
-        html += `<div class="card">
+        html += `<div class="card" data-product-id="${p.id}">
             <div class="card-header"><div class="product-name">${nameEsc}</div><div class="badge ${statusClass}">${statusText}</div></div>
             <div class="info-row"><span>📁 အုပ်စု</span> <span>${catEsc}</span></div>
             <div class="info-row"><span>📦 အရေအတွက်</span> <span>${amt} ခု ${sellButton}</span></div>
             <div class="info-row"><span>💵 ရင်း / ရောင်း</span> <span style="font-weight:bold;">${cost.toLocaleString()} / ${price.toLocaleString()} Ks</span></div>
             <div class="card-actions">
-                <button class="edit-btn" onclick="openEditModal('${p.id}', ${JSON.stringify(p.name)}, ${JSON.stringify(p.category)}, ${JSON.stringify(p.status)}, ${amt}, ${price}, ${cost})">ပြင်မည်</button>
-                <button class="delete-btn" onclick="handleDelete('${p.id}')">ဖျက်မည်</button>
+                <button class="edit-btn" data-id="${p.id}" data-name="${escapeHtml(p.name)}" data-category="${escapeHtml(p.category)}" data-status="${p.status}" data-amount="${amt}" data-price="${price}" data-costprice="${cost}">ပြင်မည်</button>
+                <button class="delete-btn" data-id="${p.id}" data-name="${escapeHtml(p.name)}">ဖျက်မည်</button>
             </div>
         </div>`;
     }
     listDiv.innerHTML = html;
+    
+    // Attach event listeners dynamically (avoid inline onclick issues)
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = btn.dataset.id;
+            const name = btn.dataset.name;
+            const category = btn.dataset.category;
+            const status = btn.dataset.status;
+            const amount = parseInt(btn.dataset.amount);
+            const price = parseInt(btn.dataset.price);
+            const costPrice = parseInt(btn.dataset.costprice);
+            openEditModal(id, name, category, status, amount, price, costPrice);
+        });
+    });
+    
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = btn.dataset.id;
+            const name = btn.dataset.name;
+            handleDelete(id, name);
+        });
+    });
+    
+    document.querySelectorAll('.minus-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = btn.dataset.id;
+            const name = btn.dataset.name;
+            const amt = parseInt(btn.dataset.amt);
+            const price = parseInt(btn.dataset.price);
+            const cost = parseInt(btn.dataset.cost);
+            const cat = btn.dataset.cat;
+            sellOne(id, name, amt, price, cost, cat);
+        });
+    });
 }
 
-// ---------- Modal Add/Edit using SweetAlert2 ----------
+// ---------- Modal Functions (Guaranteed to show) ----------
 async function openAddModal() {
     const { value: formValues } = await Swal.fire({
         title: 'ပစ္စည်းအသစ်ထည့်ရန်',
@@ -229,13 +260,12 @@ async function openAddModal() {
         }
     });
     if (formValues) {
-        const { name, category, status, amount, costPrice, price } = formValues;
         try {
             await db.collection("products").add({
-                name, category, status, amount, price, costPrice,
+                ...formValues,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-            await logActivity("ပစ္စည်းအသစ်", `${name} (${amount} ခု, ရောင်းစျေး ${price})`);
+            await logActivity("ပစ္စည်းအသစ်", `${formValues.name} (${formValues.amount} ခု)`);
             Swal.fire({ icon: 'success', title: 'အောင်မြင်ပါသည်', timer: 1500 });
         } catch (err) {
             Swal.fire('Error', err.message, 'error');
@@ -244,10 +274,12 @@ async function openAddModal() {
 }
 
 async function openEditModal(id, name, category, status, amount, price, costPrice) {
+    // Ensure values are properly escaped for HTML but not double-encoded
+    const safeName = name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const { value: formValues } = await Swal.fire({
         title: 'ပစ္စည်းပြင်ရန်',
         html: `
-            <input id="swal-name" class="swal2-input" placeholder="ပစ္စည်းအမည်" value="${escapeHtml(name)}" required>
+            <input id="swal-name" class="swal2-input" placeholder="ပစ္စည်းအမည်" value="${safeName}" required>
             <select id="swal-category" class="swal2-select">
                 <option ${category === 'အထွေထွေ' ? 'selected' : ''} value="အထွေထွေ">အထွေထွေ</option>
                 <option ${category === 'Hardwareအပိုပစ္စည်' ? 'selected' : ''} value="Hardwareအပိုပစ္စည်">Hardwareအပိုပစ္စည်</option>
@@ -283,7 +315,7 @@ async function openEditModal(id, name, category, status, amount, price, costPric
                 ...formValues,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-            await logActivity("ပြင်ဆင်ခြင်း", formValues.name + " ကို ပြင်ဆင်သည်။");
+            await logActivity("ပြင်ဆင်ခြင်း", formValues.name);
             Swal.fire({ icon: 'success', title: 'ပြင်ဆင်ပြီးပါပြီ', timer: 1500 });
         } catch (err) {
             Swal.fire('Error', err.message, 'error');
@@ -291,7 +323,6 @@ async function openEditModal(id, name, category, status, amount, price, costPric
     }
 }
 
-// Sell one
 async function sellOne(id, name, currAmt, price, costPrice, cat) {
     const res = await Swal.fire({ title: 'ရောင်းထုတ်မှာလား?', text: name + " (၁) ခု ရောင်းမည်", icon: 'warning', showCancelButton: true });
     if(res.isConfirmed) {
@@ -303,7 +334,6 @@ async function sellOne(id, name, currAmt, price, costPrice, cat) {
         await db.collection("transactions").add({ type: "ဝင်ငွေ", group: "Sales", name: "ရောင်းရငွေ: " + name, amount: Number(price), date: new Date() });
         await logActivity("ရောင်းချခြင်း", name + " (၁) ခု ရောင်းချပြီး " + price + " Ks ရရှိသည်။");
         
-        // Update or create sold product record
         const saleSnap = await db.collection("products").where("name", "==", name + " (ရောင်းပြီး)").where("status", "==", "ရောင်းပြီး").get();
         if(!saleSnap.empty) {
             const saleDoc = saleSnap.docs[0];
@@ -315,12 +345,11 @@ async function sellOne(id, name, currAmt, price, costPrice, cat) {
     }
 }
 
-async function handleDelete(id){
-    const res = await Swal.fire({ title: 'ဖျက်မှာလား?', icon: 'warning', showCancelButton: true }); 
+async function handleDelete(id, name) {
+    const res = await Swal.fire({ title: 'ဖျက်မှာလား?', text: `"${name}" အား ဖျက်မည်`, icon: 'warning', showCancelButton: true }); 
     if(res.isConfirmed) {
-        const doc = await db.collection("products").doc(id).get();
         await db.collection("products").doc(id).delete();
-        await logActivity("ဖျက်ခြင်း", doc.data().name + " အား ဖျက်လိုက်သည်။");
+        await logActivity("ဖျက်ခြင်း", name);
         Swal.fire('ဖျက်ပြီးပါပြီ', '', 'success');
     }
 }
@@ -329,47 +358,25 @@ function setFilter(cat, el) {
     currentFilter = cat; 
     document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('active-filter')); 
     el.classList.add('active-filter'); 
-    // No need to reload, listener already active -> will re-evaluate filter
-    // Force re-render by calling loadProducts? Actually listener already has snapshot, but we need to trigger re-filter.
-    // Since currentFilter is changed, the snapshot callback will use it. But we already have snapshot; we can manually call render using existing data.
-    // Better: store last snapshot data? Simpler: just reload (but listener already active, can call same render function)
-    // We'll re-trigger by calling loadProducts? That would create new listener. Instead, we can call the render function with last snapshot.
-    // Let's force a manual re-evaluation by accessing the last snapshot? For simplicity we can call loadProducts again but ensure unsubscribe first.
-    // But our current loadProducts creates new listener, old one unsubscribed. That's fine.
-    loadProducts(); 
+    loadProducts(); // refresh filter
 }
 
-// Search input handler
 function onSearchInput() {
-    // The listener already filters based on search term, but we need to re-render.
-    // Since listener watches realtime, we can just rely on currentSearchTerm in snapshot.
-    // But the snapshot uses current value from input. No need to reload.
-    // However, our renderProductList is called inside snapshot. So just let snapshot do.
-    // To force immediate update (since input triggers oninput), we can call loadProducts? That would unsubscribe/resubscribe.
-    // Better to keep single listener: just let it flow. But oninput won't trigger snapshot. So we need to re-run filter on existing products.
-    // I'll create a small helper to re-filter from last known snapshot.
-    // For simplicity: call loadProducts (it will unsubscribe old and create new).
-    loadProducts();
+    loadProducts(); // re-run filter
 }
 
-// Back button handling: clear search on back (web only using popstate)
+// Back button clears search
 function setupBackButtonClear() {
-    // Push a dummy state so that back button doesn't navigate away
     history.pushState(null, null, location.href);
     window.addEventListener('popstate', function(event) {
         const searchInput = document.getElementById('searchInput');
         if (searchInput && searchInput.value.trim() !== '') {
             searchInput.value = '';
             onSearchInput();
-            // Prevent actual back navigation
             history.pushState(null, null, location.href);
-        } else {
-            // If search is empty, allow back? But user might want to exit app? For web, we let browser handle.
-            // To keep consistent, we do nothing - but they can still go back.
         }
     });
 }
-
 setupBackButtonClear();
 </script>
 </body>
