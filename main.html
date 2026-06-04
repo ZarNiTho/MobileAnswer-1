@@ -2,225 +2,402 @@
 <html lang="my">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MobileAnswer - Full System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MobileAnswer - Inventory Pro</title>
+    
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script> 
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@300;400;500;700&display=swap');
-        :root { --primary: #4f46e5; --dark: #1e293b; --bg: #f8fafc; }
-        *{ margin:0; padding:0; box-sizing:border-box; font-family:'Noto Sans Myanmar',sans-serif; }
-        body{ background: var(--bg); padding-bottom:50px; }
-        body.is-searching .header-section, body.is-searching .summary-grid, body.is-searching .add-section, body.is-searching .form-box { display: none !important; }
-        .header-section { background: linear-gradient(135deg, #1e3a8a, #7c3aed); padding: 10px 15px; display: flex; align-items: center; gap: 8px; color: white; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
-        .logo-wrapper { width: 45px; height: 45px; background: white; border-radius: 50%; padding: 3px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .logo-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-        .header-section h1 { font-size: 16px; flex-grow: 1; }
-        .nav-btn { background:white; color:var(--primary); padding:5px 8px; border-radius:15px; border:none; font-size:10px; font-weight:bold; cursor:pointer; }
-        .logout-btn { background:#ef4444; color:white; }
-        .container { padding: 15px; max-width: 550px; margin: 0 auto; }
-        .search-box { background: white; border-radius: 12px; padding: 10px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 12px; }
-        .search-box input { width: 100%; border: none; outline: none; font-size: 14px; background: transparent; }
-        .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 12px; }
-        .summary-card { background: white; padding: 8px 2px; border-radius: 10px; text-align: center; cursor: pointer; border: 1px solid #e2e8f0; }
-        .summary-card.active-filter { border-color: var(--primary); background: #eef2ff; }
-        .summary-card h3 { font-size: 8px; color: #64748b; }
-        .summary-card p { font-size: 11px; font-weight: 800; color: var(--primary); }
-        .open-form-btn { width: 100%; padding: 12px; border: none; border-radius: 12px; background: var(--dark); color: white; font-weight: 600; cursor: pointer; }
-        .form-box { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: none; border: 1px solid #e2e8f0; }
-        .form-box input, .form-box select { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 6px; }
-        .card { background: white; border-radius: 12px; padding: 12px; margin-bottom: 10px; border: 1px solid #f1f5f9; }
-        .card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 6px; }
-        .product-name { font-size: 14px; font-weight: 700; }
-        .badge { padding: 2px 8px; border-radius: 10px; color: white; font-size: 8px; }
-        .instock { background: #10b981; } .sold { background: #ef4444; } .repair { background: #f59e0b; }
-        .info-row { font-size: 12px; color: #475569; display: flex; justify-content: space-between; margin-bottom: 3px;}
-        .card-actions { display: flex; gap: 6px; margin-top: 8px; }
-        .card-actions button { flex: 1; padding: 6px; border: none; border-radius: 6px; font-size: 11px; cursor: pointer; }
-        .edit-btn { background: #f1f5f9; } .delete-btn { background: #fff1f2; color: #e11d48; }
-        .minus-btn { background: #fee2e2; color: #ef4444; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; cursor: pointer; }
+        body { font-family: 'Noto Sans Myanmar', sans-serif; background-color: #f1f5f9; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        
+        /* Custom SweetAlert Form Styles */
+        .swal-form-input { width: 100%; padding: 10px; background: #f8fafc; color: #1e293b; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; margin-top: 5px; outline: none; }
+        .swal-form-input:focus { border-color: #4f46e5; }
+        .swal-form-label { font-size: 12px; font-weight: bold; color: #475569; display: block; margin-top: 12px; }
     </style>
 </head>
-<body>
+<body class="text-slate-800 pb-16">
 
-<div class="header-section">
-    <div class="logo-wrapper"><img src="https://i.postimg.cc/sg5cDCt1/file-0000000001307207a601f81cc1f5617a.png" alt="Logo"></div>
-    <h1>MobileAnswer</h1>
-    <button class="nav-btn" onclick="window.location.href='repair.html'">🛠 Repair</button>
-    <button class="nav-btn" onclick="window.location.href='finance.html'">💰 ငွေစာရင်း</button>
-    <button class="nav-btn logout-btn" onclick="firebase.auth().signOut()">🚪 ထွက်မည်</button>
-</div>
-
-<div class="container">
-    <div class="search-box"><input type="text" id="searchInput" placeholder="🔍 ရှာဖွေရန်..." oninput="loadProducts()"></div>
-
-    <div class="summary-grid">
-        <div class="summary-card active-filter" onclick="setFilter('အားလုံး', this)"><h3>အားလုံး</h3><p id="tCount">0</p></div>
-        <div class="summary-card" onclick="setFilter('အထွေထွေ', this)"><h3>အထွေထွေ</h3><p id="gCount">0</p></div>
-        <div class="summary-card" onclick="setFilter('Hardwareအပိုပစ္စည်', this)"><h3>HW</h3><p id="hCount">0</p></div>
-        <div class="summary-card" onclick="setFilter('accessories', this)"><h3>Acc</h3><p id="aCount">0</p></div>
-        <div class="summary-card" onclick="setFilter('ရောင်းပြီး', this)"><h3>ရောင်း</h3><p id="sCount">0</p></div>
+    <div class="max-w-xl mx-auto pt-4 px-4 flex justify-between items-center sticky top-0 bg-[#f1f5f9]/90 backdrop-blur-md z-40 pb-3 border-b border-slate-200">
+        <div>
+            <h1 class="text-lg font-black text-slate-800 flex items-center gap-2">
+                <span class="bg-indigo-100 p-1.5 rounded-lg text-indigo-600">📦</span> Inventory Pro
+            </h1>
+            <p class="text-[10px] text-slate-500 font-bold uppercase mt-0.5 tracking-wider">Stock Management</p>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="showProductForm()" class="bg-indigo-600 text-white hover:bg-indigo-700 px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center gap-1 shadow-md">
+                <span>➕</span> အသစ်ထည့်မည်
+            </button>
+            <button onclick="logout()" class="bg-rose-100 text-rose-600 hover:bg-rose-200 px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-sm">
+                ထွက်မည်
+            </button>
+        </div>
     </div>
 
-    <div class="add-section"><button class="open-form-btn" id="btnToggle" onclick="toggleForm()">+ ပစ္စည်းအသစ်ထည့်ရန်</button></div>
-
-    <form id="productForm" class="form-box">
-        <h3 id="formTitle">📝 စာရင်းသွင်းရန်</h3>
-        <input type="hidden" id="editId">
-        <input type="text" id="name" placeholder="ပစ္စည်းအမည်" required>
-        <select id="category">
-            <option value="အထွေထွေ">အထွေထွေ</option>
-            <option value="Hardwareအပိုပစ္စည်">Hardwareအပိုပစ္စည်</option>
-            <option value="accessories">accessories</option>
-        </select>
-        <select id="status"><option value="ပစ္စည်းရှိ">ပစ္စည်းရှိ</option><option value="ရောင်းပြီး">ရောင်းပြီး</option><option value="ပြင်ဆင်ရန်">ပြင်ဆင်ရန်</option></select>
-        <input type="number" id="amount" placeholder="အရေအတွက်" required>
-        <input type="number" id="costPrice" placeholder="ရင်းနှီးမြှုပ်နှံမှုစျေး (Cost Price)" required>
-        <input type="number" id="price" placeholder="ရောင်းစျေး (Selling Price)" required>
-        <button type="button" style="width:100%; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; margin-top:10px; font-weight:700;" onclick="handleSave()">သိမ်းဆည်းမည်</button>
-    </form>
-
-    <div id="productList"></div>
-</div>
-
-<script>
-const firebaseConfig = { apiKey: "AIzaSyC5sGKGeD_zht-Qknp6VPwfPIChqwvX8MQ", authDomain: "masstore-c32a7.firebaseapp.com", projectId: "masstore-c32a7", storageBucket: "masstore-c32a7.firebasestorage.app", messagingSenderId: "321720130071", appId: "1:321720130071:web:20aab19001cc8bb3cd9a52" };
-if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-let currentUser = null;
-let currentFilter = 'အားလုံး';
-
-// Login Check
-auth.onAuthStateChanged(user => { 
-    if(user) { 
-        currentUser = user; 
+    <main class="max-w-xl mx-auto p-4">
         
-        // 🟢 ဝန်ထမ်း Online ဖြစ်ကြောင်းကို ဝင်လာတဲ့ User Data ဖြင့် Auto မှတ်မည့်အပိုင်း
-        db.collection("users").doc(user.uid).set({
-            username: user.displayName || user.email.split('@')[0], // နာမည်မရှိရင် Email ရဲ့ ရှေ့ပိုင်းကို ယူမည်
-            email: user.email,
-            lastOnline: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
+        <div class="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-3xl p-5 shadow-lg text-white mb-5">
+            <div class="flex justify-between items-end">
+                <div>
+                    <p class="text-[11px] text-indigo-200 font-bold mb-1">ပစ္စည်းလက်ကျန် စုစုပေါင်းတန်ဖိုး</p>
+                    <h2 id="totalAssetValue" class="text-2xl font-black">0 Ks</h2>
+                </div>
+                <div class="text-right">
+                    <p class="text-[11px] text-indigo-200 font-bold mb-1">စုစုပေါင်း အရေအတွက်</p>
+                    <p id="totalStockCount" class="text-lg font-bold">0 ခု</p>
+                </div>
+            </div>
+        </div>
 
-        // မူလရှိပြီးသား Data ခေါ်သည့် Function များ ဆက်ထည့်ရန် (ဥပမာ - fetchRepairs(); )
-        // ...
+        <div class="relative mb-4">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-slate-400">🔍</span>
+            </div>
+            <input type="text" id="searchInput" onkeyup="renderProducts()" placeholder="ပစ္စည်းအမည် ရှာဖွေရန်..." class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium shadow-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all">
+        </div>
+
+        <div class="flex gap-2 overflow-x-auto scrollbar-hide mb-5 pb-1" id="filterContainer">
+            <button onclick="setFilter('အားလုံး', this)" class="filter-btn active bg-indigo-600 text-white px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap shadow-sm transition-all">အားလုံး (<span id="count-all">0</span>)</button>
+            <button onclick="setFilter('အထွေထွေ', this)" class="filter-btn bg-white text-slate-500 border border-slate-200 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap shadow-sm transition-all">အထွေထွေ (<span id="count-gen">0</span>)</button>
+            <button onclick="setFilter('Hardwareအပိုပစ္စည်', this)" class="filter-btn bg-white text-slate-500 border border-slate-200 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap shadow-sm transition-all">HW အပိုပစ္စည်း (<span id="count-hw">0</span>)</button>
+            <button onclick="setFilter('accessories', this)" class="filter-btn bg-white text-slate-500 border border-slate-200 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap shadow-sm transition-all">Accessories (<span id="count-acc">0</span>)</button>
+            <button onclick="setFilter('ရောင်းပြီး', this)" class="filter-btn bg-white text-rose-500 border border-slate-200 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap shadow-sm transition-all">ရောင်းပြီး (<span id="count-sold">0</span>)</button>
+        </div>
+
+        <div id="productList" class="space-y-3">
+            <div class="text-center py-10"><p class="text-sm text-slate-500 font-bold">Loading Data...</p></div>
+        </div>
+
+    </main>
+
+    <script>
+        // ================= FIREBASE INITIALIZATION =================
+        const firebaseConfig = { 
+            apiKey: "AIzaSyC5sGKGeD_zht-Qknp6VPwfPIChqwvX8MQ", 
+            authDomain: "masstore-c32a7.firebaseapp.com", 
+            projectId: "masstore-c32a7", 
+            storageBucket: "masstore-c32a7.firebasestorage.app", 
+            messagingSenderId: "321720130071", 
+            appId: "1:321720130071:web:20aab19001cc8bb3cd9a52" 
+        };
         
-    } else { 
-        window.location.href = 'login.html'; 
-    } 
-});
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-// Log Function Updated
-async function logActivity(action, details) {
-    try { 
-        let uName = currentUser ? (currentUser.displayName || currentUser.email) : "Unknown";
-        await db.collection("activity_logs").add({ 
-            action: `[${uName}] ${action}`, 
-            details, 
-            timestamp: firebase.firestore.FieldValue.serverTimestamp() 
-        }); 
-    } catch (e) { console.error("Log error: ", e); }
-}
+        let currentUser = null;
+        let allProducts = [];
+        let currentFilter = 'အားလုံး';
 
-async function sellOne(id, name, currAmt, price, costPrice, cat) {
-    const res = await Swal.fire({ title: 'ရောင်းထုတ်မှာလား?', text: name + " (၁) ခု ရောင်းမည်", icon: 'warning', showCancelButton: true });
-    if(res.isConfirmed) {
-        if(currAmt > 1) await db.collection("products").doc(id).update({ amount: currAmt - 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-        else await db.collection("products").doc(id).delete();
-        await db.collection("transactions").add({ type: "ဝင်ငွေ", group: "Sales", name: "ရောင်းရငွေ: " + name, amount: Number(price), date: new Date() });
-        await logActivity("ရောင်းချခြင်း", name + " (၁) ခု ရောင်းချပြီး " + price + " Ks ရရှိသည်။");
-        
-        const saleSnap = await db.collection("products").where("name", "==", name + " (ရောင်းပြီး)").where("status", "==", "ရောင်းပြီး").get();
-        if(!saleSnap.empty) {
-            const saleDoc = saleSnap.docs[0];
-            await db.collection("products").doc(saleDoc.id).update({ amount: saleDoc.data().amount + 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-        } else {
-            await db.collection("products").add({ name: name + " (ရောင်းပြီး)", category: cat, status: "ရောင်းပြီး", amount: 1, costPrice: costPrice, price: price, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-        }
-        Swal.fire({ icon: 'success', title: 'ရောင်းချပြီးစီး', timer: 1000 });
-    }
-}
+        // ================= AUTHENTICATION & PRESENCE =================
+        auth.onAuthStateChanged(user => { 
+            if(user) { 
+                currentUser = user; 
+                // Auto track online status
+                db.collection("users").doc(user.uid).set({
+                    username: user.displayName || user.email.split('@')[0],
+                    email: user.email,
+                    lastOnline: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
 
-function loadProducts(){
-    if(!currentUser) return;
-    db.collection("products").orderBy("updatedAt", "desc").onSnapshot((snap) => {
-        const list = document.getElementById("productList");
-        const searchTerm = document.getElementById("searchInput").value.toLowerCase();
-        list.innerHTML = "";
-        let t=0, g=0, h=0, a=0, s=0;
-        snap.forEach((doc) => {
-            const d = doc.data();
-            const amt = Number(d.amount || 0);
-            const prc = Number(d.price || 0);
-            const cost = Number(d.costPrice || 0);
-            const searchMatch = d.name.toLowerCase().includes(searchTerm);
-            if(d.status !== "ရောင်းပြီး") {
-                t++;
-                if(d.category === "အထွေထွေ") g += amt;
-                if(d.category === "Hardwareအပိုပစ္စည်") h += amt;
-                if(d.category === "accessories") a += amt;
-            } else { s += amt; }
-            let show = (currentFilter === 'အားလုံး' && d.status !== "ရောင်းပြီး") || (currentFilter === d.category && d.status !== "ရောင်းပြီး") || (currentFilter === 'ရောင်းပြီး' && d.status === "ရောင်းပြီး");
-            if(searchTerm !== "") { show = searchMatch; document.body.classList.add('is-searching'); }
-            else { document.body.classList.remove('is-searching'); }
-            if(show) {
-                list.innerHTML += `<div class="card">
-                    <div class="card-header"><div class="product-name">${d.name}</div><div class="badge ${d.status === "ပစ္စည်းရှိ" ? "instock" : (d.status === "ရောင်းပြီး" ? "sold" : "repair")}">${d.status}</div></div>
-                    <div class="info-row"><span>📁 အုပ်စု</span> <span>${d.category}</span></div>
-                    <div class="info-row"><span>📦 အရေအတွက်</span> <span>${amt} ခု ${d.status !== 'ရောင်းပြီး' ? `<button class="minus-btn" onclick="sellOne('${doc.id}', '${d.name}', ${amt}, ${prc}, ${cost}, '${d.category}')">ရောင်းမည်</button>` : ''}</span></div>
-                    <div class="info-row"><span>💵 ရင်း / ရောင်း</span> <span style="font-weight:bold;">${cost.toLocaleString()} / ${prc.toLocaleString()} Ks</span></div>
-                    <div class="card-actions">
-                        <button class="edit-btn" onclick="startEdit('${doc.id}', '${d.name}', '${d.category}', '${d.status}', ${amt}, ${prc}, ${cost})">ပြင်မည်</button>
-                        <button class="delete-btn" onclick="handleDelete('${doc.id}')">ဖျက်မည်</button>
-                    </div>
-                </div>`;
-            }
+                fetchProducts(); 
+            } else { 
+                window.location.href = 'login.html'; 
+            } 
         });
-        document.getElementById("tCount").innerText = t; document.getElementById("gCount").innerText = g; document.getElementById("hCount").innerText = h; document.getElementById("aCount").innerText = a; document.getElementById("sCount").innerText = s;
-    });
-}
 
-function setFilter(cat, el) { currentFilter = cat; document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('active-filter')); el.classList.add('active-filter'); loadProducts(); }
-function startEdit(id, n, c, s, a, p, cp){ document.getElementById("editId").value = id; document.getElementById("name").value = n; document.getElementById("category").value = c; document.getElementById("status").value = s; document.getElementById("amount").value = a; document.getElementById("price").value = p; document.getElementById("costPrice").value = cp; document.getElementById("formTitle").innerText = "🛠 ပြင်ဆင်ရန်"; document.getElementById("productForm").style.display = "block"; }
-
-async function handleSave() { 
-    const id = document.getElementById("editId").value; 
-    const name = document.getElementById("name").value; 
-    const amt = Number(document.getElementById("amount").value);
-    const prc = Number(document.getElementById("price").value);
-    const cp = Number(document.getElementById("costPrice").value);
-    const cat = document.getElementById("category").value;
-    const stat = document.getElementById("status").value;
-
-    const res = await Swal.fire({ title: 'အတည်ပြုမလား?', icon: 'question', showCancelButton: true }); 
-    if(res.isConfirmed) { 
-        const data = { name, category: cat, status: stat, amount: amt, price: prc, costPrice: cp, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }; 
-        if(id) {
-            await db.collection("products").doc(id).update(data);
-            await logActivity("ပြင်ဆင်ခြင်း", name + " ကို ပြင်ဆင်သည်။");
-        } else {
-            await db.collection("products").add(data);
-            await logActivity("ပစ္စည်းအသစ်", name + " (ရောင်းစျေး: " + prc + ", အရေအတွက်: " + amt + ") ထည့်သွင်းသည်။");
+        function logout() {
+            Swal.fire({
+                title: 'အကောင့်ထွက်မှာလား?', icon: 'question', showCancelButton: true, confirmButtonText: 'ထွက်မည်', cancelButtonText: 'မထွက်ပါ'
+            }).then((result) => {
+                if (result.isConfirmed) auth.signOut();
+            });
         }
-        Swal.fire({ icon: 'success', title: 'အောင်မြင်ပါသည်', timer: 1500 }); 
-        forceClear(); 
-    } 
-}
 
-function toggleForm(){ const f = document.getElementById("productForm"); const btn = document.getElementById("btnToggle"); if(f.style.display === "none" || f.style.display === ""){ f.style.display = "block"; btn.innerText = "✖ ပိတ်မည်"; } else { f.style.display = "none"; btn.innerText = "+ ပစ္စည်းအသစ်ထည့်ရန်"; forceClear(); } }
-function forceClear(){ document.getElementById("productForm").reset(); document.getElementById("editId").value = ""; document.getElementById("formTitle").innerText = "📝 စာရင်းသွင်းရန်"; }
-async function handleDelete(id){ 
-    const res = await Swal.fire({ title: 'ဖျက်မှာလား?', icon: 'warning', showCancelButton: true }); 
-    if(res.isConfirmed) {
-        const doc = await db.collection("products").doc(id).get();
-        await db.collection("products").doc(id).delete();
-        await logActivity("ဖျက်ခြင်း", doc.data().name + " အား ဖျက်လိုက်သည်။");
-    }
-}
-</script>
+        async function logActivity(action, details) {
+            try { 
+                let uName = currentUser ? (currentUser.displayName || currentUser.email.split('@')[0]) : "Unknown";
+                await db.collection("activity_logs").add({ 
+                    action: `[${uName}] ${action}`, 
+                    details, 
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    username: uName
+                }); 
+            } catch (e) { console.error("Log error: ", e); }
+        }
+
+        // ================= DATA FETCHING =================
+        function fetchProducts() {
+            db.collection("products").orderBy("updatedAt", "desc").onSnapshot((snap) => {
+                allProducts = [];
+                snap.forEach((doc) => { allProducts.push({ id: doc.id, ...doc.data() }); });
+                renderProducts();
+            });
+        }
+
+        // ================= UI RENDERING =================
+        function setFilter(cat, btnElement) {
+            currentFilter = cat;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'border-transparent');
+                btn.classList.add('bg-white', 'border-slate-200');
+                if(btn.innerText.includes('ရောင်းပြီး')) btn.classList.add('text-rose-500');
+                else btn.classList.add('text-slate-500');
+            });
+            
+            btnElement.classList.remove('bg-white', 'text-slate-500', 'text-rose-500', 'border-slate-200');
+            btnElement.classList.add('bg-indigo-600', 'text-white', 'border-transparent');
+            
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const list = document.getElementById("productList");
+            const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+            list.innerHTML = "";
+            
+            let t=0, g=0, h=0, a=0, s=0;
+            let totalValue = 0;
+            let totalQty = 0;
+
+            let filteredHTML = "";
+
+            allProducts.forEach((d) => {
+                const amt = Number(d.amount || 0);
+                const prc = Number(d.price || 0);
+                const cost = Number(d.costPrice || 0);
+                
+                // Count Logic
+                if(d.status !== "ရောင်းပြီး") {
+                    t++;
+                    totalValue += (amt * cost);
+                    totalQty += amt;
+                    if(d.category === "အထွေထွေ") g += amt;
+                    if(d.category === "Hardwareအပိုပစ္စည်") h += amt;
+                    if(d.category === "accessories") a += amt;
+                } else { s += amt; }
+
+                // Filter Logic
+                let show = false;
+                if(searchTerm !== "") {
+                    show = d.name.toLowerCase().includes(searchTerm);
+                } else {
+                    if(currentFilter === 'အားလုံး' && d.status !== "ရောင်းပြီး") show = true;
+                    else if(currentFilter === d.category && d.status !== "ရောင်းပြီး") show = true;
+                    else if(currentFilter === 'ရောင်းပြီး' && d.status === "ရောင်းပြီး") show = true;
+                }
+
+                if(show) {
+                    let badgeClass = "bg-emerald-100 text-emerald-700 border-emerald-200";
+                    if(d.status === "ရောင်းပြီး") badgeClass = "bg-rose-100 text-rose-700 border-rose-200";
+                    else if(d.status === "ပြင်ဆင်ရန်") badgeClass = "bg-amber-100 text-amber-700 border-amber-200";
+
+                    // Prevent breaking JS strings with quotes
+                    let safeName = d.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
+                    filteredHTML += `
+                        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm transition-all hover:shadow-md">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-sm font-bold text-slate-800 leading-tight pr-2">${d.name}</h3>
+                                <span class="px-2 py-0.5 rounded-lg text-[9px] font-bold border whitespace-nowrap ${badgeClass}">${d.status}</span>
+                            </div>
+                            
+                            <div class="flex gap-4 text-xs mt-3">
+                                <div class="flex-1 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                                    <p class="text-[9px] text-slate-400 font-bold mb-1">အုပ်စု</p>
+                                    <p class="font-bold text-slate-600 truncate">${d.category}</p>
+                                </div>
+                                <div class="flex-1 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                                    <p class="text-[9px] text-slate-400 font-bold mb-1">လက်ကျန် (ခုရေ)</p>
+                                    <p class="font-black text-indigo-600">${amt}</p>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center mt-3 pt-3 border-t border-dashed border-slate-200">
+                                <div class="text-xs">
+                                    <p class="text-[10px] text-slate-400 font-bold mb-0.5">အရင်း / ရောင်းဈေး</p>
+                                    <p class="font-bold text-slate-700"><span class="text-slate-400">${cost.toLocaleString()}</span> / <span class="text-emerald-600">${prc.toLocaleString()} Ks</span></p>
+                                </div>
+                                
+                                <div class="flex gap-1.5">
+                                    ${d.status !== 'ရောင်းပြီး' && amt > 0 ? `<button onclick="sellOne('${d.id}', '${safeName}', ${amt}, ${prc}, ${cost}, '${d.category}')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-sm">ရောင်းမည်</button>` : ''}
+                                    <button onclick="showProductForm('${d.id}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 border border-indigo-100">ပြင်မည်</button>
+                                    <button onclick="handleDelete('${d.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-500 px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 border border-rose-100">ဖျက်မည်</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            list.innerHTML = filteredHTML || `<div class="text-center py-10 bg-white rounded-2xl border border-dashed border-slate-300"><p class="text-xs font-bold text-slate-400">ပစ္စည်းမရှိသေးပါ / ရှာမတွေ့ပါ</p></div>`;
+            
+            // Update Headers & Badges
+            document.getElementById("totalAssetValue").innerText = `${totalValue.toLocaleString()} Ks`;
+            document.getElementById("totalStockCount").innerText = `${totalQty.toLocaleString()} ခု`;
+            
+            document.getElementById("count-all").innerText = t;
+            document.getElementById("count-gen").innerText = g;
+            document.getElementById("count-hw").innerText = h;
+            document.getElementById("count-acc").innerText = a;
+            document.getElementById("count-sold").innerText = s;
+        }
+
+        // ================= BUSINESS LOGIC =================
+        async function showProductForm(docId = null) {
+            let data = null;
+            if (docId) data = allProducts.find(p => p.id === docId);
+
+            const { value: formValues } = await Swal.fire({
+                title: data ? 'ပစ္စည်းစာရင်း ပြင်ဆင်ရန်' : 'ပစ္စည်းအသစ် ထည့်သွင်းရန်',
+                html: `
+                    <div class="text-left mt-2">
+                        <label class="swal-form-label">ပစ္စည်းအမည် *</label>
+                        <input id="swal-name" class="swal-form-input" placeholder="ဥပမာ - Battery J7 Prime" value="${data ? data.name : ''}">
+                        
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label class="swal-form-label">အုပ်စု *</label>
+                                <select id="swal-cat" class="swal-form-input">
+                                    <option value="အထွေထွေ" ${data && data.category === 'အထွေထွေ' ? 'selected' : ''}>အထွေထွေ</option>
+                                    <option value="Hardwareအပိုပစ္စည်" ${data && data.category === 'Hardwareအပိုပစ္စည်' ? 'selected' : ''}>HW အပိုပစ္စည်း</option>
+                                    <option value="accessories" ${data && data.category === 'accessories' ? 'selected' : ''}>Accessories</option>
+                                </select>
+                            </div>
+                            <div class="flex-1">
+                                <label class="swal-form-label">အခြေအနေ *</label>
+                                <select id="swal-status" class="swal-form-input">
+                                    <option value="ပစ္စည်းရှိ" ${data && data.status === 'ပစ္စည်းရှိ' ? 'selected' : ''}>ပစ္စည်းရှိ (In Stock)</option>
+                                    <option value="ရောင်းပြီး" ${data && data.status === 'ရောင်းပြီး' ? 'selected' : ''}>ရောင်းပြီး (Sold)</option>
+                                    <option value="ပြင်ဆင်ရန်" ${data && data.status === 'ပြင်ဆင်ရန်' ? 'selected' : ''}>ပြင်ဆင်ရန်</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label class="swal-form-label">အရေအတွက် *</label>
+                                <input id="swal-amt" type="number" class="swal-form-input" placeholder="0" value="${data ? data.amount : ''}">
+                            </div>
+                            <div class="flex-1">
+                                <label class="swal-form-label">ဝယ်ရင်းဈေး (Cost)</label>
+                                <input id="swal-cost" type="number" class="swal-form-input" placeholder="0" value="${data ? data.costPrice : ''}">
+                            </div>
+                        </div>
+                        
+                        <label class="swal-form-label">ရောင်းဈေး (Selling Price) *</label>
+                        <input id="swal-price" type="number" class="swal-form-input" placeholder="0 Ks" value="${data ? data.price : ''}">
+                    </div>
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'သိမ်းဆည်းမည်',
+                cancelButtonText: 'ပိတ်မည်',
+                confirmButtonColor: '#4f46e5',
+                preConfirm: () => {
+                    const name = document.getElementById('swal-name').value.trim();
+                    const category = document.getElementById('swal-cat').value;
+                    const status = document.getElementById('swal-status').value;
+                    const amount = Number(document.getElementById('swal-amt').value);
+                    const costPrice = Number(document.getElementById('swal-cost').value) || 0;
+                    const price = Number(document.getElementById('swal-price').value) || 0;
+
+                    if (!name || amount <= 0 || price <= 0) {
+                        Swal.showValidationMessage('အမည်၊ အရေအတွက် နှင့် ရောင်းဈေးများကို ပြည့်စုံမှန်ကန်စွာ ထည့်ပါ။');
+                        return false;
+                    }
+                    return { name, category, status, amount, costPrice, price };
+                }
+            });
+
+            if (formValues) {
+                const finalData = { ...formValues, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+                
+                if (docId) {
+                    await db.collection("products").doc(docId).update(finalData);
+                    await logActivity("စာရင်းပြင်ဆင်ခြင်း", `${formValues.name} ကို ပြင်ဆင်လိုက်သည်။`);
+                    Swal.fire({ icon: 'success', title: 'ပြင်ဆင်ပြီးပါပြီ', timer: 1500, showConfirmButton: false });
+                } else {
+                    await db.collection("products").add(finalData);
+                    await logActivity("ပစ္စည်းအသစ်သွင်းခြင်း", `${formValues.name} (${formValues.amount} ခု) စာရင်းသွင်းသည်။`);
+                    Swal.fire({ icon: 'success', title: 'ထည့်သွင်းပြီးပါပြီ', timer: 1500, showConfirmButton: false });
+                }
+            }
+        }
+
+        async function sellOne(id, name, currAmt, price, costPrice, cat) {
+            const res = await Swal.fire({ 
+                title: 'ရောင်းထုတ်မှာလား?', 
+                html: `<span class="font-bold text-indigo-600">${name}</span> (၁) ခု ကို ရောင်းမည်။`, 
+                icon: 'question', 
+                showCancelButton: true, 
+                confirmButtonColor: '#10b981', 
+                confirmButtonText: 'ရောင်းမည်' 
+            });
+            
+            if(res.isConfirmed) {
+                // 1. Update Current Stock
+                if(currAmt > 1) {
+                    await db.collection("products").doc(id).update({ amount: currAmt - 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                } else {
+                    await db.collection("products").doc(id).delete();
+                }
+
+                // 2. Add to Transactions (Finance)
+                await db.collection("transactions").add({ 
+                    type: "ဝင်ငွေ", 
+                    group: "Sales", 
+                    name: "ရောင်းရငွေ: " + name, 
+                    amount: Number(price), 
+                    date: new Date() 
+                });
+
+                // 3. Log Activity
+                await logActivity("ရောင်းချခြင်း", `${name} (၁) ခု ရောင်းချပြီး ${price} Ks ရရှိသည်။`);
+                
+                // 4. Update/Create Sold Category
+                const saleSnap = await db.collection("products").where("name", "==", name + " (ရောင်းပြီး)").where("status", "==", "ရောင်းပြီး").get();
+                if(!saleSnap.empty) {
+                    const saleDoc = saleSnap.docs[0];
+                    await db.collection("products").doc(saleDoc.id).update({ amount: saleDoc.data().amount + 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                } else {
+                    await db.collection("products").add({ 
+                        name: name + " (ရောင်းပြီး)", category: cat, status: "ရောင်းပြီး", amount: 1, costPrice: costPrice, price: price, updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+                    });
+                }
+                
+                Swal.fire({ icon: 'success', title: 'ရောင်းချပြီးစီး', timer: 1500, showConfirmButton: false });
+            }
+        }
+
+        async function handleDelete(id) { 
+            const doc = allProducts.find(p => p.id === id);
+            if(!doc) return;
+
+            const res = await Swal.fire({ 
+                title: 'ဖျက်မှာ သေချာလား?', 
+                text: `${doc.name} အား စာရင်းမှ ဖယ်ရှားပါမည်။`, 
+                icon: 'warning', 
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'ဖျက်မည်'
+            }); 
+            
+            if(res.isConfirmed) {
+                await db.collection("products").doc(id).delete();
+                await logActivity("စာရင်းဖျက်ခြင်း", `${doc.name} အား ဖျက်လိုက်သည်။`);
+                Swal.fire({ icon: 'success', title: 'ဖျက်ပြီးပါပြီ', timer: 1500, showConfirmButton: false });
+            }
+        }
+    </script>
 </body>
 </html>
