@@ -1,0 +1,612 @@
+
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile ANSWER - Repair System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary: #4338ca; --primary-light: #e0e7ff;
+            --bg-body: #f8fafc; --bg-surface: #ffffff;
+            --text-dark: #0f172a; --text-muted: #64748b;
+            --border-light: #e2e8f0; 
+            --success: #059669; --danger: #e11d48; --warning: #d97706; --info: #0284c7;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans Myanmar', sans-serif; }
+        
+        html, body { overflow-x: hidden; width: 100%; }
+        body { background: var(--bg-body); color: var(--text-dark); padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
+
+        .app-header { 
+            background: var(--bg-surface); padding: 18px 20px; 
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; width: 100%;
+        }
+        .app-header h1 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin:0;}
+        .app-header h1::before { content: ''; display: inline-block; width: 4px; height: 18px; background: var(--primary); border-radius: 4px; }
+        .back-btn { background: var(--bg-body); color: var(--text-dark); padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid var(--border-light); }
+
+        .container { padding: 15px 20px; max-width: 600px; margin: 0 auto; width: 100%; }
+
+        .controls-wrapper { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; width: 100%; }
+        .btn-add-new { 
+            width: 100%; padding: 16px; background: var(--primary); color: white; 
+            border: none; border-radius: 14px; font-size: 15px; font-weight: 700; 
+            cursor: pointer; box-shadow: 0 4px 12px rgba(67, 56, 202, 0.2); transition: 0.1s;
+        }
+        .btn-add-new:active { transform: scale(0.98); }
+        
+        .search-row { display: flex; gap: 10px; width: 100%; }
+        .search-box { padding: 14px; border: 1px solid var(--border-light); border-radius: 12px; font-size: 14px; outline: none; background: var(--bg-surface); color: var(--text-dark); width: 100%; }
+        
+        .date-range-row { display: flex; gap: 8px; align-items: center; width: 100%; }
+        .date-filter { flex: 1; padding: 12px; border: 1px solid var(--border-light); border-radius: 12px; font-size: 13px; outline: none; background: var(--bg-surface); color: var(--text-dark); min-width: 0; }
+
+        .status-tabs { 
+            display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; margin-bottom: 20px; width: 100%;
+            -ms-overflow-style: none; scrollbar-width: none;
+        }
+        .status-tabs::-webkit-scrollbar { display: none; }
+        .tab-btn { 
+            padding: 10px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; 
+            white-space: nowrap; border: 1px solid var(--border-light); background: var(--bg-surface); 
+            color: var(--text-muted); cursor: pointer; transition: 0.2s;
+        }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .list-container { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+        .repair-card { 
+            background: var(--bg-surface); border-radius: 16px; padding: 16px; 
+            border: 1px solid var(--border-light); box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            cursor: pointer; position: relative; overflow: hidden; width: 100%;
+        }
+        .repair-card::before { content:''; position:absolute; left:0; top:0; width:4px; height:100%; background: var(--border-light); }
+        .card-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .card-title { font-size: 16px; font-weight: 700; color: var(--text-dark); word-break: break-word; }
+        .card-vr { font-size: 11px; font-weight: 700; background: var(--bg-body); padding: 4px 8px; border-radius: 6px; color: var(--primary); white-space: nowrap; margin-left: 8px; }
+        .card-info { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
+        .status-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; display: inline-block; margin-top: 5px; }
+
+        .modal { 
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background: var(--bg-body); z-index: 1000; flex-direction: column; overflow-x: hidden;
+        }
+        .modal.active { display: flex; animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        
+        .profile-header { 
+            background: var(--bg-surface); padding: 15px 20px; display: flex; justify-content: space-between; 
+            align-items: center; border-bottom: 1px solid var(--border-light); flex-shrink: 0; width: 100%;
+            padding-top: max(15px, env(safe-area-inset-top)); 
+        }
+        .profile-header h2 { font-size: 18px; font-weight: 700; margin:0; }
+        .btn-close-profile { background: #f1f5f9; border: none; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; color: #334155; cursor: pointer; }
+        
+        .profile-body { 
+            flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; max-width: 600px; margin: 0 auto; width: 100%; 
+            padding-bottom: max(30px, env(safe-area-inset-bottom));
+        }
+
+        .current-status-container { text-align: center; margin-bottom: 20px; width: 100%; }
+        .current-status-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; border: 1px solid var(--border-light); max-width: 100%; word-wrap: break-word; }
+        
+        .section-card { background: var(--bg-surface); border-radius: 16px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border-light); box-shadow: 0 1px 3px rgba(0,0,0,0.02); width: 100%; overflow: hidden; }
+        .section-title { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
+        .info-item { display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
+        .info-item.full { grid-column: span 2; }
+        .info-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        .info-val { font-size: 15px; font-weight: 700; color: var(--text-dark); word-break: break-word; }
+        
+        .btn-call { display: inline-flex; align-items: center; gap: 5px; background: #dcfce7; color: #15803d; padding: 4px 10px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 700; margin-top: 5px; width: fit-content; }
+
+        .status-grid { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+        .status-row { display: flex; gap: 10px; width: 100%; }
+        .btn-quick { flex: 1; min-width: 0; padding: 12px 6px; border: none; border-radius: 12px; font-size: 12px; font-weight: 700; color: white; cursor: pointer; transition: 0.1s; text-align: center; white-space: normal; line-height: 1.4; word-wrap: break-word; }
+        .btn-quick:active { transform: scale(0.95); }
+
+        .finance-row { display: flex; gap: 10px; margin-bottom: 12px; width: 100%; }
+        .fin-input { flex: 1; min-width: 0; width: 100%; padding: 14px 10px; border: 1px solid var(--border-light); border-radius: 10px; font-size: 14px; font-weight: 700; outline: none; background: var(--bg-body); box-sizing: border-box; }
+        .fin-input:focus { border-color: var(--primary); }
+        .btn-save-fin { width: 100%; padding: 14px; background: var(--text-dark); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; }
+
+        .timeline { display: flex; flex-direction: column; gap: 15px; padding-left: 10px; border-left: 2px dashed var(--border-light); margin-left: 10px; margin-top: 10px; width: 100%; }
+        .timeline-item { position: relative; }
+        .timeline-item::before { content: ''; position: absolute; left: -16px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--primary); }
+        .time-txt { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+        .log-txt { font-size: 13px; color: var(--text-dark); font-weight: 600; line-height: 1.4; margin-top: 2px; word-wrap: break-word; }
+
+        .form-modal { display: none; position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.5); z-index: 2000; align-items: flex-end; justify-content: center; overflow: hidden; }
+        .form-modal.active { display: flex; }
+        .form-content { background: var(--bg-surface); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; overflow-x: hidden; border-radius: 24px 24px 0 0; padding: 25px; animation: slideUp 0.3s; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .form-group { margin-bottom: 15px; width: 100%; }
+        .form-group label { display: block; font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
+        .form-group input { width: 100%; padding: 14px; border: 1px solid var(--border-light); border-radius: 12px; font-size: 15px; outline: none; background: var(--bg-body); box-sizing: border-box;}
+        .form-row { display: flex; gap: 10px; width: 100%; }
+        .form-row .form-group { flex: 1; min-width: 0; }
+        
+        .empty-state { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; font-weight: 600; width: 100%; }
+    </style>
+</head>
+<body>
+
+<div class="app-header">
+    <h1>🛠 ဖုန်းပြင်ဆင်မှု</h1>
+    <a href="main.html" class="back-btn">ပင်မသို့</a>
+</div>
+
+<div class="container">
+    <div class="controls-wrapper">
+        <button class="btn-add-new" onclick="openAddForm()">+ အပ်ဖုန်း အသစ်သွင်းရန်</button>
+        <div class="search-row">
+            <input type="text" id="searchInput" class="search-box" placeholder="🔍 အမည် သို့မဟုတ် VR..." oninput="renderList()">
+        </div>
+        <div class="date-range-row">
+            <span style="font-size: 13px; font-weight: 600; color: var(--text-muted);">ရက်စွဲ:</span>
+            <input type="date" id="startDate" class="date-filter" onchange="renderList()">
+            <span style="font-size: 13px; font-weight: 600; color: var(--text-muted);">မှ</span>
+            <input type="date" id="endDate" class="date-filter" onchange="renderList()">
+        </div>
+    </div>
+
+    <div class="status-tabs">
+        <button class="tab-btn active" id="tab-all" onclick="setTab('အားလုံး', this)">အားလုံး (0)</button>
+        <button class="tab-btn" id="tab-wait" onclick="setTab('စစ်ဆေးဆဲ', this)">စစ်ဆေးဆဲ (0)</button>
+        <button class="tab-btn" id="tab-done" onclick="setTab('ပြင်ပြီး', this)">ပြင်ပြီး (0)</button>
+        <button class="tab-btn" id="tab-collected" onclick="setTab('ရွေးသွားပြီ', this)">ရွေးသွားပြီ (0)</button>
+    </div>
+
+    <div class="list-container" id="repairList">
+        <div class="empty-state">ဒေတာများ ဆွဲယူနေပါသည်...</div>
+    </div>
+</div>
+
+<div id="profileView" class="modal">
+    <div class="profile-header">
+        <h2 id="p_vr_title">VR: 0000 Profile</h2>
+        <button class="btn-close-profile" onclick="closeProfile()">✖ ပိတ်မည်</button>
+    </div>
+    
+    <div class="profile-body">
+        <input type="hidden" id="p_id">
+        <input type="hidden" id="p_status_hidden">
+
+        <div class="current-status-container">
+            <div id="p_current_status" class="current-status-badge">အခြေအနေ: -</div>
+        </div>
+
+        <div class="section-card">
+            <div class="card-row">
+                <div class="section-title">📱 Customer & Device</div>
+                <button style="background:none; border:none; color:var(--primary); font-weight:700; font-size:13px; cursor:pointer;" onclick="editCurrentRepair()">✏️ ပြင်ရန်</button>
+            </div>
+            <div class="info-grid">
+                <div class="info-item"><span class="info-label">နာမည်</span><span class="info-val" id="p_name">-</span></div>
+                <div class="info-item"><span class="info-label">အပ်နှံရက်</span><span class="info-val" id="p_date">-</span></div>
+                <div class="info-item"><span class="info-label">ဖုန်းအမျိုးအစား</span><span class="info-val" id="p_model">-</span></div>
+                <div class="info-item">
+                    <span class="info-label">ဖုန်းနံပါတ်</span>
+                    <span class="info-val" id="p_phone">-</span>
+                    <a id="p_call_btn" href="#" class="btn-call" style="display:none;">📞 ဖုန်းခေါ်မည်</a>
+                </div>
+                <div class="info-item full"><span class="info-label">ပြစ်ချက် / Issue</span><span class="info-val" style="color:var(--danger);" id="p_issue">-</span></div>
+                <div class="info-item full"><span class="info-label">မှတ်ချက်</span><span class="info-val" style="font-weight:400;" id="p_remark">-</span></div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">⚡ အခြေအနေ ပြောင်းလဲရန်</div>
+            <div class="status-grid">
+                <button class="btn-quick" style="background:var(--warning);" onclick="quickStatus('စစ်ဆေးပြုပြင်နေဆဲ')">⏳ စစ်ဆေးပြုပြင်နေဆဲ</button>
+                <div class="status-row">
+                    <button class="btn-quick" style="background:var(--primary);" onclick="quickStatus('ပြင်ပြီး-မရွေးသေး')">✅ ပြင်ပြီး (မရွေးသေး)</button>
+                    <button class="btn-quick" style="background:var(--danger);" onclick="quickStatus('ပြင်မရ-မရွေးသေး')">❌ ပြင်မရ (မရွေးသေး)</button>
+                </div>
+                <div class="status-row">
+                    <button class="btn-quick" style="background:var(--success);" onclick="quickStatus('ထုတ်ယူပြီး-အောင်မြင်')">📦 ပြင်ပြီး ရွေးသွားပြီ</button>
+                    <button class="btn-quick" style="background:#64748b;" onclick="quickStatus('ထုတ်ယူပြီး-ပြင်မရ')">📦 ပြင်မရဘဲ ရွေးသွားပြီ</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">💰 ငွေစာရင်း (ရင်း / ရ)</div>
+            <div class="finance-row">
+                <input type="number" id="p_cost" class="fin-input" placeholder="အရင်း (Cost)">
+                <input type="number" id="p_income" class="fin-input" placeholder="ရငွေ (Income)">
+            </div>
+            <button class="btn-save-fin" onclick="saveFinance()">ငွေစာရင်း သိမ်းမည်</button>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">🕰 သမိုင်းကြောင်း (History)</div>
+            <div class="timeline" id="p_timeline">
+                <div class="empty-state">မှတ်တမ်းမရှိသေးပါ</div>
+            </div>
+        </div>
+        
+        <div style="text-align:center; margin-top:20px;">
+            <button onclick="deleteRepair()" style="background:none; border:none; color:var(--text-muted); font-weight:700; text-decoration:underline; cursor:pointer;">⚠️ ဤမှတ်တမ်းအား အပြီးဖျက်မည်</button>
+        </div>
+    </div>
+</div>
+
+<div id="addFormModal" class="form-modal">
+    <div class="form-content">
+        <h2 id="formTitle" style="margin-bottom: 20px; font-size:20px;">ဖုန်းအသစ်အပ်ရန်</h2>
+        <input type="hidden" id="f_id">
+        <div class="form-row">
+            <div class="form-group"><label>VR-No *</label><input type="text" id="f_vr" inputmode="numeric"></div>
+            <div class="form-group"><label>ရက်စွဲ *</label><input type="date" id="f_date"></div>
+        </div>
+        <div class="form-group"><label>Customer နာမည် *</label><input type="text" id="f_name"></div>
+        <div class="form-group"><label>ဖုန်းအမျိုးအစား (Model) *</label><input type="text" id="f_model"></div>
+        <div class="form-group"><label>ပြစ်ချက် (Issue) *</label><input type="text" id="f_issue"></div>
+        <div class="form-row">
+            <div class="form-group"><label>ဖုန်းနံပါတ်</label><input type="tel" id="f_phone" inputmode="numeric"></div>
+            <div class="form-group"><label>ဒေသ (Location)</label><input type="text" id="f_location"></div>
+        </div>
+        <div class="form-group"><label>မှတ်ချက်</label><input type="text" id="f_remark"></div>
+        
+        <div style="display:flex; gap:10px; margin-top:10px; width: 100%;">
+            <button onclick="closeAddForm()" style="flex:1; padding:15px; border-radius:12px; border:none; background:var(--border-light); font-weight:700; cursor:pointer;">ပိတ်မည်</button>
+            <button onclick="saveForm()" id="btnSaveForm" style="flex:1; padding:15px; border-radius:12px; border:none; background:var(--primary); color:white; font-weight:700; cursor:pointer;">သိမ်းမည်</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = { apiKey: "AIzaSyC5sGKGeD_zht-Qknp6VPwfPIChqwvX8MQ", authDomain: "masstore-c32a7.firebaseapp.com", projectId: "masstore-c32a7", storageBucket: "masstore-c32a7.firebasestorage.app", messagingSenderId: "321720130071", appId: "1:321720130071:web:20aab19001cc8bb3cd9a52" };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth(); const db = firebase.firestore();
+    
+    db.enablePersistence().catch(err => console.warn(err));
+
+    let allRepairs = [];
+    let currentTab = 'အားလုံး';
+    let currentUser = "Unknown";
+    let isSearching = false;
+
+        auth.onAuthStateChanged(user => {
+        if(!user) window.location.href = 'login.html';
+        else {
+            currentUser = user.displayName || user.email.split('@')[0];
+            
+            // 🌟 Offline ဖြစ်နေချိန်မှာ Error မတက်အောင် catch ခံပေးထားခြင်း
+            db.collection("users").doc(user.uid).set({ 
+                lastOnline: firebase.firestore.FieldValue.serverTimestamp() 
+            }, { merge: true }).catch(err => console.log("Currently Offline. Status not updated."));
+            
+            fetchData();
+        }
+    });
+
+    function fetchData() {
+        // 🌟 Offline မှာ Data အတိအကျပေါ်ရန် Firebase ကို စီမခိုင်းဘဲ JS ဖြင့် စီပါမည်
+        db.collection("repairs").onSnapshot(snap => {
+            let tempRepairs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            
+            // ရက်စွဲအလိုက် အသစ်မှ အဟောင်းသို့ JavaScript ဖြင့် ကိုယ်တိုင် ပြန်စီခြင်း (Descending)
+            tempRepairs.sort((a, b) => {
+                let dateA = a.date || "0000-00-00";
+                let dateB = b.date || "0000-00-00";
+                return dateB.localeCompare(dateA); 
+            });
+            
+            allRepairs = tempRepairs;
+            renderList();
+        }, error => {
+            console.warn("Offline Fetch Error: ", error);
+        });
+    }
+
+
+    async function appendHistory(docId, actionMsg) {
+        const timeNow = new Date().toISOString();
+        const historyObj = { msg: actionMsg, by: currentUser, time: timeNow };
+        try { await db.collection("repairs").doc(docId).update({ history: firebase.firestore.FieldValue.arrayUnion(historyObj) }); } catch(e){}
+        try { await db.collection("activity_logs").add({ user: currentUser, action: "Repair Update", details: actionMsg, module: "Repair", timestamp: firebase.firestore.FieldValue.serverTimestamp() }); } catch(e){}
+    }
+
+    function fetchData() {
+        db.collection("repairs").orderBy("date", "desc").onSnapshot(snap => {
+            allRepairs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderList();
+        });
+    }
+
+    function setTab(tabName, btnEl) {
+        currentTab = tabName;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+        renderList();
+    }
+
+    function renderList() {
+        const term = document.getElementById("searchInput").value.toLowerCase();
+        const startVal = document.getElementById("startDate").value; 
+        const endVal = document.getElementById("endDate").value; 
+        const listDiv = document.getElementById("repairList");
+        let html = "";
+        
+        let cAll = 0, cWait = 0, cDone = 0, cCollect = 0;
+
+        allRepairs.forEach(d => {
+            if (term && !(d.name||'').toLowerCase().includes(term) && !(d.vrno||'').includes(term)) return;
+            if (startVal && d.date < startVal) return;
+            if (endVal && d.date > endVal) return;
+
+            let status = d.status || 'စစ်ဆေးပြုပြင်နေဆဲ';
+            
+            cAll++;
+            if (status === 'စစ်ဆေးပြုပြင်နေဆဲ' || status.includes('ပြင်မရ-မရွေးသေး')) cWait++;
+            else if (status === 'ပြင်ပြီး-မရွေးသေး') cDone++;
+            else if (status.includes('ထုတ်ယူပြီး')) cCollect++;
+
+            let show = false;
+            if (currentTab === 'အားလုံး') show = true;
+            else if (currentTab === 'စစ်ဆေးဆဲ' && (status === 'စစ်ဆေးပြုပြင်နေဆဲ' || status.includes('ပြင်မရ-မရွေးသေး'))) show = true;
+            else if (currentTab === 'ပြင်ပြီး' && status === 'ပြင်ပြီး-မရွေးသေး') show = true;
+            else if (currentTab === 'ရွေးသွားပြီ' && status.includes('ထုတ်ယူပြီး')) show = true;
+
+            if (!show) return;
+
+            let sCol = "var(--warning)"; let sBg = "#fef3c7"; let sTxt = "⏳ စစ်ဆေးဆဲ";
+            if(status === 'ပြင်ပြီး-မရွေးသေး') { sCol = "var(--primary)"; sBg = "var(--primary-light)"; sTxt = "✅ ပြင်ပြီး (မရွေးသေး)"; }
+            else if(status === 'ပြင်မရ-မရွေးသေး') { sCol = "var(--danger)"; sBg = "#fee2e2"; sTxt = "❌ ပြင်မရ (မရွေးသေး)"; }
+            else if(status === 'ထုတ်ယူပြီး-အောင်မြင်') { sCol = "var(--success)"; sBg = "#dcfce7"; sTxt = "📦 ပြင်ပြီး ရွေးသွားပြီ"; }
+            else if(status === 'ထုတ်ယူပြီး-ပြင်မရ') { sCol = "#475569"; sBg = "#f1f5f9"; sTxt = "📦 ပြင်မရ ရွေးသွားပြီ"; }
+
+            html += `
+            <div class="repair-card" style="border-left-color: ${sCol};" onclick='openProfile(${JSON.stringify(d).replace(/'/g, "&apos;")})'>
+                <div class="card-row">
+                    <span class="card-title">${d.name}</span>
+                    <span class="card-vr">VR: ${d.vrno}</span>
+                </div>
+                <div class="card-info">📱 ${d.model} | ⚠️ ${d.issue}</div>
+                <span class="status-badge" style="background:${sBg}; color:${sCol};">${sTxt}</span>
+            </div>`;
+        });
+
+        document.getElementById('tab-all').innerText = `အားလုံး (${cAll})`;
+        document.getElementById('tab-wait').innerText = `စစ်ဆေးဆဲ (${cWait})`;
+        document.getElementById('tab-done').innerText = `ပြင်ပြီး (${cDone})`;
+        document.getElementById('tab-collected').innerText = `ရွေးသွားပြီ (${cCollect})`;
+
+        listDiv.innerHTML = html || `<div class="empty-state">ဒီစာရင်းထဲမှာ ဖုန်းမရှိသေးပါ</div>`;
+    }
+
+    let currentProfileData = null;
+
+    function getStatusBadge(status) {
+        if(status === 'ပြင်ပြီး-မရွေးသေး') return { bg: 'var(--primary-light)', col: 'var(--primary)', txt: '✅ ပြင်ပြီး (မရွေးသေး)' };
+        if(status === 'ပြင်မရ-မရွေးသေး') return { bg: '#fee2e2', col: 'var(--danger)', txt: '❌ ပြင်မရ (မရွေးသေး)' };
+        if(status === 'ထုတ်ယူပြီး-အောင်မြင်') return { bg: '#dcfce7', col: 'var(--success)', txt: '📦 ပြင်ပြီး ရွေးသွားပြီ' };
+        if(status === 'ထုတ်ယူပြီး-ပြင်မရ') return { bg: '#f1f5f9', col: '#475569', txt: '📦 ပြင်မရ ရွေးသွားပြီ' };
+        return { bg: '#fef3c7', col: 'var(--warning)', txt: '⏳ စစ်ဆေးပြုပြင်နေဆဲ' }; 
+    }
+
+    function openProfile(d) {
+        currentProfileData = d;
+        document.getElementById('p_id').value = d.id;
+        document.getElementById('p_status_hidden').value = d.status || 'စစ်ဆေးပြုပြင်နေဆဲ';
+        document.getElementById('p_vr_title').innerText = `VR: ${d.vrno} Profile`;
+        
+        const badgeObj = getStatusBadge(d.status || 'စစ်ဆေးပြုပြင်နေဆဲ');
+        const badgeEl = document.getElementById('p_current_status');
+        badgeEl.style.background = badgeObj.bg;
+        badgeEl.style.color = badgeObj.col;
+        badgeEl.innerText = badgeObj.txt;
+
+        document.getElementById('p_name').innerText = d.name;
+        document.getElementById('p_date').innerText = d.date;
+        document.getElementById('p_model').innerText = d.model;
+        document.getElementById('p_issue').innerText = d.issue;
+        document.getElementById('p_phone').innerText = d.phone || '-';
+        document.getElementById('p_remark').innerText = d.remark || '-';
+        document.getElementById('p_cost').value = d.cost || '';
+        document.getElementById('p_income').value = d.income || '';
+
+        const callBtn = document.getElementById('p_call_btn');
+        if(d.phone) { callBtn.style.display = 'inline-flex'; callBtn.href = `tel:${d.phone}`; } 
+        else { callBtn.style.display = 'none'; }
+
+        const tDiv = document.getElementById('p_timeline');
+        if(d.history && d.history.length > 0) {
+            let tHtml = "";
+            [...d.history].reverse().forEach(h => {
+                let dObj = new Date(h.time);
+                let timeStr = dObj.toLocaleDateString() + " " + dObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                tHtml += `
+                <div class="timeline-item">
+                    <div class="time-txt">${timeStr}</div>
+                    <div class="log-txt">[${h.by}] ${h.msg}</div>
+                </div>`;
+            });
+            tDiv.innerHTML = tHtml;
+        } else {
+            tDiv.innerHTML = `<div class="empty-state" style="padding:10px;">မှတ်တမ်းမရှိသေးပါ</div>`;
+        }
+
+        document.getElementById('profileView').classList.add('active');
+        document.body.style.overflow = 'hidden';
+        history.pushState({ view: 'profile' }, null, "");
+    }
+
+    function closeProfile() {
+        document.getElementById('profileView').classList.remove('active');
+        document.body.style.overflow = 'auto';
+        if(history.state && history.state.view === 'profile') history.back();
+    }
+
+    async function quickStatus(newStatus) {
+        const id = document.getElementById('p_id').value;
+        const oldStatus = document.getElementById('p_status_hidden').value;
+        if(oldStatus === newStatus) return; 
+
+        let cost = Number(document.getElementById('p_cost').value) || 0;
+        let income = Number(document.getElementById('p_income').value) || 0;
+
+        // 🟢 ပြင်ပြီးရွေးသွားပြီ နှိပ်ပါက Finance (ရငွေ) ကို အတည်ပြုတောင်းခံမည့် အပိုင်း
+        if (newStatus === 'ထုတ်ယူပြီး-အောင်မြင်' && income === 0) {
+            const { value: finVals } = await Swal.fire({
+                title: 'ငွေစာရင်း သွင်းရန်',
+                html: `
+                    <div style="font-size:13px; margin-bottom:10px; color:#64748b;">(Finance သို့ အလိုအလျောက် ဝင်မည်ဖြစ်ပါသည်)</div>
+                    <input type="number" id="swal-cost" class="swal2-input" placeholder="အရင်း (Cost) Ks" value="${cost}">
+                    <input type="number" id="swal-income" class="swal2-input" placeholder="ရငွေ (Income) Ks">
+                `,
+                focusConfirm: false, showCancelButton: true, confirmButtonText: 'အတည်ပြုမည်', cancelButtonText: 'ပိတ်မည်',
+                preConfirm: () => {
+                    return {
+                        c: Number(document.getElementById('swal-cost').value) || 0,
+                        i: Number(document.getElementById('swal-income').value) || 0
+                    }
+                }
+            });
+            
+            if (!finVals) return;
+            if (finVals.i <= 0) return Swal.fire('အမှား', 'ရငွေ (Income) ထည့်သွင်းပေးပါ', 'error');
+            
+            cost = finVals.c;
+            income = finVals.i;
+            document.getElementById('p_cost').value = cost;
+            document.getElementById('p_income').value = income;
+        }
+
+        try {
+            await db.collection("repairs").doc(id).update({ status: newStatus, cost: cost, income: income });
+            await appendHistory(id, `အခြေအနေကို "${newStatus}" သို့ ပြောင်းလဲခဲ့သည်။ (ရင်း: ${cost}, ရ: ${income})`);
+            
+            document.getElementById('p_status_hidden').value = newStatus;
+            const badgeObj = getStatusBadge(newStatus);
+            const badgeEl = document.getElementById('p_current_status');
+            badgeEl.style.background = badgeObj.bg;
+            badgeEl.style.color = badgeObj.col;
+            badgeEl.innerText = badgeObj.txt;
+
+            Swal.fire({ icon: 'success', title: 'Status ပြောင်းလဲပြီးပါပြီ', timer: 1000, showConfirmButton: false });
+        } catch(e) { Swal.fire('Error', e.message, 'error'); }
+    }
+
+    async function saveFinance() {
+        const id = document.getElementById('p_id').value;
+        const cost = Number(document.getElementById('p_cost').value) || 0;
+        const income = Number(document.getElementById('p_income').value) || 0;
+        
+        try {
+            await db.collection("repairs").doc(id).update({ cost, income });
+            await appendHistory(id, `ငွေစာရင်း ရင်းငွေ: ${cost} | ရငွေ: ${income} သို့ ပြင်ဆင်ခဲ့သည်။`);
+            Swal.fire({ icon: 'success', title: 'ငွေစာရင်း သိမ်းပြီးပါပြီ', timer: 1000, showConfirmButton: false });
+        } catch(e) { Swal.fire('Error', e.message, 'error'); }
+    }
+
+    async function deleteRepair() {
+        const id = document.getElementById('p_id').value;
+        const res = await Swal.fire({ title: 'ဖျက်မှာလား?', icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--danger)'});
+        if(res.isConfirmed) {
+            await db.collection("activity_logs").add({ user: currentUser, action: "Delete", details: `ဖုန်းမှတ်တမ်း ဖျက်လိုက်သည်။`, module: "Repair", timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            await db.collection("repairs").doc(id).delete();
+            closeProfile();
+        }
+    }
+
+    function getNextVR() {
+        if (!allRepairs || allRepairs.length === 0) return "1";
+        let max = 0; allRepairs.forEach(d => { let m = String(d.vrno||'').match(/\d+/); if(m && parseInt(m[0])>max) max = parseInt(m[0]); });
+        return String(max + 1);
+    }
+
+    function openAddForm() {
+        document.getElementById('formTitle').innerText = "ဖုန်းအသစ်အပ်ရန်";
+        document.getElementById('f_id').value = "";
+        document.getElementById('f_vr').value = getNextVR();
+        document.getElementById('f_date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('f_name').value = ""; document.getElementById('f_model').value = "";
+        document.getElementById('f_issue').value = ""; document.getElementById('f_phone').value = "";
+        document.getElementById('f_location').value = ""; document.getElementById('f_remark').value = "";
+        
+        document.getElementById('addFormModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+        history.pushState({ view: 'form' }, null, "");
+    }
+
+    function editCurrentRepair() {
+        if(!currentProfileData) return;
+        let d = currentProfileData;
+        document.getElementById('formTitle').innerText = "အချက်အလက် ပြင်ဆင်ရန်";
+        document.getElementById('f_id').value = d.id;
+        document.getElementById('f_vr').value = d.vrno;
+        document.getElementById('f_date').value = d.date;
+        document.getElementById('f_name').value = d.name; document.getElementById('f_model').value = d.model;
+        document.getElementById('f_issue').value = d.issue; document.getElementById('f_phone').value = d.phone || "";
+        document.getElementById('f_location').value = d.location || ""; document.getElementById('f_remark').value = d.remark || "";
+        
+        document.getElementById('addFormModal').classList.add('active');
+    }
+
+    function closeAddForm() {
+        document.getElementById('addFormModal').classList.remove('active');
+        if(!document.getElementById('profileView').classList.contains('active')) document.body.style.overflow = 'auto';
+        if(history.state && history.state.view === 'form') history.back();
+    }
+
+    async function saveForm() {
+        const id = document.getElementById('f_id').value;
+        const data = {
+            vrno: document.getElementById('f_vr').value.trim(), date: document.getElementById('f_date').value,
+            name: document.getElementById('f_name').value.trim(), model: document.getElementById('f_model').value.trim(),
+            issue: document.getElementById('f_issue').value.trim(), phone: document.getElementById('f_phone').value.trim(),
+            location: document.getElementById('f_location').value.trim(), remark: document.getElementById('f_remark').value.trim()
+        };
+
+        if(!data.vrno || !data.date || !data.name || !data.model || !data.issue) {
+            return Swal.fire('လိုအပ်ချက်', '( * ) ပြထားသော အချက်များကို ဖြည့်ပါ။', 'warning');
+        }
+
+        const btn = document.getElementById('btnSaveForm');
+        btn.disabled = true; btn.innerText = "သိမ်းနေသည်...";
+
+        try {
+            if(id) {
+                await db.collection("repairs").doc(id).update(data);
+                await appendHistory(id, "ဖောက်သည် အချက်အလက်များ ပြင်ဆင်ခဲ့သည်။");
+            } else {
+                data.status = 'စစ်ဆေးပြုပြင်နေဆဲ'; data.cost = 0; data.income = 0; 
+                data.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+                data.history = [{ msg: "ဖုန်းအသစ် လက်ခံရရှိသည်။", by: currentUser, time: new Date().toISOString() }];
+                await db.collection("repairs").add(data);
+                await db.collection("activity_logs").add({ user: currentUser, action: "New Repair", details: `VR: ${data.vrno} အပ်နှံသည်။`, module: "Repair", timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            }
+            closeAddForm();
+            if(id) closeProfile(); 
+            Swal.fire({ icon: 'success', title: 'အောင်မြင်ပါသည်', timer: 1000, showConfirmButton: false });
+        } catch(e) { Swal.fire('Error', e.message, 'error'); }
+        finally { btn.disabled = false; btn.innerText = "သိမ်းမည်"; }
+    }
+
+    const searchInput = document.getElementById("searchInput");
+    searchInput.addEventListener('focus', () => {
+        if (!isSearching) { history.pushState({ view: 'search' }, null, ""); isSearching = true; }
+    });
+
+    window.addEventListener('popstate', function(event) {
+        document.getElementById('addFormModal').classList.remove('active');
+        document.getElementById('profileView').classList.remove('active');
+        document.body.style.overflow = 'auto';
+        
+        if (typeof Swal !== 'undefined' && Swal.isVisible()) Swal.close();
+        if (isSearching) { searchInput.value = ""; searchInput.blur(); isSearching = false; renderList(); }
+    });
+</script>
+</body>
+</html>
