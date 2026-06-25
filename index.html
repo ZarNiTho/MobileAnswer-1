@@ -260,12 +260,11 @@
         </div>
     </div>
 
-    <!-- Modals Form Logic Kept Intact -->
     <div id="registerModal" class="modal"><div class="modal-content"><div class="modal-drag-handle"></div><div class="modal-header"><h3>အကောင့်သစ်ဖွင့်ရန်</h3><button class="close-btn" onclick="closeModal('registerModal')">✕</button></div><div class="modal-body"><div class="input-group"><input type="text" id="regName" placeholder="အမည်"></div><div class="input-group"><input type="email" id="regEmail" placeholder="အီးမေးလ်"></div><div class="input-group"><input type="password" id="regPass" placeholder="စကားဝှက်"></div><div class="input-group"><select id="regRole"><option value="staff">Staff (ဝန်ထမ်း)</option><option value="admin">Admin (စီမံခန့်ခွဲသူ)</option></select></div></div><div class="modal-footer"><button class="btn btn-primary" onclick="registerUser()">အကောင့်ဖန်တီးမည်</button></div></div></div>
 
-    <div id="invModal" class="modal"><div class="modal-content"><div class="modal-drag-handle"></div><div class="modal-header"><h3 id="invModalTitle">ပစ္စည်းစာရင်းသွင်းရန်</h3><button class="close-btn" onclick="closeModal('invModal')">✕</button></div><div class="modal-body"><input type="hidden" id="invId"><div class="input-group"><input type="text" id="invName" placeholder="ပစ္စည်းအမည် *"></div><div style="display:flex; gap:10px;"><div class="input-group" style="flex:1;"><select id="invCat"><option value="အထွေထွေ">အထွေထွေ</option><option value="Hardwareအပိုပစ္စည်">Hardware</option><option value="accessories">Accessories</option></select></div><div class="input-group" style="flex:1;"><input type="number" id="invAmt" placeholder="အရေအတွက် *" inputmode="numeric"></div></div><div style="display:flex; gap:10px;"><div class="input-group" style="flex:1;"><input type="number" id="invCost" placeholder="အရင်း Ks" inputmode="numeric"></div><div class="input-group" style="flex:1;"><input type="number" id="invPrice" placeholder="ရောင်းဈေး Ks" inputmode="numeric"></div></div></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveInventory()">သိမ်းမည်</button></div></div></div>
+    <div id="invModal" class="modal"><div class="modal-content"><div class="modal-drag-handle"></div><div class="modal-header"><h3 id="invModalTitle">ပစ္စည်းစာရင်းသွင်းရန်</h3><button class="close-btn" onclick="closeModal('invModal')">✕</button></div><div class="modal-body"><input type="hidden" id="invId"><div class="input-group"><input type="text" id="invName" placeholder="ပစ္စည်းအမည် *"></div><div style="display:flex; gap:10px;"><div class="input-group" style="flex:1;"><select id="invCat"><option value="အထွေထွေ">အထွေထွေ</option><option value="Hardwareအပိုပစ္စည်">Hardware</option><option value="accessories">Accessories</option></select></div><div class="input-group" style="flex:1;"><input type="number" id="invAmt" placeholder="အရေအတွက် *" inputmode="numeric"></div></div><div style="display:flex; gap:10px;"><div class="input-group" style="flex:1;"><input type="number" id="invCost" placeholder="အရင်း Ks" inputmode="numeric"></div><div class="input-group" style="flex:1;"><input type="number" id="invPrice" placeholder="ရောင်းဈေး Ks" inputmode="numeric"></div></div><div id="invLogText" style="font-size:11px; color:var(--text-muted); margin-top:12px; background:var(--bg-input); padding:8px; border-radius:var(--radius-sm); display:none; line-height: 1.6;"></div></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveInventory()">သိမ်းမည်</button></div></div></div>
 
-    <div id="finModal" class="modal"><div class="modal-content"><div class="modal-drag-handle"></div><div class="modal-header"><h3 id="finModalTitle">ငွေစာရင်းသွင်းရန်</h3><button class="close-btn" onclick="closeModal('finModal')">✕</button></div><div class="modal-body"><input type="hidden" id="finId"><input type="hidden" id="finType"><div class="input-group"><select id="finCat"><option value="Service">Service</option><option value="Sales">Sales</option><option value="Office">Office</option><option value="Home">Home</option></select></div><div class="input-group"><input type="text" id="finName" placeholder="အကြောင်းအရာ *"></div><div class="input-group"><input type="number" id="finAmt" placeholder="ပမာဏ (Ks) *" inputmode="numeric"></div><div class="input-group"><input type="date" id="finDate"></div></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveFinance()">စာရင်းသိမ်းမည်</button></div></div></div>
+    <div id="finModal" class="modal"><div class="modal-content"><div class="modal-drag-handle"></div><div class="modal-header"><h3 id="finModalTitle">ငွေစာရင်းသွင်းရန်</h3><button class="close-btn" onclick="closeModal('finModal')">✕</button></div><div class="modal-body"><input type="hidden" id="finId"><input type="hidden" id="finType"><div class="input-group"><select id="finCat"><option value="Service">Service</option><option value="Sales">Sales</option><option value="Office">Office</option><option value="Home">Home</option></select></div><div class="input-group"><input type="text" id="finName" placeholder="အကြောင်းအရာ *"></div><div class="input-group"><input type="number" id="finAmt" placeholder="ပမာဏ (Ks) *" inputmode="numeric"></div><div class="input-group"><input type="date" id="finDate"></div><div id="finLogText" style="font-size:11px; color:var(--text-muted); margin-top:12px; background:var(--bg-input); padding:8px; border-radius:var(--radius-sm); display:none; line-height: 1.6;"></div></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveFinance()">စာရင်းသိမ်းမည်</button></div></div></div>
 
     <div id="repairModal" class="modal">
     <div class="modal-content" style="height:92vh;">
@@ -337,6 +336,16 @@
             toast.style.background = type === 'success' ? 'var(--success)' : 'var(--danger)';
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ==========================================
+        // Helper: Format Exact Time (Date, Month, Year, HH:MM:SS)
+        // ==========================================
+        function formatDetailedTime(timestamp) {
+            if (!timestamp) return 'အချိန်မသိရပါ';
+            let d = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            if (isNaN(d.getTime())) return 'အချိန်မသိရပါ';
+            return d.toLocaleDateString('en-GB') + ' ' + d.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
         }
 
         const firebaseConfig = {
@@ -503,6 +512,12 @@
                         dateHtml = `<div style="font-size:11px; color:var(--danger); margin-top:6px; font-weight:600;">📅 ရောင်းရက်စွဲ: ${d.date}</div>`;
                     }
 
+                    // ====== Add Detailed Timestamps for Inventory Card ======
+                    let detailTimestampsHtml = `<div style="font-size:10px; color:var(--text-muted); margin-top:10px; padding-top:6px; border-top:1px dashed var(--border-light); line-height:1.6;">`;
+                    if (d.createdAt) detailTimestampsHtml += `<div>⏳ စတင်သွင်းချိန်: ${formatDetailedTime(d.createdAt)}</div>`;
+                    if (d.updatedAt) detailTimestampsHtml += `<div>🔄 နောက်ဆုံးပြင်ဆင်ချိန်: ${formatDetailedTime(d.updatedAt)}</div>`;
+                    detailTimestampsHtml += `</div>`;
+
                     if (!isSold) {
                         adminBtns = userState.role === 'admin' ? `<div style="display:flex; gap:10px; margin-top:10px;"><button class="btn-action btn-edit" style="flex:1;" onclick="editInv('${d.id}')">ပြင်မည်</button><button class="btn-action btn-delete" style="flex:1;" onclick="deleteInv('${d.id}','${d.name}')">ဖျက်မည်</button></div>` : '';
                         sellBtn = `<button class="btn-action" style="background:var(--primary-light); color:var(--primary); margin-left:10px; border-radius:8px;" onclick="sellInv('${d.id}','${d.name}',${d.amount},${d.price},${d.costPrice},'${d.category}')">၁ ခုရောင်းမည်</button>`;
@@ -515,6 +530,7 @@
                                 <div class="card-row" style="font-size:12px; color:var(--text-muted); margin-top:6px;"><span>📦 ${d.amount} ခု | 📁 ${d.category}</span>${sellBtn}</div>
                                 <div class="card-row" style="font-size:12px; margin-top:10px; background:var(--bg-input); padding:10px 12px; border-radius:var(--radius-sm);"><span>အရင်း: <b>${(d.costPrice||0).toLocaleString()}</b> Ks</span><span>ရောင်း: <b style="color:var(--primary)">${(d.price||0).toLocaleString()}</b> Ks</span></div>
                                 ${dateHtml}
+                                ${detailTimestampsHtml}
                                 ${adminBtns}
                             </div>`;
                 }
@@ -526,17 +542,44 @@
             let d = invData.find(x => x.id === id); if (!d) return;
             document.getElementById('invId').value = d.id; document.getElementById('invName').value = d.name; document.getElementById('invCat').value = d.category;
             document.getElementById('invAmt').value = d.amount; document.getElementById('invCost').value = d.costPrice; document.getElementById('invPrice').value = d.price;
+            
+            // Show exact logs in Form
+            let logEl = document.getElementById('invLogText');
+            if(d.createdAt || d.updatedAt) {
+                logEl.style.display = 'block';
+                logEl.innerHTML = `<strong>မှတ်တမ်းအသေးစိတ် (Logs)</strong><br>` + 
+                                  (d.createdAt ? `⏳ စတင်သွင်းချိန်: ${formatDetailedTime(d.createdAt)}<br>` : '') + 
+                                  (d.updatedAt ? `🔄 နောက်ဆုံးပြင်ဆင်ချိန်: ${formatDetailedTime(d.updatedAt)}` : '');
+            } else {
+                logEl.style.display = 'none';
+            }
             openModal('invModal');
         }
 
         async function saveInventory() {
             const id = document.getElementById('invId').value;
-            const data = { name: document.getElementById('invName').value.trim(), category: document.getElementById('invCat').value, amount: Number(document.getElementById('invAmt').value) || 0, costPrice: Number(document.getElementById('invCost').value) || 0, price: Number(document.getElementById('invPrice').value) || 0, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+            const data = { 
+                name: document.getElementById('invName').value.trim(), 
+                category: document.getElementById('invCat').value, 
+                amount: Number(document.getElementById('invAmt').value) || 0, 
+                costPrice: Number(document.getElementById('invCost').value) || 0, 
+                price: Number(document.getElementById('invPrice').value) || 0, 
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+            };
             if (!data.name || data.amount <= 0) return;
             try {
-                if (id) { await db.collection("products").doc(id).update(data); await logActivity("Edit Stock", `${data.name} ပြင်ဆင်သည်`); } 
-                else { data.status = "ပစ္စည်းရှိ"; await db.collection("products").add(data); await logActivity("Add Stock", `${data.name} သွင်းသည်`); }
+                if (id) { 
+                    await db.collection("products").doc(id).update(data); 
+                    await logActivity("Edit Stock", `${data.name} ပြင်ဆင်သည်`); 
+                } 
+                else { 
+                    data.status = "ပစ္စည်းရှိ"; 
+                    data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); // newly added
+                    await db.collection("products").add(data); 
+                    await logActivity("Add Stock", `${data.name} သွင်းသည်`); 
+                }
                 closeModal('invModal'); document.getElementById('invId').value = ''; document.getElementById('invName').value = ''; document.getElementById('invAmt').value = '';
+                document.getElementById('invLogText').style.display = 'none';
                 showToast("ပစ္စည်းစာရင်း သိမ်းဆည်းပြီးပါပြီ");
             } catch (e) {}
         }
@@ -546,7 +589,7 @@
             try {
                 if (curAmt > 1) { await db.collection("products").doc(id).update({ amount: curAmt - 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); } 
                 else { await db.collection("products").doc(id).delete(); }
-                await db.collection("transactions").add({ type: "ဝင်ငွေ", group: "Sales", name: `ရောင်းရငွေ: ${name}`, amount: price, date: new Date() });
+                await db.collection("transactions").add({ type: "ဝင်ငွေ", group: "Sales", name: `ရောင်းရငွေ: ${name}`, amount: price, date: new Date(), exactDate: new Date() });
                 
                 let curDate = new Date();
                 let fDate = curDate.toLocaleDateString('en-GB') + " " + curDate.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
@@ -554,6 +597,7 @@
                 await db.collection("products").add({ 
                     name: name + " (ရောင်းပြီး)", category: cat, status: "ရောင်းပြီး", amount: 1, costPrice: cost, price: price, 
                     sellDate: fDate,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
                 });
                 await logActivity("Sell", `${name} ရောင်းချသည်`);
@@ -584,7 +628,7 @@
                         });
                     } else {
                         await db.collection("products").add({
-                            name: originalName, category: targetItem.category, amount: 1, costPrice: targetItem.costPrice, price: targetItem.price, status: "ပစ္စည်းရှိ", updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            name: originalName, category: targetItem.category, amount: 1, costPrice: targetItem.costPrice, price: targetItem.price, status: "ပစ္စည်းရှိ", createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
                     }
 
@@ -626,10 +670,14 @@
                     let badgeBg = s.includes('အောင်မြင်') ? 'var(--success-light)' : s.includes('မရ') ? 'var(--danger-light)' : s.includes('ပြင်ပြီး') ? 'var(--primary-light)' : 'var(--warning-light)';
                     let badgeCol = s.includes('အောင်မြင်') ? 'var(--success)' : s.includes('မရ') ? 'var(--danger)' : s.includes('ပြင်ပြီး') ? 'var(--primary)' : 'var(--warning)';
 
+                    // ====== Detailed Timestamp for Repair Card ======
+                    let detailedTimeInfo = `<div style="font-size:10px; color:var(--text-muted); margin-top:8px; border-top:1px dashed var(--border-light); padding-top:6px;">🕒 နောက်ဆုံးမှတ်တမ်း: ${formatDetailedTime(d.timestamp)}</div>`;
+
                     html += `<div class="card" onclick="openRepairDetail('${d.id}')">
                                 <div class="card-row"><strong style="font-size:14px; color:var(--text-main);">${d.name}</strong><span style="font-size:11px; color:var(--text-secondary); font-weight:800; background:var(--bg-input); padding:4px 8px; border-radius:6px;">VR: ${d.vrno}</span></div>
                                 <div class="card-grid"><span>📍 ${d.location || 'မဖော်ပြထားပါ'}</span><span>📞 ${d.phone || 'မဖော်ပြထားပါ'}</span><span>📱 ${d.model}</span><span style="color:var(--danger); font-weight:600;">⚠️ ${d.issue}</span></div>
                                 <div class="card-row" style="margin-bottom:0; margin-top:4px;"><span class="badge" style="background:${badgeBg}; color:${badgeCol};">${s}</span></div>
+                                ${detailedTimeInfo}
                             </div>`;
                 }
             });
@@ -649,15 +697,23 @@
             document.getElementById('repStatusSection').style.display = 'block'; document.getElementById('repStatusSelect').value = d.status || 'စစ်ဆေးပြုပြင်နေဆဲ'; document.getElementById('repCost').value = d.cost || ''; document.getElementById('repIncome').value = d.income || '';
             if (userState.role === 'admin') document.getElementById('btnRepDel').style.display = 'inline-block';
 
-            let histHtml = '<b style="color:var(--text-main); font-size:12px;">Activity Logs</b><br>';
-            if (d.history) { d.history.slice().reverse().forEach(h => { histHtml += `<div style="margin-top:6px; padding:8px; background:var(--bg-input); border-radius:var(--radius-sm); font-size:11px;">- [${new Date(h.time).toLocaleDateString()}] ${h.msg} <br><span style="color:var(--primary); font-weight:700;">By: ${h.by}</span></div>`; }); }
+            let histHtml = '<b style="color:var(--text-main); font-size:12px;">Activity Logs & Timestamps</b><br>';
+            if (d.history) { 
+                d.history.slice().reverse().forEach(h => { 
+                    histHtml += `<div style="margin-top:6px; padding:8px; background:var(--bg-input); border-radius:var(--radius-sm); font-size:11px;">
+                        <span style="color:var(--text-muted);">🕒 ${formatDetailedTime(h.time)}</span><br>
+                        - ${h.msg} <br>
+                        <span style="color:var(--primary); font-weight:700;">By: ${h.by}</span>
+                    </div>`; 
+                }); 
+            }
             document.getElementById('repHistory').innerHTML = histHtml; document.getElementById('repModalTitle').innerText = `VR: ${d.vrno} Detail`;
             openModal('repairModal');
         }
 
         async function saveRepair() {
             const id = document.getElementById('repId').value; const vr = document.getElementById('repVr').value; const name = document.getElementById('repName').value.trim(); if (!vr || !name) return;
-            let data = { vrno: vr, date: document.getElementById('repDate').value, name: name, phone: document.getElementById('repPhone').value, location: document.getElementById('repLocation').value, model: document.getElementById('repModel').value, issue: document.getElementById('repIssue').value, remark: document.getElementById('repRemark').value };
+            let data = { vrno: vr, date: document.getElementById('repDate').value, name: name, phone: document.getElementById('repPhone').value, location: document.getElementById('repLocation').value, model: document.getElementById('repModel').value, issue: document.getElementById('repIssue').value, remark: document.getElementById('repRemark').value, timestamp: firebase.firestore.FieldValue.serverTimestamp() };
 
             try {
                 if (id) {
@@ -668,7 +724,7 @@
                     await logActivity("Update Repair", `VR: ${vr} အား [${data.status}] သို့ ပြင်ဆင်သည်`);
                 } else {
                     data.status = 'စစ်ဆေးပြုပြင်နေဆဲ'; data.cost = 0; data.income = 0;
-                    data.history = [{ msg: "ဖုန်းအသစ် လက်ခံရရှိသည်။", by: userState.name, time: new Date().toISOString() }]; data.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+                    data.history = [{ msg: "ဖုန်းအသစ် လက်ခံရရှိသည်။", by: userState.name, time: new Date().toISOString() }];
                     await db.collection("repairs").add(data); await logActivity("New Repair", `VR: ${vr} အပ်နှံသည်`);
                 }
                 closeModal('repairModal'); showToast("ဖုန်းပြင်မှတ်တမ်း သိမ်းပြီးပါပြီ");
@@ -699,12 +755,13 @@
             finData.forEach(d => {
                 let dStr = (d.date.toDate ? d.date.toDate() : new Date(d.date)).toLocaleDateString('en-CA');
                 if (!globalFinanceDays[dStr]) globalFinanceDays[dStr] = { inc: 0, exp: 0, logs: [] };
-                if (d.type === 'ဝင်ငွေ') globalFinanceDays[dStr].inc += Number(d.amount); else globalFinanceDays[dStr].exp += Number(d.amount); globalFinanceDays[dStr].logs.push({ ...d, source: 'tx' });
+                if (d.type === 'ဝင်ငွေ') globalFinanceDays[dStr].inc += Number(d.amount); else globalFinanceDays[dStr].exp += Number(d.amount); 
+                globalFinanceDays[dStr].logs.push({ ...d, source: 'tx', exactDate: d.exactDate || d.date });
             });
             finRepData.forEach(d => {
                 let dStr = d.date; if (!globalFinanceDays[dStr]) globalFinanceDays[dStr] = { inc: 0, exp: 0, logs: [] };
-                if (Number(d.income) > 0) { globalFinanceDays[dStr].inc += Number(d.income); globalFinanceDays[dStr].logs.push({ id: d.id, source: 'rp', type: 'ဝင်ငွေ', group: 'Repair', name: `VR:${d.vrno} ပြင်ခ`, amount: d.income }); }
-                if (Number(d.cost) > 0) { globalFinanceDays[dStr].exp += Number(d.cost); globalFinanceDays[dStr].logs.push({ id: d.id, source: 'rp', type: 'ထွက်ငွေ', group: 'Repair', name: `VR:${d.vrno} အရင်း`, amount: d.cost }); }
+                if (Number(d.income) > 0) { globalFinanceDays[dStr].inc += Number(d.income); globalFinanceDays[dStr].logs.push({ id: d.id, source: 'rp', type: 'ဝင်ငွေ', group: 'Repair', name: `VR:${d.vrno} ပြင်ခ`, amount: d.income, exactDate: d.timestamp }); }
+                if (Number(d.cost) > 0) { globalFinanceDays[dStr].exp += Number(d.cost); globalFinanceDays[dStr].logs.push({ id: d.id, source: 'rp', type: 'ထွက်ငွေ', group: 'Repair', name: `VR:${d.vrno} အရင်း`, amount: d.cost, exactDate: d.timestamp }); }
             });
 
             let sortedDates = Object.keys(globalFinanceDays).sort((a, b) => new Date(b) - new Date(a)); let html = '';
@@ -724,10 +781,22 @@
 
         function renderDayDetails(date) {
             let dayObj = globalFinanceDays[date] || { inc: 0, exp: 0, logs: [] }; let html = ''; if (dayObj.logs.length === 0) html = '<div class="empty-state">ယနေ့အတွက် စာရင်းမှတ်တမ်းမရှိပါ။</div>';
-            dayObj.logs.forEach(l => {
+            
+            // Sort logs by exact time if available
+            let sortedLogs = dayObj.logs.sort((a,b) => {
+                let da = a.exactDate ? (a.exactDate.toDate ? a.exactDate.toDate() : new Date(a.exactDate)) : new Date(0);
+                let db = b.exactDate ? (b.exactDate.toDate ? b.exactDate.toDate() : new Date(b.exactDate)) : new Date(0);
+                return db - da;
+            });
+
+            sortedLogs.forEach(l => {
                 let col = l.type === 'ဝင်ငွေ' ? 'var(--success)' : 'var(--danger)'; let isManualTx = l.source === 'tx';
-                let actionBtns = (userState.role === 'admin' && isManualTx) ? `<div style="display:flex; gap:10px; margin-top:8px; justify-content:flex-end;"><button class="btn-action btn-edit" style="padding:4px 10px; font-size:11px;" onclick="editFinInline('${l.id}','${l.group}','${l.name.replace(/'/g, "\\'")}',${l.amount},'${l.type}','${date}')">ပြင်မည်</button><button class="btn-action btn-delete" style="padding:4px 10px; font-size:11px;" onclick="deleteFin('${l.id}')">ဖျက်မည်</button></div>` : '';
-                html += `<div class="card" style="margin-bottom:10px; padding:12px 16px; transform:none;"><div class="card-row" style="margin-bottom:0;"><div><span class="badge" style="background:var(--bg-input); color:var(--text-muted); margin-bottom:4px; display:inline-block; font-size:9px; padding:3px 6px;">${l.group}</span><div style="font-size:13px; font-weight:700; color:var(--text-main);">${l.name}</div></div><div style="color:${col}; font-weight:800; font-size:14px;">${l.type==='ဝင်ငွေ'?'+':'-'}${Number(l.amount).toLocaleString()}</div></div>${actionBtns}</div>`;
+                let actionBtns = (userState.role === 'admin' && isManualTx) ? `<div style="display:flex; gap:10px; margin-top:8px; justify-content:flex-end;"><button class="btn-action btn-edit" style="padding:4px 10px; font-size:11px;" onclick="editFinInline('${l.id}','${l.group}','${l.name.replace(/'/g, "\\'")}',${l.amount},'${l.type}','${date}', '${l.exactDate}')">ပြင်မည်</button><button class="btn-action btn-delete" style="padding:4px 10px; font-size:11px;" onclick="deleteFin('${l.id}')">ဖျက်မည်</button></div>` : '';
+                
+                // ====== Detailed Timestamp for Finance Card ======
+                let detailedTime = `<div style="font-size:10px; color:var(--text-muted); margin-top:4px;">🕒 ${formatDetailedTime(l.exactDate)}</div>`;
+
+                html += `<div class="card" style="margin-bottom:10px; padding:12px 16px; transform:none;"><div class="card-row" style="margin-bottom:0;"><div><span class="badge" style="background:var(--bg-input); color:var(--text-muted); margin-bottom:4px; display:inline-block; font-size:9px; padding:3px 6px;">${l.group}</span><div style="font-size:13px; font-weight:700; color:var(--text-main);">${l.name}</div>${detailedTime}</div><div style="color:${col}; font-weight:800; font-size:14px;">${l.type==='ဝင်ငွေ'?'+':'-'}${Number(l.amount).toLocaleString()}</div></div>${actionBtns}</div>`;
             });
             document.getElementById('fsDayDetailsList').innerHTML = html;
         }
@@ -735,18 +804,34 @@
         function openFinModalWithDate(type, dateStr) { openFinModal(type); document.getElementById('finDate').value = dateStr; }
 
         function openFinModal(type) {
-            document.getElementById('finModalTitle').innerText = `${type} စာရင်းသွင်းရန်`; document.getElementById('finId').value = ''; document.getElementById('finType').value = type; document.getElementById('finName').value = ''; document.getElementById('finAmt').value = ''; document.getElementById('finDate').value = new Date().toISOString().split('T')[0]; openModal('finModal');
+            document.getElementById('finModalTitle').innerText = `${type} စာရင်းသွင်းရန်`; document.getElementById('finId').value = ''; document.getElementById('finType').value = type; document.getElementById('finName').value = ''; document.getElementById('finAmt').value = ''; document.getElementById('finDate').value = new Date().toISOString().split('T')[0]; document.getElementById('finLogText').style.display = 'none'; openModal('finModal');
         }
 
-        function editFinInline(id, group, name, amount, type, date) {
-            document.getElementById('finModalTitle').innerText = `စာရင်း ပြင်ဆင်ရန်`; document.getElementById('finId').value = id; document.getElementById('finType').value = type; document.getElementById('finCat').value = group; document.getElementById('finName').value = name; document.getElementById('finAmt').value = amount; document.getElementById('finDate').value = date; openModal('finModal');
+        function editFinInline(id, group, name, amount, type, date, exactDate) {
+            document.getElementById('finModalTitle').innerText = `စာရင်း ပြင်ဆင်ရန်`; document.getElementById('finId').value = id; document.getElementById('finType').value = type; document.getElementById('finCat').value = group; document.getElementById('finName').value = name; document.getElementById('finAmt').value = amount; document.getElementById('finDate').value = date; 
+            
+            // Populate Finance Logs
+            let logEl = document.getElementById('finLogText');
+            if(exactDate && exactDate !== 'undefined') {
+                logEl.style.display = 'block';
+                logEl.innerHTML = `<strong>မှတ်တမ်းအသေးစိတ် (Logs)</strong><br>🕒 သွင်းယူခဲ့သောအချိန်: ${formatDetailedTime(exactDate)}`;
+            } else {
+                logEl.style.display = 'none';
+            }
+            openModal('finModal');
         }
 
         async function saveFinance() {
             const id = document.getElementById('finId').value; const type = document.getElementById('finType').value; const name = document.getElementById('finName').value.trim(); const amt = Number(document.getElementById('finAmt').value); let dateVal = document.getElementById('finDate').value; if (!name || amt <= 0) return showToast('အချက်အလက် မှန်ကန်စွာ ဖြည့်ပါ', 'error'); let fDate = dateVal ? new Date(dateVal) : new Date();
             try {
-                if (id) { await db.collection("transactions").doc(id).update({ group: document.getElementById('finCat').value, name: name, amount: amt, date: fDate }); await logActivity("Edit Finance", `${type} စာရင်းပြင်ဆင်သည်`); } 
-                else { await db.collection("transactions").add({ type: type, group: document.getElementById('finCat').value, name: name, amount: amt, date: fDate }); await logActivity("Add Finance", `${type} စာရင်း [${name}] အားသွင်းသည်`); }
+                if (id) { 
+                    await db.collection("transactions").doc(id).update({ group: document.getElementById('finCat').value, name: name, amount: amt, date: fDate, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); 
+                    await logActivity("Edit Finance", `${type} စာရင်းပြင်ဆင်သည်`); 
+                } 
+                else { 
+                    await db.collection("transactions").add({ type: type, group: document.getElementById('finCat').value, name: name, amount: amt, date: fDate, exactDate: firebase.firestore.FieldValue.serverTimestamp() }); 
+                    await logActivity("Add Finance", `${type} စာရင်း [${name}] အားသွင်းသည်`); 
+                }
                 closeModal('finModal'); showToast(`${type} သိမ်းပြီးပါပြီ`);
             } catch (e) {}
         }
@@ -938,7 +1023,7 @@ User input: "${text}"
                     }
 
                     if (!docId) return addAiMsg("မှတ်တမ်း ရှာမတွေ့ပါ။ အမည် သို့မဟုတ် VR နံပါတ် အတိအကျ ပြန်ပြောပေးပါ။", "system");
-                    let updatePayload = {};
+                    let updatePayload = { timestamp: firebase.firestore.FieldValue.serverTimestamp() };
                     if (json.status) updatePayload.status = json.status;
                     if (json.income) updatePayload.income = Number(json.income);
                     if (json.cost) updatePayload.cost = Number(json.cost);
@@ -971,7 +1056,7 @@ User input: "${text}"
                 } catch (e) { addAiMsg("အသစ်သွင်းရာတွင် အမှားဖြစ်နေပါသည်။", "system"); }
 
             } else if (json.action === "finance") {
-                const payload = { type: json.type || "ဝင်ငွေ", group: json.group || "Service", name: json.name || "Unknown", amount: Number(json.amount || 0), date: new Date() };
+                const payload = { type: json.type || "ဝင်ငွေ", group: json.group || "Service", name: json.name || "Unknown", amount: Number(json.amount || 0), date: new Date(), exactDate: firebase.firestore.FieldValue.serverTimestamp() };
                 await db.collection("transactions").add(payload); await logActivity("AI Add Finance", `${payload.type} [${payload.name}] အားသွင်းသည်`);
                 addAiMsg(`✅ ${payload.type} စာရင်းသွင်းပြီးပါပြီ။ (${payload.amount.toLocaleString()} Ks)`, "system");
                 showToast(`${payload.type} သွင်းပြီးပါပြီ`);
@@ -993,7 +1078,7 @@ User input: "${text}"
                         await db.collection("products").doc(item.id).delete();
                     }
 
-                    await db.collection("transactions").add({ type: "ဝင်ငွေ", group: "Sales", name: `ရောင်းရငွေ: ${item.name}`, amount: item.price * qty, date: new Date() });
+                    await db.collection("transactions").add({ type: "ဝင်ငွေ", group: "Sales", name: `ရောင်းရငွေ: ${item.name}`, amount: item.price * qty, date: new Date(), exactDate: firebase.firestore.FieldValue.serverTimestamp() });
                     
                     let curDate = new Date();
                     let fDate = curDate.toLocaleDateString('en-GB') + " " + curDate.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
@@ -1001,6 +1086,7 @@ User input: "${text}"
                     await db.collection("products").add({
                         name: item.name + " (ရောင်းပြီး)", category: item.category, status: "ရောင်းပြီး", amount: qty, costPrice: item.costPrice, price: item.price * qty,
                         sellDate: fDate,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
 
