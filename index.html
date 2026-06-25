@@ -10,6 +10,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans Myanmar', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -109,9 +111,57 @@
         ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
         @media (max-width: 400px) { .app-header h1 { font-size: 17px; } .theme-select { font-size: 10px; padding: 5px 8px; } .btn { font-size: 13px; padding: 12px; } .card-grid { font-size: 11px; gap: 2px 8px; } .ai-sheet { height: 70vh; } }
+
+        /* ================= VOUCHER STYLES (SMART & PROFESSIONAL) ================= */
+        #voucherContainer {
+            position: absolute; left: -9999px; top: 0;
+            background: #ffffff;
+        }
+        .voucher-card {
+            background-color: #ffffff;
+            width: 380px; 
+            padding: 40px 30px;
+            color: #1e293b;
+            box-sizing: border-box;
+            border-top: 6px solid #4338ca; /* Dark Blue Accent */
+            box-shadow: none !important; 
+            border-radius: 0 !important;
+            font-family: 'Noto Sans Myanmar', sans-serif;
+        }
+        .v-header { text-align: center; margin-bottom: 20px; }
+        .v-shop-name { font-size: 24px; font-weight: 800; color: #0f1a2e; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .v-shop-name span { color: #4338ca; } 
+        .v-shop-desc { font-size: 13px; color: #64748b; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+        .v-dashed-line { border-top: 1.5px dashed #cbd5e1; margin: 18px 0; }
+        .v-info-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px; line-height: 1.5; }
+        .v-info-label { color: #64748b; font-weight: 500; }
+        .v-info-value { font-weight: 700; color: #0f1a2e; text-align: right; max-width: 65%; word-wrap: break-word; }
+        .v-total-row { display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 800; color: #4338ca; margin-top: 15px; padding-top: 15px; border-top: 2px solid #e2e8f0; }
+        .v-total-value { color: #e11d48; font-size: 20px; }
+        .v-footer-text { text-align: center; font-size: 12px; color: #94a3b8; margin-top: 30px; font-style: italic; }
     </style>
 </head>
 <body>
+
+    <div id="voucherContainer">
+        <div id="captureArea" class="voucher-card">
+            <div class="v-header">
+                <div class="v-shop-name">Mobile <span>ANSWER</span></div>
+                <div class="v-shop-desc">Phone Service</div>
+            </div>
+            <div class="v-info-row"><span class="v-info-label">ရက်စွဲ:</span><span class="v-info-value" id="v-date"></span></div>
+            <div class="v-info-row"><span class="v-info-label">ဘောက်ချာ No:</span><span class="v-info-value" id="v-vrno"></span></div>
+            <div class="v-dashed-line"></div>
+            <div class="v-info-row"><span class="v-info-label">အမည်:</span><span class="v-info-value" id="v-name"></span></div>
+            <div class="v-info-row"><span class="v-info-label">မော်ဒယ်:</span><span class="v-info-value" id="v-model"></span></div>
+            <div class="v-info-row"><span class="v-info-label">ပြစ်ချက်:</span><span class="v-info-value" id="v-issue"></span></div>
+            <div class="v-total-row">
+                <span>စုစုပေါင်း:</span>
+                <span class="v-total-value" id="v-total"></span>
+            </div>
+            <div class="v-footer-text">ယုံကြည်စိတ်ချစွာ အပ်နှံခြင်းအတွက် ကျေးဇူးတင်ပါသည်။</div>
+        </div>
+    </div>
 
     <div class="loader-overlay" id="loader"><div class="spinner"></div></div>
 
@@ -267,52 +317,73 @@
     <div id="finModal" class="modal"><div class="modal-content"><div class="modal-drag-handle"></div><div class="modal-header"><h3 id="finModalTitle">ငွေစာရင်းသွင်းရန်</h3><button class="close-btn" onclick="closeModal('finModal')">✕</button></div><div class="modal-body"><input type="hidden" id="finId"><input type="hidden" id="finType"><div class="input-group"><select id="finCat"><option value="Service">Service</option><option value="Sales">Sales</option><option value="Office">Office</option><option value="Home">Home</option></select></div><div class="input-group"><input type="text" id="finName" placeholder="အကြောင်းအရာ *"></div><div class="input-group"><input type="number" id="finAmt" placeholder="ပမာဏ (Ks) *" inputmode="numeric"></div><div class="input-group"><input type="date" id="finDate"></div><div id="finLogText" style="font-size:11px; color:var(--text-muted); margin-top:12px; background:var(--bg-input); padding:8px; border-radius:var(--radius-sm); display:none; line-height: 1.6;"></div></div><div class="modal-footer"><button class="btn btn-primary" onclick="saveFinance()">စာရင်းသိမ်းမည်</button></div></div></div>
 
     <div id="repairModal" class="modal">
-    <div class="modal-content" style="height:92vh;">
-        <div class="modal-drag-handle"></div>
-        <div class="modal-header">
-            <h3 id="repModalTitle">Repair Detail</h3>
-            <button class="close-btn" onclick="closeModal('repairModal')">✕</button>
-        </div>
-        <div class="modal-body">
-            <input type="hidden" id="repId">
-            <div style="display:flex; gap:10px;">
-                <div class="input-group" style="flex:1;"><input type="text" id="repVr" placeholder="VR No *" inputmode="numeric"></div>
-                <div class="input-group" style="flex:1;"><input type="date" id="repDate"></div>
+        <div class="modal-content" style="height:92vh;">
+            <div class="modal-drag-handle"></div>
+            <div class="modal-header">
+                <h3 id="repModalTitle">Repair Detail</h3>
+                <button class="close-btn" onclick="closeModal('repairModal')">✕</button>
             </div>
-            <div class="input-group"><input type="text" id="repName" placeholder="Customer နာမည် *"></div>
-            <div class="input-group"><input type="tel" id="repPhone" placeholder="ဖုန်းနံပါတ်" inputmode="numeric"></div>
-            <div class="input-group"><input type="text" id="repLocation" placeholder="နေရပ်ဒေသ / လိပ်စာ"></div>
-            <div class="input-group"><input type="text" id="repModel" placeholder="ဖုန်း Model *"></div>
-            <div class="input-group"><input type="text" id="repIssue" placeholder="ပြစ်ချက် (Issue) *"></div>
-            <div class="input-group"><input type="text" id="repRemark" placeholder="မှတ်ချက်"></div>
-
-            <div id="repStatusSection" style="display:none; padding:16px; background:var(--primary-light); border-radius:var(--radius-md); margin-bottom:12px; transition:background var(--transition-slow);">
-                <label style="font-size:11px; font-weight:800; color:var(--primary); display:block; margin-bottom:8px; text-transform:uppercase; transition:color var(--transition-slow);">Status &amp; Pricing</label>
-                <select id="repStatusSelect" style="background:var(--bg-surface); margin-bottom:10px; padding:12px; border-radius:var(--radius-sm); width:100%; border:1px solid var(--border-light); font-size:13px; color:var(--text-main); transition:all var(--transition);">
-                    <option value="စစ်ဆေးပြုပြင်နေဆဲ">⏳ စစ်ဆေးပြုပြင်နေဆဲ</option>
-                    <option value="ပြင်ပြီး-မရွေးသေး">✅ ပြင်ပြီး (မရွေးသေး)</option>
-                    <option value="ပြင်မရ-မရွေးသေး">❌ ပြင်မရ (မရွေးသေး)</option>
-                    <option value="ထုတ်ယူပြီး-အောင်မြင်">📦 ပြင်ပြီး ရွေးသွားပြီ (Collected)</option>
-                    <option value="ထုတ်ယူပြီး-ပြင်မရ">📦 ပြင်မရ ရွေးသွားပြီ</option>
-                </select>
-
-                <div style="display:flex; flex-wrap:wrap; gap:8px;">
-                    <input type="number" id="repCost" placeholder="အရင်း Ks" style="flex:1 1 0; min-width:0; background:var(--bg-input); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-light); font-size:13px; color:var(--text-main); transition:all var(--transition);">
-                    <input type="number" id="repIncome" placeholder="ရငွေ Ks" style="flex:1 1 0; min-width:0; background:var(--bg-input); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-light); font-size:13px; color:var(--text-main); transition:all var(--transition);">
+            <div class="modal-body">
+                <input type="hidden" id="repId">
+                <div style="display:flex; gap:10px;">
+                    <div class="input-group" style="flex:1;"><input type="text" id="repVr" placeholder="VR No *" inputmode="numeric"></div>
+                    <div class="input-group" style="flex:1;"><input type="date" id="repDate"></div>
                 </div>
-            </div>
+                <div class="input-group"><input type="text" id="repName" placeholder="Customer နာမည် *"></div>
+                <div class="input-group"><input type="tel" id="repPhone" placeholder="ဖုန်းနံပါတ်" inputmode="numeric"></div>
+                <div class="input-group"><input type="text" id="repLocation" placeholder="နေရပ်ဒေသ / လိပ်စာ"></div>
+                <div class="input-group"><input type="text" id="repModel" placeholder="ဖုန်း Model *"></div>
+                <div class="input-group"><input type="text" id="repIssue" placeholder="ပြစ်ချက် (Issue) *"></div>
+                <div class="input-group"><input type="text" id="repRemark" placeholder="မှတ်ချက်"></div>
 
-            <div id="repHistory" style="font-size:12px; color:var(--text-muted); margin-top:10px; line-height:1.6;"></div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-delete admin-only" id="btnRepDel" style="display:none; flex:0.4; font-size:13px; padding:12px;" onclick="deleteRepair()">ဖျက်မည်</button>
-            <button class="btn btn-primary" style="flex:1; font-size:13px; padding:12px;" onclick="saveRepair()">သိမ်းမည်</button>
+                <div id="repStatusSection" style="display:none; padding:16px; background:var(--primary-light); border-radius:var(--radius-md); margin-bottom:12px; transition:background var(--transition-slow);">
+                    <label style="font-size:11px; font-weight:800; color:var(--primary); display:block; margin-bottom:8px; text-transform:uppercase; transition:color var(--transition-slow);">Status &amp; Pricing</label>
+                    <select id="repStatusSelect" style="background:var(--bg-surface); margin-bottom:10px; padding:12px; border-radius:var(--radius-sm); width:100%; border:1px solid var(--border-light); font-size:13px; color:var(--text-main); transition:all var(--transition);">
+                        <option value="စစ်ဆေးပြုပြင်နေဆဲ">⏳ စစ်ဆေးပြုပြင်နေဆဲ</option>
+                        <option value="ပြင်ပြီး-မရွေးသေး">✅ ပြင်ပြီး (မရွေးသေး)</option>
+                        <option value="ပြင်မရ-မရွေးသေး">❌ ပြင်မရ (မရွေးသေး)</option>
+                        <option value="ထုတ်ယူပြီး-အောင်မြင်">📦 ပြင်ပြီး ရွေးသွားပြီ (Collected)</option>
+                        <option value="ထုတ်ယူပြီး-ပြင်မရ">📦 ပြင်မရ ရွေးသွားပြီ</option>
+                    </select>
+
+                    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                        <input type="number" id="repCost" placeholder="အရင်း Ks" style="flex:1 1 0; min-width:0; background:var(--bg-input); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-light); font-size:13px; color:var(--text-main); transition:all var(--transition);">
+                        <input type="number" id="repIncome" placeholder="ရငွေ Ks" style="flex:1 1 0; min-width:0; background:var(--bg-input); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-light); font-size:13px; color:var(--text-main); transition:all var(--transition);">
+                    </div>
+                </div>
+
+                <div id="repHistory" style="font-size:12px; color:var(--text-muted); margin-top:10px; line-height:1.6;"></div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-delete admin-only" id="btnRepDel" style="display:none; flex:0.4; font-size:13px; padding:12px;" onclick="deleteRepair()">ဖျက်မည်</button>
+                <button class="btn" id="btnRepVoucher" style="display:none; background:var(--info); color:#fff; flex:0.4; font-size:13px; padding:12px;" onclick="generateVoucher()">🧾 Voucher</button>
+                <button class="btn btn-primary" style="flex:1; font-size:13px; padding:12px;" onclick="saveRepair()">သိမ်းမည်</button>
+            </div>
         </div>
     </div>
-</div>
+
+        <div id="voucherPreviewModal" class="modal" style="background: rgba(15, 26, 46, 0.95); backdrop-filter: none;">
+        <div class="modal-content" style="background: transparent; box-shadow: none; align-items: center; justify-content: center; height: 100vh; transform: none; padding-top: 20px;">
+            
+            <img id="renderedImage" src="" alt="Voucher" style="max-width: 90%; max-height: 65vh; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: all 0.2s;">
+            
+            <div id="modalControls" style="display:flex; flex-direction:column; align-items:center; width:100%;">
+                <div style="color: #cbd5e1; margin-top: 20px; font-size: 13px; text-align: center; line-height: 1.6;">
+                    💡 ပုံကို ဖိထားပြီး (Long Press) လည်း Save နိုင်ပါသည်။
+                </div>
+
+                <div style="display:flex; gap:12px; margin-top:20px; width:90%; max-width: 400px;">
+                     <button class="btn btn-primary" style="flex:1; padding: 14px; font-size: 14px;" onclick="downloadVoucherImage()">💾 ပုံသိမ်းမည်</button>
+                     <button class="btn btn-delete" style="flex:1; padding: 14px; font-size: 14px;" onclick="closeModal('voucherPreviewModal')">ပိတ်မည်</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <script>
-        // 🚀 Groq API Key 
+        // 🚀 Groq API Key
         const GEMINI_API_KEY = "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";
 
         function changeTheme(themeName) {
@@ -338,9 +409,6 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // ==========================================
-        // Helper: Format Exact Time (Date, Month, Year, HH:MM:SS)
-        // ==========================================
         function formatDetailedTime(timestamp) {
             if (!timestamp) return 'အချိန်မသိရပါ';
             let d = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
@@ -512,7 +580,6 @@
                         dateHtml = `<div style="font-size:11px; color:var(--danger); margin-top:6px; font-weight:600;">📅 ရောင်းရက်စွဲ: ${d.date}</div>`;
                     }
 
-                    // ====== Add Detailed Timestamps for Inventory Card ======
                     let detailTimestampsHtml = `<div style="font-size:10px; color:var(--text-muted); margin-top:10px; padding-top:6px; border-top:1px dashed var(--border-light); line-height:1.6;">`;
                     if (d.createdAt) detailTimestampsHtml += `<div>⏳ စတင်သွင်းချိန်: ${formatDetailedTime(d.createdAt)}</div>`;
                     if (d.updatedAt) detailTimestampsHtml += `<div>🔄 နောက်ဆုံးပြင်ဆင်ချိန်: ${formatDetailedTime(d.updatedAt)}</div>`;
@@ -543,107 +610,89 @@
             document.getElementById('invId').value = d.id; document.getElementById('invName').value = d.name; document.getElementById('invCat').value = d.category;
             document.getElementById('invAmt').value = d.amount; document.getElementById('invCost').value = d.costPrice; document.getElementById('invPrice').value = d.price;
             
-            // Show exact logs in Form
             let logEl = document.getElementById('invLogText');
             if(d.createdAt || d.updatedAt) {
                 logEl.style.display = 'block';
                 logEl.innerHTML = `<strong>မှတ်တမ်းအသေးစိတ် (Logs)</strong><br>` + 
                                   (d.createdAt ? `⏳ စတင်သွင်းချိန်: ${formatDetailedTime(d.createdAt)}<br>` : '') + 
                                   (d.updatedAt ? `🔄 နောက်ဆုံးပြင်ဆင်ချိန်: ${formatDetailedTime(d.updatedAt)}` : '');
-            } else {
-                logEl.style.display = 'none';
-            }
+            } else { logEl.style.display = 'none'; }
             openModal('invModal');
         }
 
-        async function saveInventory() {
+                async function saveInventory() {
             const id = document.getElementById('invId').value;
             const data = { 
-                name: document.getElementById('invName').value.trim(), 
-                category: document.getElementById('invCat').value, 
-                amount: Number(document.getElementById('invAmt').value) || 0, 
-                costPrice: Number(document.getElementById('invCost').value) || 0, 
-                price: Number(document.getElementById('invPrice').value) || 0, 
+                name: document.getElementById('invName').value.trim(), category: document.getElementById('invCat').value, 
+                amount: Number(document.getElementById('invAmt').value) || 0, costPrice: Number(document.getElementById('invCost').value) || 0, price: Number(document.getElementById('invPrice').value) || 0, 
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
             };
             if (!data.name || data.amount <= 0) return;
-            try {
-                if (id) { 
-                    await db.collection("products").doc(id).update(data); 
-                    await logActivity("Edit Stock", `${data.name} ပြင်ဆင်သည်`); 
-                } 
-                else { 
-                    data.status = "ပစ္စည်းရှိ"; 
-                    data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); // newly added
-                    await db.collection("products").add(data); 
-                    await logActivity("Add Stock", `${data.name} သွင်းသည်`); 
-                }
-                closeModal('invModal'); document.getElementById('invId').value = ''; document.getElementById('invName').value = ''; document.getElementById('invAmt').value = '';
-                document.getElementById('invLogText').style.display = 'none';
-                showToast("ပစ္စည်းစာရင်း သိမ်းဆည်းပြီးပါပြီ");
-            } catch (e) {}
-        }
 
+            showLoader(); // 👈 နှိပ်လိုက်တာနဲ့ စခရင်ကို အရင်ဆုံး ပိတ်လိုက်ပါမည် (ထပ်နှိပ်လို့မရအောင်)
+            try {
+                if (id) { await db.collection("products").doc(id).update(data); await logActivity("Edit Stock", `${data.name} ပြင်ဆင်သည်`); } 
+                else { data.status = "ပစ္စည်းရှိ"; data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); await db.collection("products").add(data); await logActivity("Add Stock", `${data.name} သွင်းသည်`); }
+                closeModal('invModal'); document.getElementById('invId').value = ''; document.getElementById('invName').value = ''; document.getElementById('invAmt').value = ''; document.getElementById('invLogText').style.display = 'none'; showToast("ပစ္စည်းစာရင်း သိမ်းဆည်းပြီးပါပြီ");
+            } catch (e) {
+                showToast("သိမ်းဆည်းရာတွင် အမှားဖြစ်ပွားပါသည်", "error");
+            } finally {
+                hideLoader(); // 👈 အင်တာနက်ကနေ သိမ်းပြီးသွားမှ စခရင်ကို ပြန်ဖွင့်ပေးပါမည်
+            }
+        }
+        // 🛠️ ရောင်းမည် ခလုတ်အတွက် Function (Double Click ကာကွယ်မှု ပါဝင်သည်)
         async function sellInv(id, name, curAmt, price, cost, cat) {
             if (await Swal.fire({ title: 'ရောင်းထုတ်မည်?', text: `${name} ၁ ခု ရောင်းချမှာ သေချာပါသလား?`, icon: 'question', showCancelButton: true, confirmButtonColor: 'var(--primary)' }).then(r => !r.isConfirmed)) return;
+            
+            showLoader(); // 👈 ခလုတ်နှိပ်လိုက်တာနဲ့ စခရင်ကို ပိတ်ပြီး Loading ပြပါမည်
             try {
-                if (curAmt > 1) { await db.collection("products").doc(id).update({ amount: curAmt - 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); } 
-                else { await db.collection("products").doc(id).delete(); }
-                await db.collection("transactions").add({ type: "ဝင်ငွေ", group: "Sales", name: `ရောင်းရငွေ: ${name}`, amount: price, date: new Date(), exactDate: new Date() });
+                if (curAmt > 1) { 
+                    await db.collection("products").doc(id).update({ amount: curAmt - 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); 
+                } else { 
+                    await db.collection("products").doc(id).delete(); 
+                }
+                
+                await db.collection("transactions").add({ type: "ဝင်ငွေ", group: "Sales", name: `ရောင်းရငွေ: ${name}`, amount: price, date: new Date(), exactDate: firebase.firestore.FieldValue.serverTimestamp() });
                 
                 let curDate = new Date();
                 let fDate = curDate.toLocaleDateString('en-GB') + " " + curDate.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
                 
                 await db.collection("products").add({ 
                     name: name + " (ရောင်းပြီး)", category: cat, status: "ရောင်းပြီး", amount: 1, costPrice: cost, price: price, 
-                    sellDate: fDate,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+                    sellDate: fDate, createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
                 });
-                await logActivity("Sell", `${name} ရောင်းချသည်`);
+                
+                await logActivity("Sell", `${name} ရောင်းချသည်`); 
                 showToast(`${name} ရောင်းချပြီးပါပြီ`);
-            } catch (e) {}
+            } catch (e) {
+                showToast("ရောင်းချရာတွင် အမှားဖြစ်ပွားပါသည်", "error");
+            } finally {
+                hideLoader(); // 👈 အလုပ်အားလုံးပြီးမှ စခရင်ကို ပြန်ဖွင့်ပေးပါမည်
+            }
         }
 
         async function deleteInv(id, name) {
-            let targetItem = invData.find(x => x.id === id);
-            if (!targetItem) return;
-
+            let targetItem = invData.find(x => x.id === id); if (!targetItem) return;
             let isSoldItem = targetItem.status === "ရောင်းပြီး";
             let confirmTitle = isSoldItem ? 'မှားရောင်းမိသော စာရင်းကို ဖျက်မည်လား?' : 'အပြီးဖျက်မည်?';
             let confirmText = isSoldItem ? 'ဤပစ္စည်းကိုဖျက်လျှင် စတော့စာရင်းထဲသို့ ၁ ခု ပြန်တိုးပေးပြီး၊ အရောင်းဝင်ငွေစာရင်းကိုပါ ပြန်နှုတ်ပေးပါမည်။' : `${name} ကို စာရင်းမှ ဖျက်ဆီးပါမည်။`;
 
             if (await Swal.fire({ title: confirmTitle, text: confirmText, icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--danger)' }).then(r => !r.isConfirmed)) return;
-
             showLoader();
             try {
                 if (isSoldItem) {
                     let originalName = targetItem.name.replace(" (ရောင်းပြီး)", "").trim();
                     let stockItem = invData.find(x => x.name.trim() === originalName && x.status !== 'ရောင်းပြီး');
-
                     if (stockItem) {
-                        await db.collection("products").doc(stockItem.id).update({
-                            amount: stockItem.amount + 1,
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
+                        await db.collection("products").doc(stockItem.id).update({ amount: stockItem.amount + 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
                     } else {
-                        await db.collection("products").add({
-                            name: originalName, category: targetItem.category, amount: 1, costPrice: targetItem.costPrice, price: targetItem.price, status: "ပစ္စည်းရှိ", createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
+                        await db.collection("products").add({ name: originalName, category: targetItem.category, amount: 1, costPrice: targetItem.costPrice, price: targetItem.price, status: "ပစ္စည်းရှိ", createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
                     }
-
                     let tName = `ရောင်းရငွေ: ${originalName}`;
                     const finSnap = await db.collection("transactions").where("name", "==", tName).where("amount", "==", targetItem.price).get();
-                    if (!finSnap.empty) {
-                        await db.collection("transactions").doc(finSnap.docs[0].id).delete();
-                    }
+                    if (!finSnap.empty) { await db.collection("transactions").doc(finSnap.docs[0].id).delete(); }
                 }
-
-                await db.collection("products").doc(id).delete();
-                await logActivity("Delete Stock", `${name} အား ဖျက်သိမ်းသည်`);
-                showToast("စာရင်းပြင်ဆင်ဖျက်သိမ်းပြီးပါပြီ");
-                if (currentTab === 'finance') fetchFinance();
-
+                await db.collection("products").doc(id).delete(); await logActivity("Delete Stock", `${name} အား ဖျက်သိမ်းသည်`); showToast("စာရင်းပြင်ဆင်ဖျက်သိမ်းပြီးပါပြီ"); if (currentTab === 'finance') fetchFinance();
             } catch (e) { showToast("ပြင်ဆင်ရာတွင် အမှားအယွင်းဖြစ်သွားပါသည်", "error"); }
             hideLoader();
         }
@@ -669,8 +718,6 @@
                 if (match) {
                     let badgeBg = s.includes('အောင်မြင်') ? 'var(--success-light)' : s.includes('မရ') ? 'var(--danger-light)' : s.includes('ပြင်ပြီး') ? 'var(--primary-light)' : 'var(--warning-light)';
                     let badgeCol = s.includes('အောင်မြင်') ? 'var(--success)' : s.includes('မရ') ? 'var(--danger)' : s.includes('ပြင်ပြီး') ? 'var(--primary)' : 'var(--warning)';
-
-                    // ====== Detailed Timestamp for Repair Card ======
                     let detailedTimeInfo = `<div style="font-size:10px; color:var(--text-muted); margin-top:8px; border-top:1px dashed var(--border-light); padding-top:6px;">🕒 နောက်ဆုံးမှတ်တမ်း: ${formatDetailedTime(d.timestamp)}</div>`;
 
                     html += `<div class="card" onclick="openRepairDetail('${d.id}')">
@@ -688,6 +735,8 @@
             document.getElementById('repId').value = ''; document.getElementById('repVr').value = repData.length ? parseInt(repData[0].vrno || 0) + 1 : 1;
             document.getElementById('repDate').value = new Date().toISOString().split('T')[0]; document.getElementById('repName').value = ''; document.getElementById('repPhone').value = ''; document.getElementById('repLocation').value = ''; document.getElementById('repModel').value = ''; document.getElementById('repIssue').value = ''; document.getElementById('repRemark').value = '';
             document.getElementById('repStatusSection').style.display = 'none'; document.getElementById('repHistory').innerHTML = ''; document.getElementById('btnRepDel').style.display = 'none'; document.getElementById('repModalTitle').innerText = 'ဖုန်းအသစ်အပ်ရန်';
+            
+            document.getElementById('btnRepVoucher').style.display = 'none';
             openModal('repairModal');
         }
 
@@ -697,28 +746,26 @@
             document.getElementById('repStatusSection').style.display = 'block'; document.getElementById('repStatusSelect').value = d.status || 'စစ်ဆေးပြုပြင်နေဆဲ'; document.getElementById('repCost').value = d.cost || ''; document.getElementById('repIncome').value = d.income || '';
             if (userState.role === 'admin') document.getElementById('btnRepDel').style.display = 'inline-block';
 
+            document.getElementById('btnRepVoucher').style.display = 'inline-block';
+
             let histHtml = '<b style="color:var(--text-main); font-size:12px;">Activity Logs & Timestamps</b><br>';
-            if (d.history) { 
-                d.history.slice().reverse().forEach(h => { 
-                    histHtml += `<div style="margin-top:6px; padding:8px; background:var(--bg-input); border-radius:var(--radius-sm); font-size:11px;">
-                        <span style="color:var(--text-muted);">🕒 ${formatDetailedTime(h.time)}</span><br>
-                        - ${h.msg} <br>
-                        <span style="color:var(--primary); font-weight:700;">By: ${h.by}</span>
-                    </div>`; 
-                }); 
-            }
+            if (d.history) { d.history.slice().reverse().forEach(h => { histHtml += `<div style="margin-top:6px; padding:8px; background:var(--bg-input); border-radius:var(--radius-sm); font-size:11px;"><span style="color:var(--text-muted);">🕒 ${formatDetailedTime(h.time)}</span><br>- ${h.msg} <br><span style="color:var(--primary); font-weight:700;">By: ${h.by}</span></div>`; }); }
             document.getElementById('repHistory').innerHTML = histHtml; document.getElementById('repModalTitle').innerText = `VR: ${d.vrno} Detail`;
             openModal('repairModal');
         }
 
-        async function saveRepair() {
+               async function saveRepair() {
             const id = document.getElementById('repId').value; const vr = document.getElementById('repVr').value; const name = document.getElementById('repName').value.trim(); if (!vr || !name) return;
             let data = { vrno: vr, date: document.getElementById('repDate').value, name: name, phone: document.getElementById('repPhone').value, location: document.getElementById('repLocation').value, model: document.getElementById('repModel').value, issue: document.getElementById('repIssue').value, remark: document.getElementById('repRemark').value, timestamp: firebase.firestore.FieldValue.serverTimestamp() };
 
+            showLoader(); // 👈 စခရင်ကို ပိတ်လိုက်ပါမည်
             try {
                 if (id) {
                     data.status = document.getElementById('repStatusSelect').value; data.cost = Number(document.getElementById('repCost').value) || 0; data.income = Number(document.getElementById('repIncome').value) || 0;
-                    if (data.status === 'ထုတ်ယူပြီး-အောင်မြင်' && data.income <= 0) return showToast('ရငွေ (Income) မဖြစ်မနေ ထည့်ပေးပါ', 'error');
+                    if (data.status === 'ထုတ်ယူပြီး-အောင်မြင်' && data.income <= 0) {
+                        hideLoader(); // error ပြခါနီး စခရင်ပြန်ဖွင့်ပေးရန်
+                        return showToast('ရငွေ (Income) မဖြစ်မနေ ထည့်ပေးပါ', 'error');
+                    }
                     await db.collection("repairs").doc(id).update(data);
                     await db.collection("repairs").doc(id).update({ history: firebase.firestore.FieldValue.arrayUnion({ msg: `Status ပြောင်းလဲမှု [${data.status}]`, by: userState.name, time: new Date().toISOString() }) });
                     await logActivity("Update Repair", `VR: ${vr} အား [${data.status}] သို့ ပြင်ဆင်သည်`);
@@ -728,8 +775,13 @@
                     await db.collection("repairs").add(data); await logActivity("New Repair", `VR: ${vr} အပ်နှံသည်`);
                 }
                 closeModal('repairModal'); showToast("ဖုန်းပြင်မှတ်တမ်း သိမ်းပြီးပါပြီ");
-            } catch (e) {}
+            } catch (e) {
+                showToast("သိမ်းဆည်းရာတွင် အမှားဖြစ်ပွားပါသည်", "error");
+            } finally {
+                hideLoader(); // စခရင် ပြန်ဖွင့်ပေးမည်
+            }
         }
+
 
         async function deleteRepair() {
             if (await Swal.fire({ title: 'ဖျက်မှာလား?', text: 'မှတ်တမ်းကို လုံးဝ ဖျက်ဆီးပါမည်။', icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--danger)' }).then(r => !r.isConfirmed)) return;
@@ -782,7 +834,6 @@
         function renderDayDetails(date) {
             let dayObj = globalFinanceDays[date] || { inc: 0, exp: 0, logs: [] }; let html = ''; if (dayObj.logs.length === 0) html = '<div class="empty-state">ယနေ့အတွက် စာရင်းမှတ်တမ်းမရှိပါ။</div>';
             
-            // Sort logs by exact time if available
             let sortedLogs = dayObj.logs.sort((a,b) => {
                 let da = a.exactDate ? (a.exactDate.toDate ? a.exactDate.toDate() : new Date(a.exactDate)) : new Date(0);
                 let db = b.exactDate ? (b.exactDate.toDate ? b.exactDate.toDate() : new Date(b.exactDate)) : new Date(0);
@@ -792,10 +843,7 @@
             sortedLogs.forEach(l => {
                 let col = l.type === 'ဝင်ငွေ' ? 'var(--success)' : 'var(--danger)'; let isManualTx = l.source === 'tx';
                 let actionBtns = (userState.role === 'admin' && isManualTx) ? `<div style="display:flex; gap:10px; margin-top:8px; justify-content:flex-end;"><button class="btn-action btn-edit" style="padding:4px 10px; font-size:11px;" onclick="editFinInline('${l.id}','${l.group}','${l.name.replace(/'/g, "\\'")}',${l.amount},'${l.type}','${date}', '${l.exactDate}')">ပြင်မည်</button><button class="btn-action btn-delete" style="padding:4px 10px; font-size:11px;" onclick="deleteFin('${l.id}')">ဖျက်မည်</button></div>` : '';
-                
-                // ====== Detailed Timestamp for Finance Card ======
                 let detailedTime = `<div style="font-size:10px; color:var(--text-muted); margin-top:4px;">🕒 ${formatDetailedTime(l.exactDate)}</div>`;
-
                 html += `<div class="card" style="margin-bottom:10px; padding:12px 16px; transform:none;"><div class="card-row" style="margin-bottom:0;"><div><span class="badge" style="background:var(--bg-input); color:var(--text-muted); margin-bottom:4px; display:inline-block; font-size:9px; padding:3px 6px;">${l.group}</span><div style="font-size:13px; font-weight:700; color:var(--text-main);">${l.name}</div>${detailedTime}</div><div style="color:${col}; font-weight:800; font-size:14px;">${l.type==='ဝင်ငွေ'?'+':'-'}${Number(l.amount).toLocaleString()}</div></div>${actionBtns}</div>`;
             });
             document.getElementById('fsDayDetailsList').innerHTML = html;
@@ -809,43 +857,128 @@
 
         function editFinInline(id, group, name, amount, type, date, exactDate) {
             document.getElementById('finModalTitle').innerText = `စာရင်း ပြင်ဆင်ရန်`; document.getElementById('finId').value = id; document.getElementById('finType').value = type; document.getElementById('finCat').value = group; document.getElementById('finName').value = name; document.getElementById('finAmt').value = amount; document.getElementById('finDate').value = date; 
-            
-            // Populate Finance Logs
             let logEl = document.getElementById('finLogText');
-            if(exactDate && exactDate !== 'undefined') {
-                logEl.style.display = 'block';
-                logEl.innerHTML = `<strong>မှတ်တမ်းအသေးစိတ် (Logs)</strong><br>🕒 သွင်းယူခဲ့သောအချိန်: ${formatDetailedTime(exactDate)}`;
-            } else {
-                logEl.style.display = 'none';
-            }
+            if(exactDate && exactDate !== 'undefined') { logEl.style.display = 'block'; logEl.innerHTML = `<strong>မှတ်တမ်းအသေးစိတ် (Logs)</strong><br>🕒 သွင်းယူခဲ့သောအချိန်: ${formatDetailedTime(exactDate)}`; } else { logEl.style.display = 'none'; }
             openModal('finModal');
         }
 
-        async function saveFinance() {
+                async function saveFinance() {
             const id = document.getElementById('finId').value; const type = document.getElementById('finType').value; const name = document.getElementById('finName').value.trim(); const amt = Number(document.getElementById('finAmt').value); let dateVal = document.getElementById('finDate').value; if (!name || amt <= 0) return showToast('အချက်အလက် မှန်ကန်စွာ ဖြည့်ပါ', 'error'); let fDate = dateVal ? new Date(dateVal) : new Date();
+            
+            showLoader(); // 👈 စခရင်ကို ပိတ်လိုက်ပါမည်
             try {
-                if (id) { 
-                    await db.collection("transactions").doc(id).update({ group: document.getElementById('finCat').value, name: name, amount: amt, date: fDate, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); 
-                    await logActivity("Edit Finance", `${type} စာရင်းပြင်ဆင်သည်`); 
-                } 
-                else { 
-                    await db.collection("transactions").add({ type: type, group: document.getElementById('finCat').value, name: name, amount: amt, date: fDate, exactDate: firebase.firestore.FieldValue.serverTimestamp() }); 
-                    await logActivity("Add Finance", `${type} စာရင်း [${name}] အားသွင်းသည်`); 
-                }
+                if (id) { await db.collection("transactions").doc(id).update({ group: document.getElementById('finCat').value, name: name, amount: amt, date: fDate, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); await logActivity("Edit Finance", `${type} စာရင်းပြင်ဆင်သည်`); } 
+                else { await db.collection("transactions").add({ type: type, group: document.getElementById('finCat').value, name: name, amount: amt, date: fDate, exactDate: firebase.firestore.FieldValue.serverTimestamp() }); await logActivity("Add Finance", `${type} စာရင်း [${name}] အားသွင်းသည်`); }
                 closeModal('finModal'); showToast(`${type} သိမ်းပြီးပါပြီ`);
-            } catch (e) {}
+            } catch (e) {
+                showToast("သိမ်းဆည်းရာတွင် အမှားဖြစ်ပွားပါသည်", "error");
+            } finally {
+                hideLoader(); // စခရင် ပြန်ဖွင့်ပေးမည်
+            }
         }
 
-        async function deleteFin(id) {
-            if (await Swal.fire({ title: 'ဖျက်မည်?', text: 'စာရင်းကို အပြီးပိုင် ဖျက်ဆီးပါမည်။', icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--danger)' }).then(r => !r.isConfirmed)) return;
-            await db.collection("transactions").doc(id).delete(); await logActivity("Delete Finance", `ငွေစာရင်းတစ်ခုအား ဖျက်ပစ်သည်`); showToast("စာရင်းဖျက်ပြီးပါပြီ");
+        // ============================================================
+        // 🧾 VOUCHER GENERATION LOGIC (SMART DESIGN)
+        // ============================================================
+        function generateVoucher() {
+            const vr = document.getElementById('repVr').value;
+            const date = document.getElementById('repDate').value;
+            const name = document.getElementById('repName').value || '-';
+            const model = document.getElementById('repModel').value || '-';
+            const issue = document.getElementById('repIssue').value || '-';
+            const income = document.getElementById('repIncome').value || '0';
+
+            if(!vr) return showToast('VR No မရှိပါ', 'error');
+
+            document.getElementById('v-vrno').innerText = 'VR-' + vr;
+            document.getElementById('v-date').innerText = date;
+            document.getElementById('v-name').innerText = name;
+            document.getElementById('v-model').innerText = model;
+            document.getElementById('v-issue').innerText = issue;
+            document.getElementById('v-total').innerText = Number(income).toLocaleString() + ' Ks';
+
+            showLoader();
+
+            const captureWrapper = document.getElementById('voucherContainer');
+            captureWrapper.style.left = '0px';
+            captureWrapper.style.top = '0px';
+            captureWrapper.style.zIndex = '-9999';
+
+            setTimeout(() => {
+                html2canvas(document.getElementById('captureArea'), { 
+                    scale: 3, 
+                    backgroundColor: "#ffffff", 
+                    useCORS: true 
+                }).then(canvas => {
+                    let imageData = canvas.toDataURL("image/png");
+                    document.getElementById('renderedImage').src = imageData;
+                    captureWrapper.style.left = '-9999px';
+                    hideLoader();
+                    openModal('voucherPreviewModal');
+                }).catch(err => {
+                    hideLoader();
+                    captureWrapper.style.left = '-9999px';
+                    showToast("ပုံထုတ်ရာတွင် အမှားဖြစ်သွားပါသည်", "error");
+                });
+            }, 300);
         }
+
+                        // ============================================================
+                // ============================================================
+        // 💾 DOWNLOAD VOUCHER DIRECTLY (Sketchware Screen Capture Fix)
+        // ============================================================
+        function downloadVoucherImage() {
+            if (typeof AndroidApp !== 'undefined' && AndroidApp.saveVoucherImage) {
+                
+                // ၁။ ခလုတ်များနှင့် စာသားများကို ခဏဖျောက်မည်
+                document.getElementById('modalControls').style.display = 'none';
+                
+                // ၂။ နောက်ခံအမည်းကို အဖြူရောင်ပြောင်းမည်
+                document.getElementById('voucherPreviewModal').style.background = '#ffffff';
+                
+                // ၃။ ပုံရဲ့ အရိပ် (Shadow) နှင့် ထောင့်ဝိုင်းတာကို ခဏဖယ်မည်
+                const imgEl = document.getElementById('renderedImage');
+                imgEl.style.boxShadow = 'none';
+                imgEl.style.borderRadius = '0px';
+
+                // ⏳ ၄။ ဖုန်းမျက်နှာပြင် ရှင်းလင်းသွားဖို့ အချိန်စက္ကန့်ဝက် (500ms) စောင့်မည်
+                setTimeout(() => {
+                    
+                    // ၅။ အားလုံး ဖြူစင်ရှင်းလင်းသွားမှ Screenshot လှမ်းရိုက်ခိုင်းမည်
+                    AndroidApp.saveVoucherImage();
+                    showToast('ဘောက်ချာပုံကို ဖုန်းထဲသို့ သိမ်းဆည်းလိုက်ပါပြီ');
+
+                    // ၆။ ရိုက်ပြီး ၁ စက္ကန့်အကြာတွင် ခလုတ်များကို မူလအတိုင်း ပြန်ဖော်ပေးမည်
+                    setTimeout(() => {
+                        document.getElementById('modalControls').style.display = 'flex';
+                        document.getElementById('voucherPreviewModal').style.background = 'rgba(15, 26, 46, 0.95)';
+                        imgEl.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+                        imgEl.style.borderRadius = '8px';
+                    }, 1000);
+
+                }, 500); // 👈 ဤစောင့်ိုင်းသည့် အချိန်လေးက အဓိက သော့ချက်ဖြစ်ပါသည်
+
+            } else {
+                // Web Browser သုံးနေသူများအတွက် ပုံမှန် Download စနစ်
+                const imgSrc = document.getElementById('renderedImage').src;
+                const vrNo = document.getElementById('repVr').value || 'Receipt';
+                const link = document.createElement('a');
+                link.href = imgSrc;
+                link.download = 'MobileAnswer_VR' + vrNo + '.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast('ဘောက်ချာပုံကို Download ဆွဲနေပါသည်');
+            }
+        }
+
+
+
 
         // ============================================================
         // AI VOICE CHAT — Smart GROQ Parser (SKETCHWARE + BROWSER)
         // ============================================================
-        let speechRecognition = null; 
-        let isSpeechListening = false;
+        let speechRecognition = null; let isSpeechListening = false;
 
         function closeAiChat() {
             const modal = document.getElementById('aiChatOverlay'); modal.classList.remove('active'); setTimeout(() => modal.style.display = 'none', 300); if (isSpeechListening && speechRecognition) speechRecognition.stop();
@@ -857,106 +990,70 @@
 
         function toggleVoiceSpeech() {
             const modal = document.getElementById('aiChatOverlay');
-            if (!modal.classList.contains('active')) {
-                modal.style.display = 'flex'; setTimeout(() => modal.classList.add('active'), 10); history.pushState({ modal: 'aiChatOverlay' }, null, "");
-            }
+            if (!modal.classList.contains('active')) { modal.style.display = 'flex'; setTimeout(() => modal.classList.add('active'), 10); history.pushState({ modal: 'aiChatOverlay' }, null, ""); }
 
-            const micBtn = document.getElementById('aiMicBtn'); 
-            const floatingBtn = document.getElementById('floatingAiBtn');
+            const micBtn = document.getElementById('aiMicBtn'); const floatingBtn = document.getElementById('floatingAiBtn');
 
-            // Sketchware (APK) အသုံးပြုနေလျှင်
             if (typeof AndroidApp !== 'undefined') {
-                if (isSpeechListening) return; // Prevent double trigger
-                isSpeechListening = true;
-                micBtn.innerHTML = `🛑`; 
-                micBtn.style.background = 'var(--danger)'; 
-                micBtn.style.color = 'white'; 
-                floatingBtn.classList.add('listening');
-                AndroidApp.startVoice(); // Sketchware ကိုလှမ်းခေါ်သည်
-                return;
+                if (isSpeechListening) return; 
+                isSpeechListening = true; micBtn.innerHTML = `🛑`; micBtn.style.background = 'var(--danger)'; micBtn.style.color = 'white'; floatingBtn.classList.add('listening');
+                AndroidApp.startVoice(); return;
             }
 
-            // Web Browser အသုံးပြုနေလျှင်
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { 
-                return showToast('Browser အသံစနစ် မပံ့ပိုးပါ', 'error'); 
-            }
-            
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { return showToast('Browser အသံစနစ် မပံ့ပိုးပါ', 'error'); }
             if (isSpeechListening) { speechRecognition.stop(); return; }
 
             if (!speechRecognition) {
-                const SpeechClass = window.SpeechRecognition || window.webkitSpeechRecognition; 
-                speechRecognition = new SpeechClass(); 
-                speechRecognition.lang = 'my-MM'; 
-                speechRecognition.continuous = false; 
-                speechRecognition.interimResults = false;
-                
-                speechRecognition.onstart = () => { 
-                    isSpeechListening = true; 
-                    micBtn.innerHTML = `🛑`; 
-                    micBtn.style.background = 'var(--danger)'; 
-                    micBtn.style.color = 'white'; 
-                    floatingBtn.classList.add('listening'); 
-                };
-                speechRecognition.onerror = () => { stopSpeechUI(); }; 
-                speechRecognition.onend = () => { stopSpeechUI(); };
-                speechRecognition.onresult = async (event) => { 
-                    stopSpeechUI(); 
-                    const spokenText = event.results[0][0].transcript; 
-                    if (!spokenText) return; 
-                    document.getElementById('aiInput').value = spokenText; 
-                    sendAiMsg(); 
-                };
+                const SpeechClass = window.SpeechRecognition || window.webkitSpeechRecognition; speechRecognition = new SpeechClass(); speechRecognition.lang = 'my-MM'; speechRecognition.continuous = false; speechRecognition.interimResults = false;
+                speechRecognition.onstart = () => { isSpeechListening = true; micBtn.innerHTML = `🛑`; micBtn.style.background = 'var(--danger)'; micBtn.style.color = 'white'; floatingBtn.classList.add('listening'); };
+                speechRecognition.onerror = () => { stopSpeechUI(); }; speechRecognition.onend = () => { stopSpeechUI(); };
+                speechRecognition.onresult = async (event) => { stopSpeechUI(); const spokenText = event.results[0][0].transcript; if (!spokenText) return; document.getElementById('aiInput').value = spokenText; sendAiMsg(); };
             }
             speechRecognition.start();
         }
 
-        function stopSpeechUI() { 
-            isSpeechListening = false; 
-            const micBtn = document.getElementById('aiMicBtn'); 
-            const floatingBtn = document.getElementById('floatingAiBtn'); 
-            micBtn.innerHTML = `🎤`; 
-            micBtn.style.background = 'var(--primary-light)'; 
-            micBtn.style.color = 'var(--primary)'; 
-            floatingBtn.classList.remove('listening'); 
-        }
+        function stopSpeechUI() { isSpeechListening = false; const micBtn = document.getElementById('aiMicBtn'); const floatingBtn = document.getElementById('floatingAiBtn'); micBtn.innerHTML = `🎤`; micBtn.style.background = 'var(--primary-light)'; micBtn.style.color = 'var(--primary)'; floatingBtn.classList.remove('listening'); }
 
-        // Sketchware မှ Text ပြန်ရသောအခါ လက်ခံမည့် Function
-        function receiveVoiceText(text) {
-            stopSpeechUI();
-            if(text && text.trim() !== "") {
-                document.getElementById('aiInput').value = text;
-                sendAiMsg(); 
-            }
-        }
-
-        // Sketchware မှ အသံဖမ်း Cancel (သို့) Error တက်သောအခါ
-        function voiceError() {
-            stopSpeechUI();
-            showToast('အသံဖမ်းယူမှု ရပ်ဆိုင်းသွားပါသည်', 'error');
-        }
+        function receiveVoiceText(text) { stopSpeechUI(); if(text && text.trim() !== "") { document.getElementById('aiInput').value = text; sendAiMsg(); } }
+        function voiceError() { stopSpeechUI(); showToast('အသံဖမ်းယူမှု ရပ်ဆိုင်းသွားပါသည်', 'error'); }
 
         async function sendAiMsg() {
             const inputEl = document.getElementById('aiInput'); const text = inputEl.value.trim(); if (!text) return;
             addAiMsg(text, 'user'); inputEl.value = ''; addAiMsg("တွက်ချက်နေပါသည်...", "system"); await interpretCommandWithGemini(text);
         }
 
+              // ============================================================
+        // 🧠 SUPER SMART AI PARSER (STRICT JSON MODE & ACTIONS)
+        // ============================================================
         async function interpretCommandWithGemini(text) {
             if (!GEMINI_API_KEY || GEMINI_API_KEY.startsWith("YOUR_")) {
-                const chatArea = document.getElementById('aiChatArea'); chatArea.lastChild.innerHTML = "Groq API Key ထည့်ရန် လိုအပ်ပါသည်။"; return;
+                addAiMsg("Groq API Key ထည့်ရန် လိုအပ်ပါသည်။", "system"); return;
             }
 
-            // 💡 AI ပိုမိုနားလည်နိုင်ရန် System Prompt ကို အဆင့်မြှင့်တင်ထားသည်
             const systemPrompt = `
-You are an intent extractor for a mobile repair shop in Myanmar. Return ONLY a valid JSON object. No markdown, no code blocks (no \`\`\`json).
-Rules:
-1. Sell item (e.g., "Mytel တစ်ကတ်ရောင်းမယ်", "မှန်ကပ် ၂ခု ရောင်းရတယ်"): {"action":"sell", "itemName":"Mytel", "qty":1}
-2. Finance entry (e.g., "ထွက်ငွေ ဆိုင်လခ ၃ သိန်း", "မုန့်ဖိုး ၅ထောင် သုံးတယ်"): Convert Myanmar numbers to digits (e.g., ၃ သိန်း = 300000, ၅ထောင် = 5000). {"action":"finance", "type":"ထွက်ငွေ", "group":"Service", "name":"ဆိုင်လခ", "amount":300000}
-3. Update repair (e.g., "ကိုမောင်ဇော် redmi note8 လာရွေးသွားပြီ 5000", "VR 102 ပြင်ပြီးပြီ", "VR 5 ပြင်မရဘူး"): 
-   Extract "vrno" if mentioned. Set "status" to one of: "စစ်ဆေးပြုပြင်နေဆဲ", "ပြင်ပြီး-မရွေးသေး", "ပြင်မရ-မရွေးသေး", "ထုတ်ယူပြီး-အောင်မြင်", "ထုတ်ယူပြီး-ပြင်မရ".
-   {"action":"repair_update", "searchName":"ကိုမောင်ဇော်", "searchModel":"redmi note8", "vrno":"102", "status":"ပြင်ပြီး-မရွေးသေး", "income":0}
-4. New repair (e.g., "ဖုန်းအသစ်အပ်တယ် မောင်ဇော် redmi note8 မှန်ကွဲ", "vivo y20 ဘက်ထရီလဲဖို့အပ်တယ်"): 
-   {"action":"new_repair", "name":"မောင်ဇော်", "model":"redmi note8", "issue":"မှန်ကွဲ"}
-5. Other/Greetings: {"action":"chat", "message":"မင်္ဂလာပါ၊ သေချာနားမလည်ပါ။ ထပ်မံရှင်းပြပေးပါ။ (ဥပမာ - Mytel ၁ ခုရောင်းမယ် / ဖုန်းအသစ်အပ်မယ်)"}
+You are a highly intelligent AI assistant for "Mobile ANSWER" mobile repair shop in Myanmar.
+You MUST reply with ONLY a valid JSON object. Do not include any markdown formatting, greetings, or explanations outside the JSON.
+
+Convert Myanmar text numbers to integers. (e.g., ၃သိန်း = 300000, ၅ထောင် = 5000).
+
+System 1 (SELL ITEM):
+Input: "Mytel ၂ ခု ရောင်းတယ်" -> Output: {"action":"sell", "itemName":"Mytel", "qty":2}
+If missing info: {"action":"chat", "message":"ဘာပစ္စည်းရောင်းတာလဲခင်ဗျာ။ အရေအတွက်ရော ပြောပေးပါ။"}
+
+System 2 (FINANCE):
+Input: "ဆိုင်လခ ၁သိန်းပေးလိုက်တယ်" -> Output: {"action":"finance", "type":"ထွက်ငွေ", "group":"Service", "name":"ဆိုင်လခ", "amount":100000}
+If missing info: {"action":"chat", "message":"ဘယ်လောက်ကျသင့်လဲ သို့မဟုတ် ဘာအတွက်သုံးတာလဲဆိုတာ အတိအကျပြောပေးပါ။"}
+
+System 3 (NEW REPAIR):
+Input: "ဖုန်းအသစ်အပ်တယ် မောင်ဇော် redmi note 9 မှန်ကွဲ" -> Output: {"action":"new_repair", "name":"မောင်ဇော်", "model":"redmi note 9", "issue":"မှန်ကွဲ"}
+If missing info: {"action":"chat", "message":"ဖုန်းအပ်မလို့ဆိုရင် Customer အမည်၊ ဖုန်းမော်ဒယ်နဲ့ ပြစ်ချက်လေး ပြောပြပေးပါခင်ဗျာ။"}
+
+System 4 (UPDATE REPAIR):
+Input: "VR 102 လာရွေးတယ် ငွေ ၅၀၀၀ ရတယ်" -> Output: {"action":"repair_update", "vrno":"102", "searchName":"", "status":"ထုတ်ယူပြီး-အောင်မြင်", "income":5000}
+
+System 5 (CHAT / UNKNOWN):
+For ANY general chat, greetings like "Hello", "Hi", or unrecognized text: 
+Output: {"action":"chat", "message":"မင်္ဂလာပါ၊ ကျွန်တော် Mobile ANSWER ဆိုင်ရဲ့ အရောင်းစာရင်း၊ ငွေစာရင်းနဲ့ ဖုန်းပြင်မှတ်တမ်းတွေကို အလွယ်တကူ သွင်းပေးနိုင်ပါတယ်။"}
 
 User input: "${text}"
 `;
@@ -964,50 +1061,49 @@ User input: "${text}"
             try {
                 const url = "https://api.groq.com/openai/v1/chat/completions";
                 const response = await fetch(url, {
-                    method: "POST",
+                    method: "POST", 
                     headers: { "Content-Type": "application/json", "Authorization": "Bearer " + GEMINI_API_KEY },
-                    body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
-                        messages: [{ role: "user", content: systemPrompt }],
-                        temperature: 0.1
+                    body: JSON.stringify({ 
+                        model: "llama-3.3-70b-versatile", 
+                        messages: [{ role: "user", content: systemPrompt }], 
+                        temperature: 0.1,
+                        response_format: { type: "json_object" }
                     })
                 });
 
                 const resData = await response.json();
-                if (resData.error) throw new Error("Groq Error: " + resData.error.message);
+                if (resData.error) throw new Error(resData.error.message);
 
                 let aiText = resData.choices[0].message.content.trim();
-                const jsonMatch = aiText.match(/\{[\s\S]*\}/);
-                if (!jsonMatch) throw new Error("AI မှန်ကန်စွာ မတုံ့ပြန်ပါ။");
+                const resultJSON = JSON.parse(aiText);
                 
-                const resultJSON = JSON.parse(jsonMatch[0]);
                 const chatArea = document.getElementById('aiChatArea');
-                if (chatArea.lastChild) chatArea.removeChild(chatArea.lastChild);
+                if (chatArea.lastChild && chatArea.lastChild.innerText.includes("တွက်ချက်နေပါသည်")) {
+                    chatArea.removeChild(chatArea.lastChild);
+                }
 
                 await executeAIVoiceAction(resultJSON);
 
             } catch (err) {
                 const chatArea = document.getElementById('aiChatArea');
-                chatArea.lastChild.innerText = "⚠️ System Error: " + err.message;
+                if (chatArea.lastChild && chatArea.lastChild.innerText.includes("တွက်ချက်နေပါသည်")) {
+                    chatArea.removeChild(chatArea.lastChild);
+                }
+                addAiMsg("⚠️ Error: " + err.message, "system");
             }
         }
 
         async function executeAIVoiceAction(json) {
             if (json.action === "chat") {
                 addAiMsg(json.message, "system");
-                
             } else if (json.action === "repair_update") {
                 try {
                     let docId = null; let vrNumber = json.vrno;
                     if (vrNumber) {
                         const snap = await db.collection("repairs").where("vrno", "==", Number(vrNumber)).get();
                         if (!snap.empty) docId = snap.docs[0].id;
-                        else {
-                            const strSnap = await db.collection("repairs").where("vrno", "==", String(vrNumber)).get();
-                            if (!strSnap.empty) docId = strSnap.docs[0].id;
-                        }
+                        else { const strSnap = await db.collection("repairs").where("vrno", "==", String(vrNumber)).get(); if (!strSnap.empty) docId = strSnap.docs[0].id; }
                     } 
-                    
                     if (!docId && (json.searchName || json.searchModel)) {
                         const snap = await db.collection("repairs").orderBy("date", "desc").limit(50).get();
                         const docs = snap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -1032,11 +1128,10 @@ User input: "${text}"
                     await db.collection("repairs").doc(docId).update({ history: firebase.firestore.FieldValue.arrayUnion({ msg: `AI ဖြင့် Status အား [${json.status}] သို့ ပြင်ဆင်ခဲ့သည်။`, by: userState.name, time: new Date().toISOString() }) });
                     await logActivity("AI Update Repair", `VR: ${vrNumber} ပြင်ဆင်သည်`);
 
-                    addAiMsg(`✅ မှတ်တမ်း (VR: ${vrNumber}) ပြင်ဆင်ပြီးပါပြီ။ Finance တွင်လည်း အလိုအလျောက် ဝင်သွားပါမည်။`, "system");
+                    addAiMsg(`✅ မှတ်တမ်း (VR: ${vrNumber}) ပြင်ဆင်ပြီးပါပြီ။`, "system");
                     showToast(`VR: ${vrNumber} ပြင်ဆင်ပြီးပါပြီ`);
                     if (currentTab === 'repair') fetchRepair(); if (currentTab === 'finance') fetchFinance();
                     setTimeout(closeAiChat, 2000);
-
                 } catch (e) { addAiMsg("စာရင်းပြင်ဆင်ရာတွင် အမှားဖြစ်နေပါသည်။", "system"); }
 
             } else if (json.action === "new_repair") {
@@ -1052,7 +1147,6 @@ User input: "${text}"
                     showToast("ဖုန်းအသစ် သွင်းပြီးပါပြီ");
                     if (currentTab === 'repair') fetchRepair();
                     setTimeout(closeAiChat, 3000);
-
                 } catch (e) { addAiMsg("အသစ်သွင်းရာတွင် အမှားဖြစ်နေပါသည်။", "system"); }
 
             } else if (json.action === "finance") {
@@ -1072,22 +1166,15 @@ User input: "${text}"
 
                 try {
                     let qty = Number(json.qty || 1);
-                    if (item.amount > qty) {
-                        await db.collection("products").doc(item.id).update({ amount: item.amount - qty, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-                    } else {
-                        await db.collection("products").doc(item.id).delete();
-                    }
+                    if (item.amount > qty) { await db.collection("products").doc(item.id).update({ amount: item.amount - qty, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); } 
+                    else { await db.collection("products").doc(item.id).delete(); }
 
                     await db.collection("transactions").add({ type: "ဝင်ငွေ", group: "Sales", name: `ရောင်းရငွေ: ${item.name}`, amount: item.price * qty, date: new Date(), exactDate: firebase.firestore.FieldValue.serverTimestamp() });
                     
-                    let curDate = new Date();
-                    let fDate = curDate.toLocaleDateString('en-GB') + " " + curDate.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+                    let curDate = new Date(); let fDate = curDate.toLocaleDateString('en-GB') + " " + curDate.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
 
                     await db.collection("products").add({
-                        name: item.name + " (ရောင်းပြီး)", category: item.category, status: "ရောင်းပြီး", amount: qty, costPrice: item.costPrice, price: item.price * qty,
-                        sellDate: fDate,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        name: item.name + " (ရောင်းပြီး)", category: item.category, status: "ရောင်းပြီး", amount: qty, costPrice: item.costPrice, price: item.price * qty, sellDate: fDate, createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
 
                     await logActivity("AI Sell", `${item.name} ကို AI ဖြင့် ရောင်းချသည်`);
@@ -1099,6 +1186,8 @@ User input: "${text}"
                 } catch (e) { addAiMsg(`စာရင်းသွင်းရာတွင် အမှားဖြစ်ပေါ်နေပါသည်။`, "system"); }
             } else { addAiMsg("ကျေးဇူးပြုပြီး ဘာလုပ်ချင်တာလဲ အတိအကျ ပြောပါ။", "system"); }
         }
+
+
     </script>
 </body>
 </html>
