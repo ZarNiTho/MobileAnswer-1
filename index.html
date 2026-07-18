@@ -207,7 +207,8 @@
                         <div class="pill" onclick="setInvFilter('accessories', this)">Accessories</div>
                         <div class="pill" onclick="setInvFilter('ရောင်းပြီး', this)">ရောင်းပြီး</div>
                     </div>
-                    <button class="btn btn-primary" onclick="openModal('invModal')" style="margin-bottom:16px;">+ ပစ္စည်းသစ် ထည့်ရန်</button>
+                    <!-- မှတ်ချက်: Box များကို ရှင်းလင်းရန် openInvForm() အသစ်ဖြင့် ပြောင်းလဲလိုက်ပါသည် -->
+                    <button class="btn btn-primary" onclick="openInvForm()" style="margin-bottom:16px;">+ ပစ္စည်းသစ် ထည့်ရန်</button>
                 </div>
 
                 <div id="invList"></div>
@@ -303,7 +304,24 @@
         </div>
     </div>
 
-    <div id="registerModal" class="modal"><div class="modal-content"><div class="modal-drag-handle"></div><div class="modal-header"><h3>အကောင့်သစ်ဖွင့်ရန်</h3><button class="close-btn" onclick="closeModal('registerModal')">✕</button></div><div class="modal-body"><div class="input-group"><input type="text" id="regName" placeholder="အမည်"></div><div class="input-group"><input type="email" id="regEmail" placeholder="အီးမေးလ်"></div><div class="input-group"><input type="password" id="regPass" placeholder="စကားဝှက်"></div><div class="input-group"><select id="regRole"><option value="staff">Staff (ဝန်ထမ်း)</option><option value="admin">Admin (စီမံခန့်ခွဲသူ)</option></select></div></div><div class="modal-footer"><button class="btn btn-primary" onclick="registerUser()">အကောင့်ဖန်တီးမည်</button></div></div></div>
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-drag-handle"></div>
+            <div class="modal-header"><h3>အကောင့်သစ်ဖွင့်ရန်</h3><button class="close-btn" onclick="closeModal('registerModal')">✕</button></div>
+            <div class="modal-body">
+                <div class="input-group"><input type="text" id="regName" placeholder="အမည်"></div>
+                <div class="input-group"><input type="email" id="regEmail" placeholder="အီးမေးလ်"></div>
+                <div class="input-group"><input type="password" id="regPass" placeholder="စကားဝှက်"></div>
+                <div class="input-group">
+                    <select id="regRole">
+                        <option value="staff">Staff (ဝန်ထမ်း)</option>
+                        <option value="admin">Admin (စီမံခန့်ခွဲသူ)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary" onclick="registerUser()">အကောင့်ဖန်တီးမည်</button></div>
+        </div>
+    </div>
 
     <div id="invModal" class="modal">
         <div class="modal-content" style="max-height: 90vh;">
@@ -383,7 +401,7 @@
             </div>
             
             <div class="modal-footer">
-                <button class="btn btn-delete admin-only" id="btnRepVoid" style="display:none; flex:0.4; font-size:13px; padding:12px;" onclick="voidRepair()">🚫 ပယ်ဖျက်မည်</button>
+                <button class="btn btn-delete admin-only" id="btnRepVoid" style="display:none; flex:0.4; font-size:13px; padding:12px;" onclick="voidRepair()">🚫 ပယ်ဖျက်</button>
                 <button class="btn" id="btnRepVoucher" style="display:none; background:var(--info); color:#fff; flex:0.4; font-size:13px; padding:12px;" onclick="generateVoucher()">🧾 Voucher</button>
                 <button class="btn btn-primary" style="flex:1; font-size:13px; padding:12px;" onclick="saveRepair()">သိမ်းမည်</button>
             </div>
@@ -489,6 +507,33 @@
         function openModal(id) { const el = document.getElementById(id); el.style.display = 'flex'; setTimeout(() => el.classList.add('active'), 10); history.pushState({ modal: id }, null, ""); }
         function closeModal(id) { const el = document.getElementById(id); el.classList.remove('active'); setTimeout(() => el.style.display = 'none', 300); if (history.state && history.state.modal === id) history.back(); }
 
+        // ==========================================
+        // Register User
+        // ==========================================
+        async function registerUser() {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const pass = document.getElementById('regPass').value;
+            const role = document.getElementById('regRole').value;
+            if(!name || !email || !pass) return showToast('အချက်အလက်ပြည့်စုံစွာ ဖြည့်ပါ', 'error');
+            
+            showLoader();
+            try {
+                const cred = await auth.createUserWithEmailAndPassword(email, pass);
+                await db.collection('users').doc(cred.user.uid).set({
+                    username: name,
+                    email: email,
+                    role: role,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                closeModal('registerModal');
+                showToast('အကောင့်သစ် ဖွင့်လှစ်ပြီးပါပြီ');
+            } catch(e) {
+                showToast(e.message, 'error');
+            }
+            hideLoader();
+        }
+
         function initSearchTriggers(inputId, wrapperId, clearBtnId, hideClassGroup) {
             const inputEl = document.getElementById(inputId); const wrapperEl = document.getElementById(wrapperId); const clearBtnEl = document.getElementById(clearBtnId);
             const extrasEls = document.querySelectorAll('.' + hideClassGroup); const headerEl = document.getElementById('globalHeader'); const navEl = document.getElementById('globalNav'); const aiBtn = document.getElementById('floatingAiBtn');
@@ -505,7 +550,18 @@
 
         function clearSearch(inputId) {
             const inputEl = document.getElementById(inputId); inputEl.value = ''; inputEl.focus();
-            if (inputId === 'invSearch') renderInventory(); else if (inputId === 'repSearch') renderRepair();
+            if (inputId === 'invSearch') {
+                // Reset filter to All when clearing search
+                document.querySelectorAll('#view-inventory .pill').forEach(b => b.classList.remove('active'));
+                document.querySelector('#view-inventory .pill').classList.add('active');
+                invFilter = 'အားလုံး';
+                renderInventory(); 
+            } else if (inputId === 'repSearch') {
+                document.querySelectorAll('#view-repair .pill').forEach(b => b.classList.remove('active'));
+                document.querySelector('#view-repair .pill').classList.add('active');
+                repFilter = 'အားလုံး';
+                renderRepair();
+            }
             const isInv = inputId === 'invSearch';
             exitSearchUIMode(inputEl, document.getElementById(isInv ? 'invSearchWrapper' : 'repSearchWrapper'), document.getElementById(isInv ? 'invSearchClear' : 'repSearchClear'), document.querySelectorAll(isInv ? '.id-inv-extras' : '.id-rep-extras, .id-rep-extras-top'), document.getElementById('globalHeader'), document.getElementById('globalNav'), document.getElementById('floatingAiBtn'));
         }
@@ -590,6 +646,18 @@
         function setInvFilter(filter, el) { invFilter = filter; document.querySelectorAll('#view-inventory .pill').forEach(b => b.classList.remove('active')); el.classList.add('active'); renderInventory(); }
         document.getElementById('invSearch').addEventListener('input', renderInventory);
 
+        function openInvForm() {
+            document.getElementById('invId').value = ''; 
+            document.getElementById('invName').value = '';
+            document.getElementById('invCat').value = 'အထွေထွေ';
+            document.getElementById('invAmt').value = '';
+            document.getElementById('invCost').value = '';
+            document.getElementById('invPrice').value = '';
+            document.getElementById('invLogText').style.display = 'none';
+            document.getElementById('invModalTitle').innerText = 'ပစ္စည်းစာရင်းသွင်းရန်';
+            openModal('invModal');
+        }
+
         function renderInventory() {
             const term = document.getElementById('invSearch').value.toLowerCase();
             let html = '';
@@ -606,8 +674,12 @@
 
                 if (match) {
                     let isSold = d.status === 'ရောင်းပြီး';
+                    let isOutOfStock = d.status === 'လက်ကျန်ပြတ်';
                     let adminBtns = '', sellBtn = '', dateHtml = '';
                     
+                    let badgeBg = isSold ? 'var(--danger-light)' : (isOutOfStock ? 'var(--warning-light)' : 'var(--success-light)');
+                    let badgeCol = isSold ? 'var(--danger)' : (isOutOfStock ? 'var(--warning)' : 'var(--success)');
+
                     if (d.sellDate) dateHtml = `<div style="font-size:11px; color:var(--danger); margin-top:6px; font-weight:600;">📅 ရောင်းရချိန်: ${d.sellDate}</div>`;
                     else if (d.date) dateHtml = `<div style="font-size:11px; color:var(--danger); margin-top:6px; font-weight:600;">📅 ရောင်းရက်စွဲ: ${d.date}</div>`;
 
@@ -622,13 +694,15 @@
 
                     if (!isSold) {
                         adminBtns = userState.role === 'admin' ? `<div style="display:flex; gap:10px; margin-top:10px;"><button class="btn-action btn-edit" style="flex:1;" onclick="editInv('${d.id}')">ပြင်မည်</button><button class="btn-action btn-delete" style="flex:1;" onclick="deleteInv('${d.id}','${d.name}')">ဖျက်မည်</button></div>` : '';
-                        sellBtn = `<button class="btn-action" style="background:var(--primary-light); color:var(--primary); margin-left:10px; border-radius:8px;" onclick="sellInv('${d.id}','${d.name}',${d.amount},${d.price},${d.costPrice},'${d.category}')">၁ ခုရောင်းမည်</button>`;
+                        if (!isOutOfStock) {
+                            sellBtn = `<button class="btn-action" style="background:var(--primary-light); color:var(--primary); margin-left:10px; border-radius:8px;" onclick="sellInv('${d.id}','${d.name}',${d.amount},${d.price},${d.costPrice},'${d.category}')">၁ ခုရောင်းမည်</button>`;
+                        }
                     } else {
                         adminBtns = userState.role === 'admin' ? `<div style="display:flex; gap:10px; margin-top:10px;"><button class="btn-action btn-delete" style="flex:1; background:var(--warning-light); color:var(--warning);" onclick="deleteInv('${d.id}','${d.name}')">❌ မှားရောင်း၍ ၁ ခု ပြန်ဖျက်မည်</button></div>` : '';
                     }
 
                     html += `<div class="card" ${isSold ? 'style="opacity:0.9; border-left:4px solid var(--danger);"' : ''}>
-                                <div class="card-row"><strong style="font-size:14px;">${d.name}</strong><span class="badge" style="background:${isSold?'var(--danger-light)':'var(--success-light)'}; color:${isSold?'var(--danger)':'var(--success)'};">${d.status}</span></div>
+                                <div class="card-row"><strong style="font-size:14px;">${d.name}</strong><span class="badge" style="background:${badgeBg}; color:${badgeCol};">${d.status}</span></div>
                                 <div class="card-row" style="font-size:12px; color:var(--text-muted); margin-top:6px;"><span>📦 ${d.amount} ခု | 📁 ${d.category}</span>${sellBtn}</div>
                                 <div class="card-row" style="font-size:12px; margin-top:10px; background:var(--bg-input); padding:10px 12px; border-radius:var(--radius-sm);"><span>အရင်း: <b>${(d.costPrice||0).toLocaleString()}</b> Ks</span><span>ရောင်း: <b style="color:var(--primary)">${(d.price||0).toLocaleString()}</b> Ks</span></div>
                                 ${dateHtml} ${detailTimestampsHtml} ${adminBtns}
@@ -653,7 +727,12 @@
                 amount: Number(document.getElementById('invAmt').value) || 0, costPrice: Number(document.getElementById('invCost').value) || 0, price: Number(document.getElementById('invPrice').value) || 0, 
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
             };
-            if (!data.name || data.amount <= 0) return;
+            
+            // Allow 0 amount to save as Out of Stock
+            if (!data.name || data.amount < 0) {
+                hideLoader();
+                return showToast("အချက်အလက် မှန်ကန်စွာ ဖြည့်ပါ", "error");
+            }
 
             showLoader();
             try {
@@ -666,6 +745,8 @@
                     if (oldData.price != data.price) changes.push(`ရောင်းဈေး: ${oldData.price} -> ${data.price}`);
                     if (oldData.costPrice != data.costPrice) changes.push(`အရင်း: ${oldData.costPrice} -> ${data.costPrice}`);
                     
+                    data.status = data.amount > 0 ? "ပစ္စည်းရှိ" : "လက်ကျန်ပြတ်";
+
                     let historyMsg = changes.length > 0 ? `ပြင်ဆင်မှု: ${changes.join(' | ')}` : 'အချက်အလက်များ ပြင်ဆင်ခဲ့သည်';
                     data.history = firebase.firestore.FieldValue.arrayUnion({ msg: historyMsg, by: userState.name, time: new Date().toISOString() });
                     
@@ -673,7 +754,7 @@
                     await logActivity("Edit Stock", `${data.name} ပြင်ဆင်သည်`); 
                 } 
                 else { 
-                    data.status = "ပစ္စည်းရှိ"; 
+                    data.status = data.amount > 0 ? "ပစ္စည်းရှိ" : "လက်ကျန်ပြတ်";
                     data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); 
                     data.history = [{ msg: "ပစ္စည်းအသစ် စာရင်းသွင်းသည်", by: userState.name, time: new Date().toISOString() }];
                     await db.collection("products").add(data); 
@@ -690,10 +771,12 @@
             try {
                 let historyLog = { msg: `၁ ခု ရောင်းချလိုက်သည်`, by: userState.name, time: new Date().toISOString() };
                 
-                if (curAmt > qtyToSell) { 
-                    await db.collection("products").doc(id).update({ amount: curAmt - qtyToSell, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), history: firebase.firestore.FieldValue.arrayUnion(historyLog) }); 
+                let remainQty = curAmt - qtyToSell;
+                if (remainQty > 0) { 
+                    await db.collection("products").doc(id).update({ amount: remainQty, status: "ပစ္စည်းရှိ", updatedAt: firebase.firestore.FieldValue.serverTimestamp(), history: firebase.firestore.FieldValue.arrayUnion(historyLog) }); 
                 } else { 
-                    await db.collection("products").doc(id).delete(); 
+                    // Update to 0, do not delete
+                    await db.collection("products").doc(id).update({ amount: 0, status: "လက်ကျန်ပြတ်", updatedAt: firebase.firestore.FieldValue.serverTimestamp(), history: firebase.firestore.FieldValue.arrayUnion(historyLog) }); 
                 }
                 
                 let curDate = new Date();
@@ -743,7 +826,7 @@
                     let histLog = { msg: "မှားရောင်းမိ၍ ၁ ခု ပြန်လည်ဖြည့်တင်းသည်", by: userState.name, time: new Date().toISOString() };
 
                     if (stockItem) {
-                        await db.collection("products").doc(stockItem.id).update({ amount: stockItem.amount + 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), history: firebase.firestore.FieldValue.arrayUnion(histLog) });
+                        await db.collection("products").doc(stockItem.id).update({ amount: stockItem.amount + 1, status: "ပစ္စည်းရှိ", updatedAt: firebase.firestore.FieldValue.serverTimestamp(), history: firebase.firestore.FieldValue.arrayUnion(histLog) });
                     } else {
                         await db.collection("products").add({ name: originalName, category: targetItem.category, amount: 1, costPrice: unitCost, price: unitPrice, status: "ပစ္စည်းရှိ", createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp(), history: [histLog] });
                     }
@@ -802,9 +885,26 @@
         }
 
         function openRepairForm() {
-            document.getElementById('repId').value = ''; document.getElementById('repVr').value = repData.length ? parseInt(repData[0].vrno || 0) + 1 : 1;
-            document.getElementById('repDate').value = getLocalDateString(); document.getElementById('repName').value = ''; document.getElementById('repPhone').value = ''; document.getElementById('repLocation').value = ''; document.getElementById('repModel').value = ''; document.getElementById('repIssue').value = ''; document.getElementById('repRemark').value = '';
-            document.getElementById('repStatusSection').style.display = 'none'; document.getElementById('btnRepVoid').style.display = 'none'; document.getElementById('repModalTitle').innerText = 'ဖုန်းအသစ်အပ်ရန်';
+            document.getElementById('repId').value = ''; 
+            
+            // Find the maximum existing VR Number to assign the correct next number
+            let maxVr = 0;
+            repData.forEach(d => {
+                let currentVr = parseInt(d.vrno) || 0;
+                if (currentVr > maxVr) maxVr = currentVr;
+            });
+            document.getElementById('repVr').value = maxVr + 1;
+
+            document.getElementById('repDate').value = getLocalDateString(); 
+            document.getElementById('repName').value = ''; 
+            document.getElementById('repPhone').value = ''; 
+            document.getElementById('repLocation').value = ''; 
+            document.getElementById('repModel').value = ''; 
+            document.getElementById('repIssue').value = ''; 
+            document.getElementById('repRemark').value = '';
+            document.getElementById('repStatusSection').style.display = 'none'; 
+            document.getElementById('btnRepVoid').style.display = 'none'; 
+            document.getElementById('repModalTitle').innerText = 'ဖုန်းအသစ်အပ်ရန်';
             document.getElementById('repHistory').style.display = 'none';
             document.getElementById('btnRepVoucher').style.display = 'none';
             openModal('repairModal');
@@ -843,7 +943,7 @@
                     
                     if(data.status === 'ပယ်ဖျက် (Void)') {
                          hideLoader();
-                         return voidRepair(); // Trigger void logic instead
+                         return voidRepair(); 
                     }
 
                     let historyMsg = changes.length > 0 ? `ပြင်ဆင်မှု: ${changes.join(' | ')}` : 'အချက်အလက်များ ပြင်ဆင်ခဲ့သည်';
@@ -878,13 +978,11 @@
             const repId = document.getElementById('repId').value; const vr = document.getElementById('repVr').value;
             showLoader();
             try {
-                // Remove linked finance transactions if any
                 const transSnap = await db.collection("transactions").where("repairId", "==", repId).get();
                 let batch = db.batch();
                 transSnap.forEach(doc => batch.delete(doc.ref));
                 await batch.commit();
 
-                // Update status to Void
                 let historyMsg = `စာရင်းကို အပြီးတိုင် ပယ်ဖျက် (Void) လုပ်လိုက်သည်။`;
                 await db.collection("repairs").doc(repId).update({ 
                     status: 'ပယ်ဖျက် (Void)', 
