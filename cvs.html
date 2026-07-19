@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Backup & Extractor</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #0B0F1A; color: #F0F4FF; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #1C2235; padding: 20px; border-radius: 12px; }
+        input { width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; background: #273044; border: 1px solid #4A5570; color: white; border-radius: 6px; }
+        button { background: #BAFF39; color: #0B0F1A; padding: 10px 20px; border: none; font-weight: bold; cursor: pointer; border-radius: 6px; margin-right: 10px; margin-bottom: 10px;}
+        button:hover { background: #9be020; }
+        textarea { width: 100%; height: 150px; background: #0B0F1A; color: #BAFF39; border: 1px solid #4A5570; padding: 10px; margin-top: 10px; font-family: monospace; box-sizing: border-box;}
+        .hidden { display: none; }
+        h2, h3 { color: #38BDF8; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>⚡ Database Extractor</h2>
+    
+    <!-- Login Section -->
+    <div id="loginSection">
+        <p>Admin အကောင့်ဖြင့် ဝင်ရောက်ပါ -</p>
+        <input type="email" id="email" placeholder="Admin Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login ဝင်မည်</button>
+        <p id="loginMsg" style="color: #FF4D6D;"></p>
+    </div>
+
+    <!-- Export Section -->
+    <div id="exportSection" class="hidden">
+        <p style="color: #BAFF39;">✅ အကောင့်ဝင်ခြင်း အောင်မြင်ပါသည်။</p>
+        <button onclick="fetchAllData()">📥 Data အားလုံးကို ဆွဲထုတ်မည် (Fetch Data)</button>
+        <p id="statusMsg"></p>
+
+        <div id="results" class="hidden">
+            <h3>🛠 ဖုန်းပြင်စာရင်း (Repairs)</h3>
+            <button onclick="downloadCSV('repairsCSV', 'Repairs_Backup.csv')">Download Repairs CSV</button>
+            <textarea id="repairsCSV" readonly></textarea>
+
+            <h3>📦 ပစ္စည်းစာရင်း (Products)</h3>
+            <button onclick="downloadCSV('productsCSV', 'Products_Backup.csv')">Download Products CSV</button>
+            <textarea id="productsCSV" readonly></textarea>
+
+            <h3>💰 ငွေစာရင်း (Transactions)</h3>
+            <button onclick="downloadCSV('transactionsCSV', 'Transactions_Backup.csv')">Download Transactions CSV</button>
+            <textarea id="transactionsCSV" readonly></textarea>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyC5sGKGeD_zht-Qknp6VPwfPIChqwvX8MQ",
+        authDomain: "masstore-c32a7.firebaseapp.com",
+        projectId: "masstore-c32a7",
+        storageBucket: "masstore-c32a7.firebasestorage.app",
+        messagingSenderId: "321720130071",
+        appId: "1:321720130071:web:20aab19001cc8bb3cd9a52"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Login Function
+    async function login() {
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('password').value;
+        const msg = document.getElementById('loginMsg');
+        msg.innerText = "စစ်ဆေးနေပါသည်...";
+        try {
+            await auth.signInWithEmailAndPassword(e, p);
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('exportSection').classList.remove('hidden');
+        } catch (error) {
+            msg.innerText = "Error: " + error.message;
+        }
+    }
+
+    // Fetch and Convert to CSV
+    async function fetchAllData() {
+        document.getElementById('statusMsg').innerText = "Data များ ဆွဲယူနေပါသည်... ကျေးဇူးပြု၍ ခဏစောင့်ပါ။";
+        
+        try {
+            // 1. Fetch Repairs
+            const repairsSnap = await db.collection("repairs").orderBy("timestamp", "desc").limit(100).get();
+            let repairsCSV = "ID,CustomerName,PhoneModel,Issue,Cost,Income,Status,Date\n";
+            repairsSnap.forEach(doc => {
+                let d = doc.data();
+                let dateStr = d.timestamp && d.timestamp.toDate ? d.timestamp.toDate().toLocaleDateString() : (d.date || "");
+                repairsCSV += `"${doc.id}","${d.name||''}","${d.model||''}","${d.issue||''}","${d.cost||0}","${d.income||0}","${d.status||''}","${dateStr}"\n`;
+            });
+            document.getElementById('repairsCSV').value = repairsCSV;
+
+            // 2. Fetch Products
+            const productsSnap = await db.collection("products").limit(100).get();
+            let productsCSV = "ID,Name,Category,CostPrice,SellPrice,Amount,Status\n";
+            productsSnap.forEach(doc => {
+                let d = doc.data();
+                productsCSV += `"${doc.id}","${d.name||''}","${d.category||''}","${d.costPrice||0}","${d.price||0}","${d.amount||0}","${d.status||''}"\n`;
+            });
+            document.getElementById('productsCSV').value = productsCSV;
+
+            // 3. Fetch Transactions
+            const transSnap = await db.collection("transactions").orderBy("date", "desc").limit(100).get();
+            let transCSV = "ID,Type,Group,Name,Amount,Date\n";
+            transSnap.forEach(doc => {
+                let d = doc.data();
+                let dateStr = d.date && d.date.toDate ? d.date.toDate().toLocaleDateString() : (d.date || "");
+                transCSV += `"${doc.id}","${d.type||''}","${d.group||''}","${d.name||''}","${d.amount||0}","${dateStr}"\n`;
+            });
+            document.getElementById('transactionsCSV').value = transCSV;
+
+            document.getElementById('statusMsg').innerText = "✅ အောင်မြင်စွာ ဆွဲယူပြီးပါပြီ။ အောက်တွင်ကြည့်ရှု/Download နိုင်ပါသည်။";
+            document.getElementById('results').classList.remove('hidden');
+
+        } catch (error) {
+            document.getElementById('statusMsg').innerText = "❌ Error ဖြစ်နေပါသည်: " + error.message;
+        }
+    }
+
+    // Download CSV Function
+    function downloadCSV(textAreaId, filename) {
+        const csvText = document.getElementById(textAreaId).value;
+        const blob = new Blob(["\uFEFF" + csvText], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+</body>
+</html>
