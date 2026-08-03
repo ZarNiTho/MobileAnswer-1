@@ -14,7 +14,7 @@
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans Myanmar', sans-serif; -webkit-tap-highlight-color: transparent; }
-        :root { --primary: #5b6bf7; --primary-hover: #4a5ad9; --primary-light: #eef1ff; --primary-glow: rgba(91, 107, 247, 0.25); --bg-body: #f5f8fc; --bg-surface: #ffffff; --bg-elevated: #f8faff; --bg-input: #f0f3f8; --text-main: #0f1a2e; --text-secondary: #2d3a4f; --text-muted: #6b7a8f; --text-inverse: #ffffff; --border-light: #e9edf4; --border-focus: #5b6bf7; --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04); --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.06); --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.08); --shadow-glow: 0 6px 20px rgba(91, 107, 247, 0.20); --radius-sm: 10px; --radius-md: 16px; --radius-lg: 24px; --radius-xl: 28px; --transition: 0.25s cubic-bezier(0.22, 1, 0.36, 1); --transition-slow: 0.4s cubic-bezier(0.22, 1, 0.36, 1); --glass-bg: rgba(255, 255, 255, 0.78); --glass-border: rgba(255, 255, 255, 0.5); --safe-bottom: env(safe-area-inset-bottom, 0px); --safe-top: env(safe-area-inset-top, 0px); --success: #10b981; --success-light: #e6f9f0; --danger: #ef4444; --danger-light: #fee9e9; --warning: #f59e0b; --warning-light: #fef3d7; --info: #3b82f6; --info-light: #e8effe; }
+        :root { --primary: #5b6bf7; --primary-hover: #4a5ad9; --primary-light: #eef1ff; --primary-glow: rgba(91, 107, 247, 0.25); --bg-body: #f5f8fc; --bg-surface: #ffffff; --bg-elevated: #f8faff; --bg-input: #f0f3f8; --text-main: #0f1a2e; --text-secondary: #2d3a4f; --text-muted: #6b7a8f; --text-inverse: #ffffff; --border-light: #e9edf4; --border-focus: #5b6bf7; --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04); --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.06); --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.08); --shadow-glow: 0 6px 20px rgba(91, 107, 247, 0.20); --radius-sm: 10px; --radius-md: 16px; --radius-lg: 24px; --radius-xl: 28px; --transition: 0.25s cubic-bezier(0.22, 1, 0.36, 1); --transition-slow: 0.4s cubic-bezier(0.22, 1, 0.36, 1); --glass-bg: rgba(255, 255, 255, 0.78); --glass-border: rgba(255, 255, 255, 0.5); --safe-bottom: env(safe-area-inset-bottom, 0px); --safe-top: env(safe-area-inset-top, 0px); --success: #10b981; --success-light: #e6f9f0; --danger: #ef4444; --danger-light: #fee9e9; --warning: #f59e0b; --warning-light: #fef3d7; --info: #3b82f6; --info-light: #e8effe; --violet: #8b5cf6; }
         body.theme-dark { --primary: #7c8cf5; --primary-hover: #6a7ae0; --primary-light: #1e2340; --primary-glow: rgba(124, 140, 245, 0.20); --bg-body: #0b0f17; --bg-surface: #131a26; --bg-elevated: #1a2232; --bg-input: #1f2838; --text-main: #edf2f9; --text-secondary: #c8d2e0; --text-muted: #7a8aa0; --text-inverse: #0b0f17; --border-light: #263040; --border-focus: #7c8cf5; --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.30); --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.40); --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.50); --shadow-glow: 0 6px 20px rgba(124, 140, 245, 0.15); --glass-bg: rgba(19, 26, 38, 0.82); --glass-border: rgba(255, 255, 255, 0.06); --success-light: #0a2e1e; --danger-light: #3d1318; --warning-light: #3d2a0a; --info-light: #0d2440; }
         body.theme-goldcharcoal { --primary: #e8b830; --primary-hover: #d4a020; --primary-light: #2a2416; --primary-glow: rgba(232, 184, 48, 0.20); --bg-body: #0a0b0f; --bg-surface: #13161e; --bg-elevated: #1a1e28; --bg-input: #1e222c; --text-main: #f0ece0; --text-secondary: #c8c0b0; --text-muted: #7a7568; --text-inverse: #0a0b0f; --border-light: #2a2e3a; --border-focus: #e8b830; --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.40); --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.50); --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.60); --shadow-glow: 0 6px 20px rgba(232, 184, 48, 0.15); --glass-bg: rgba(19, 22, 30, 0.86); --glass-border: rgba(232, 184, 48, 0.06); --success-light: #0a2e1e; --danger-light: #3d1318; --warning-light: #3d2a0a; --info-light: #0d2440; }
         body { background: var(--bg-body); color: var(--text-main); overflow: hidden; width: 100vw; height: 100vh; display: flex; flex-direction: column; user-select: none; -webkit-user-select: none; transition: background var(--transition-slow), color var(--transition-slow); }
@@ -207,7 +207,6 @@
                         <div class="pill" onclick="setInvFilter('accessories', this)">Accessories</div>
                         <div class="pill" onclick="setInvFilter('ရောင်းပြီး', this)">ရောင်းပြီး</div>
                     </div>
-                    <!-- မှတ်ချက်: Box များကို ရှင်းလင်းရန် openInvForm() အသစ်ဖြင့် ပြောင်းလဲလိုက်ပါသည် -->
                     <button class="btn btn-primary" onclick="openInvForm()" style="margin-bottom:16px;">+ ပစ္စည်းသစ် ထည့်ရန်</button>
                 </div>
 
@@ -243,6 +242,7 @@
         <div id="view-finance" class="app-view">
             <div class="container">
                 <div class="input-group"><input type="month" id="finMonth" onchange="fetchFinance()"></div>
+                
                 <div style="display:flex; gap:10px; margin-bottom:16px;">
                     <button class="btn" style="background:var(--success); color:#fff; flex:1; padding:12px; font-size:13px; box-shadow:0 4px 16px rgba(16,185,129,0.20);" onclick="openFinModal('ဝင်ငွေ')">+ ဝင်ငွေ</button>
                     <button class="btn" style="background:var(--danger); color:#fff; flex:1; padding:12px; font-size:13px; box-shadow:0 4px 16px rgba(239,68,68,0.20);" onclick="openFinModal('ထွက်ငွေ')">- ထွက်ငွေ</button>
@@ -259,12 +259,15 @@
                 <h2 id="fsDayTitle" style="font-size:15px; font-weight:800; color:var(--text-main); transition:color var(--transition-slow);">ရက်စွဲ စာရင်းအသေးစိတ်</h2>
                 <div style="width:50px;"></div>
             </div>
-            <div class="container" style="overflow-y:auto; flex-grow:1; padding-bottom:90px;">
+            <div class="container" style="overflow-y:auto; flex-grow:1; padding-bottom:140px;">
                 <div id="fsDayDetailsList"></div>
             </div>
-            <div style="position:fixed; bottom:0; left:0; width:100%; padding:12px 16px; background:var(--bg-surface); border-top:1px solid var(--border-light); box-shadow:var(--shadow-md); display:flex; gap:10px; transition:background var(--transition-slow), border-color var(--transition-slow);">
-                <button class="btn" style="background:var(--success); color:#fff; flex:1; padding:12px; font-size:13px;" id="btnFsAddInc">+ ဝင်ငွေ ထည့်ရန်</button>
-                <button class="btn" style="background:var(--danger); color:#fff; flex:1; padding:12px; font-size:13px;" id="btnFsAddExp">- ထွက်ငွေ ထည့်ရန်</button>
+            <div style="position:fixed; bottom:0; left:0; width:100%; padding:12px 16px; background:var(--bg-surface); border-top:1px solid var(--border-light); box-shadow:var(--shadow-md); display:flex; flex-direction:column; gap:10px; transition:background var(--transition-slow), border-color var(--transition-slow); z-index:501;">
+                <div style="display:flex; gap:10px; width:100%;">
+                    <button class="btn" style="background:var(--success); color:#fff; flex:1; padding:12px; font-size:13px;" id="btnFsAddInc">+ ဝင်ငွေ ထည့်ရန်</button>
+                    <button class="btn" style="background:var(--danger); color:#fff; flex:1; padding:12px; font-size:13px;" id="btnFsAddExp">- ထွက်ငွေ ထည့်ရန်</button>
+                </div>
+                <button class="btn" style="background: linear-gradient(135deg, var(--primary), var(--violet)); color:#fff; width:100%; padding:12px; font-size:13px; font-weight:800; box-shadow:0 4px 16px var(--primary-glow);" id="btnFsCheckBalance">⚖️ Balance စစ်ဆေး / ငွေအပ်မည်</button>
             </div>
         </div>
 
@@ -360,6 +363,29 @@
         </div>
     </div>
 
+    <!-- 🔴 BALANCE CHECK / DAILY FINAL SETTLEMENT MODAL 🔴 -->
+    <div id="dailyFinalModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-drag-handle"></div>
+            <div class="modal-header"><h3>Balance စစ်ဆေး / ငွေအပ်မည်</h3><button class="close-btn" onclick="closeModal('dailyFinalModal')">✕</button></div>
+            <div class="modal-body">
+                <div style="background:var(--bg-input); padding:16px; border-radius:var(--radius-md); text-align:center; margin-bottom:16px;">
+                    <div style="font-size:12px; color:var(--text-muted); font-weight:700; margin-bottom:4px;">စနစ်တွင်း လက်ကျန်ငွေ (System Balance)</div>
+                    <div id="sysBalanceDisplay" style="font-size:24px; font-weight:900; color:var(--primary);" data-val="0">0 Ks</div>
+                </div>
+                <div class="input-group">
+                    <label style="font-size:11px; font-weight:800; color:var(--text-muted); display:block; margin-bottom:6px;">လက်ထဲတွင် တကယ်ရှိသော ငွေပမာဏ (Physical Cash) *</label>
+                    <input type="number" id="physicalCash" placeholder="0 Ks" inputmode="numeric" style="font-size:18px; font-weight:800; color:var(--text-main);" oninput="checkBalanceMatch()">
+                </div>
+                <div id="balanceResult" style="font-size:13px; font-weight:700; text-align:center; margin-bottom:14px; display:none; padding:10px; border-radius:var(--radius-sm);"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" style="background:var(--bg-input); color:var(--text-muted); flex:1;" onclick="closeModal('dailyFinalModal')">Back</button>
+                <button class="btn btn-primary" style="background:var(--primary); flex:2;" id="btnSubmitAdmin" onclick="confirmDailyFinalTransfer()" disabled>Admin ထံ ငွေအပ်မည်</button>
+            </div>
+        </div>
+    </div>
+
     <div id="repairModal" class="modal">
         <div class="modal-content" style="height:92vh;">
             <div class="modal-drag-handle"></div>
@@ -422,8 +448,9 @@
     </div>
 
     <script>
-        // 🚀 Groq API Key
-        const GEMINI_API_KEY = "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";
+        // 🔑 Google Gemini API Key
+        // 🔴 မှတ်ချက်: aistudio.google.com မှ ရရှိသော "AIzaSy..." ဖြင့်စသည့် Key အစစ်ကို ထည့်သွင်းပါ 🔴
+        const GEMINI_API_KEY = "AQ.Ab8RN6K7A8cUI-uLqTzRM8WyhrShDrJvIPa5HNi_tbo_V64f8A";
 
         // ==========================================
         // 🕒 TIMEZONE FIX FUNCTION
@@ -505,7 +532,19 @@
         }
 
         function openModal(id) { const el = document.getElementById(id); el.style.display = 'flex'; setTimeout(() => el.classList.add('active'), 10); history.pushState({ modal: id }, null, ""); }
-        function closeModal(id) { const el = document.getElementById(id); el.classList.remove('active'); setTimeout(() => el.style.display = 'none', 300); if (history.state && history.state.modal === id) history.back(); }
+        
+        // 🔴 Back Button ပြဿနာ ဖြေရှင်းထားသော closeModal Function 🔴
+        function closeModal(id) { 
+            if (history.state && history.state.modal === id) {
+                history.back(); 
+            } else {
+                const el = document.getElementById(id); 
+                if (el) {
+                    el.classList.remove('active'); 
+                    setTimeout(() => el.style.display = 'none', 300); 
+                }
+            }
+        }
 
         // ==========================================
         // Register User
@@ -551,7 +590,6 @@
         function clearSearch(inputId) {
             const inputEl = document.getElementById(inputId); inputEl.value = ''; inputEl.focus();
             if (inputId === 'invSearch') {
-                // Reset filter to All when clearing search
                 document.querySelectorAll('#view-inventory .pill').forEach(b => b.classList.remove('active'));
                 document.querySelector('#view-inventory .pill').classList.add('active');
                 invFilter = 'အားလုံး';
@@ -618,11 +656,22 @@
             }
         });
 
+        // 🔴 ပြဿနာ အတိအကျသိရအောင် Firebase Error အစစ်ကို ပြပေးထားသော Login Function 🔴
         async function loginApp() {
-            const e = document.getElementById('authEmail').value.trim(); const p = document.getElementById('authPassword').value;
+            const e = document.getElementById('authEmail').value.trim(); 
+            const p = document.getElementById('authPassword').value;
             if (!e || !p) return showToast('အချက်အလက် ဖြည့်စွက်ပါ', 'error');
-            showLoader(); try { await auth.signInWithEmailAndPassword(e, p); } catch (err) { hideLoader(); showToast('အီးမေးလ် သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်', 'error'); }
+            
+            showLoader(); 
+            try { 
+                await auth.signInWithEmailAndPassword(e, p); 
+            } catch (err) { 
+                hideLoader(); 
+                // မူရင်း hardcoded စာသားအစား Firebase က ပြန်ပို့တဲ့ Error အစစ်ကို ပြပေးပါမည်။
+                showToast("Firebase Error: " + err.message, 'error'); 
+            }
         }
+        
         function logoutApp() { auth.signOut(); }
 
         function switchTab(tab) {
@@ -728,7 +777,6 @@
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
             };
             
-            // Allow 0 amount to save as Out of Stock
             if (!data.name || data.amount < 0) {
                 hideLoader();
                 return showToast("အချက်အလက် မှန်ကန်စွာ ဖြည့်ပါ", "error");
@@ -751,13 +799,34 @@
                     data.history = firebase.firestore.FieldValue.arrayUnion({ msg: historyMsg, by: userState.name, time: new Date().toISOString() });
                     
                     await db.collection("products").doc(id).update(data);
+
+                    let addedQty = data.amount - Number(oldData.amount || 0);
+                    if (addedQty > 0 && data.costPrice > 0) {
+                        await db.collection("transactions").add({
+                            productId: id, type: "ထွက်ငွေ", group: "StockPurchase",
+                            name: `ကုန်ပစ္စည်း ဖြည့်တင်း: ${data.name} (${addedQty} ခု)`, amount: addedQty * data.costPrice,
+                            date: new Date(), exactDate: firebase.firestore.FieldValue.serverTimestamp(),
+                            history: [{ msg: "ကုန်ပစ္စည်း ဖြည့်တင်းမှုမှ ထွက်ငွေ (auto)", by: userState.name, time: new Date().toISOString() }]
+                        });
+                    }
+
                     await logActivity("Edit Stock", `${data.name} ပြင်ဆင်သည်`); 
                 } 
                 else { 
                     data.status = data.amount > 0 ? "ပစ္စည်းရှိ" : "လက်ကျန်ပြတ်";
                     data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); 
                     data.history = [{ msg: "ပစ္စည်းအသစ် စာရင်းသွင်းသည်", by: userState.name, time: new Date().toISOString() }];
-                    await db.collection("products").add(data); 
+                    const newRef = await db.collection("products").add(data); 
+
+                    if (data.amount > 0 && data.costPrice > 0) {
+                        await db.collection("transactions").add({
+                            productId: newRef.id, type: "ထွက်ငွေ", group: "StockPurchase",
+                            name: `ကုန်ပစ္စည်း ဝယ်ယူမှု: ${data.name} (${data.amount} ခု)`, amount: data.amount * data.costPrice,
+                            date: new Date(), exactDate: firebase.firestore.FieldValue.serverTimestamp(),
+                            history: [{ msg: "ကုန်ပစ္စည်း ဝယ်ယူမှုမှ ထွက်ငွေ (auto)", by: userState.name, time: new Date().toISOString() }]
+                        });
+                    }
+
                     await logActivity("Add Stock", `${data.name} သွင်းသည်`); 
                 }
                 closeModal('invModal'); showToast("ပစ္စည်းစာရင်း သိမ်းဆည်းပြီးပါပြီ");
@@ -765,7 +834,9 @@
         }
         
         async function sellInv(id, name, curAmt, price, cost, cat, qtyToSell = 1) {
-            if (await Swal.fire({ title: 'ရောင်းထုတ်မည်?', text: `${name} ${qtyToSell} ခု ရောင်းချမှာ သေချာပါသလား?`, icon: 'question', showCancelButton: true, confirmButtonColor: 'var(--primary)' }).then(r => !r.isConfirmed)) return;
+            qtyToSell = Number(qtyToSell) || 1;
+            if (qtyToSell <= 0 || qtyToSell > curAmt) { showToast(`လက်ကျန် (${curAmt}) ထက်ပိုပြီး မရောင်းနိုင်ပါ`, "error"); return false; }
+            if (await Swal.fire({ title: 'ရောင်းထုတ်မည်?', text: `${name} ${qtyToSell} ခု ရောင်းချမှာ သေချာပါသလား?`, icon: 'question', showCancelButton: true, confirmButtonColor: 'var(--primary)' }).then(r => !r.isConfirmed)) return false;
             
             showLoader();
             try {
@@ -775,7 +846,6 @@
                 if (remainQty > 0) { 
                     await db.collection("products").doc(id).update({ amount: remainQty, status: "ပစ္စည်းရှိ", updatedAt: firebase.firestore.FieldValue.serverTimestamp(), history: firebase.firestore.FieldValue.arrayUnion(historyLog) }); 
                 } else { 
-                    // Update to 0, do not delete
                     await db.collection("products").doc(id).update({ amount: 0, status: "လက်ကျန်ပြတ်", updatedAt: firebase.firestore.FieldValue.serverTimestamp(), history: firebase.firestore.FieldValue.arrayUnion(historyLog) }); 
                 }
                 
@@ -788,6 +858,7 @@
                 let existingSoldDoc = existingSoldSnap.docs.find(d => { let dData = d.data(); return dData.sellDate && dData.sellDate.startsWith(searchDate); });
 
                 let salesHistLog = { msg: `${qtyToSell} ခု ထပ်မံရောင်းချခဲ့သည်`, by: userState.name, time: new Date().toISOString() };
+                let soldDocId;
 
                 if (existingSoldDoc) {
                     let docData = existingSoldDoc.data();
@@ -795,17 +866,20 @@
                         amount: docData.amount + qtyToSell, price: docData.price + (price * qtyToSell), costPrice: docData.costPrice + (cost * qtyToSell),
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp(), history: firebase.firestore.FieldValue.arrayUnion(salesHistLog)
                     });
+                    soldDocId = existingSoldDoc.id;
                 } else {
-                    await db.collection("products").add({ 
+                    const newSoldRef = await db.collection("products").add({ 
                         name: soldName, category: cat, status: "ရောင်းပြီး", amount: qtyToSell, costPrice: cost * qtyToSell, price: price * qtyToSell, 
                         sellDate: fDate, createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                         history: [{ msg: "အရောင်းမှတ်တမ်း အသစ်တည်ဆောက်သည်", by: userState.name, time: new Date().toISOString() }]
                     });
+                    soldDocId = newSoldRef.id;
                 }
 
-                await db.collection("transactions").add({ type: "ဝင်ငွေ", group: "Sales", name: `ရောင်းရငွေ: ${name}`, amount: price * qtyToSell, date: curDate, exactDate: firebase.firestore.FieldValue.serverTimestamp(), history: [{msg:"ပစ္စည်းရောင်းချမှုမှ ဝင်ငွေ", by: userState.name, time: new Date().toISOString()}] });
+                await db.collection("transactions").add({ productId: soldDocId, type: "ဝင်ငွေ", group: "Sales", name: `ရောင်းရငွေ: ${name}`, amount: price * qtyToSell, date: curDate, exactDate: firebase.firestore.FieldValue.serverTimestamp(), history: [{msg:"ပစ္စည်းရောင်းချမှုမှ ဝင်ငွေ", by: userState.name, time: new Date().toISOString()}] });
                 await logActivity("Sell", `${name} ရောင်းချသည်`); showToast(`${name} ရောင်းချပြီးပါပြီ`);
-            } catch (e) { showToast("ရောင်းချရာတွင် အမှားဖြစ်ပွားပါသည်", "error"); } finally { hideLoader(); }
+                return true;
+            } catch (e) { showToast("ရောင်းချရာတွင် အမှားဖြစ်ပွားပါသည်", "error"); return false; } finally { hideLoader(); }
         }
 
         async function deleteInv(id, name) {
@@ -831,9 +905,20 @@
                         await db.collection("products").add({ name: originalName, category: targetItem.category, amount: 1, costPrice: unitCost, price: unitPrice, status: "ပစ္စည်းရှိ", createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp(), history: [histLog] });
                     }
 
-                    let tName = `ရောင်းရငွေ: ${originalName}`;
-                    const finSnap = await db.collection("transactions").where("name", "==", tName).limit(1).get();
-                    if (!finSnap.empty) { await db.collection("transactions").doc(finSnap.docs[0].id).delete(); }
+                    const finSnap = await db.collection("transactions").where("productId", "==", id).get();
+                    if (!finSnap.empty) {
+                        let txDocs = finSnap.docs.sort((a, b) => {
+                            let ta = a.data().exactDate ? (a.data().exactDate.toDate ? a.data().exactDate.toDate() : new Date(a.data().exactDate)) : new Date(0);
+                            let tb = b.data().exactDate ? (b.data().exactDate.toDate ? b.data().exactDate.toDate() : new Date(b.data().exactDate)) : new Date(0);
+                            return tb - ta;
+                        });
+                        let latestTx = txDocs[0]; let txAmt = Number(latestTx.data().amount || 0);
+                        if (txAmt > unitPrice + 0.01) {
+                            await db.collection("transactions").doc(latestTx.id).update({ amount: txAmt - unitPrice });
+                        } else {
+                            await db.collection("transactions").doc(latestTx.id).delete();
+                        }
+                    }
 
                     if (targetItem.amount > 1) {
                         let voidLog = { msg: "မှားရောင်းမိ၍ ၁ ခုစာ ပြန်လည်နှုတ်ပယ်သည်", by: userState.name, time: new Date().toISOString() };
@@ -887,7 +972,6 @@
         function openRepairForm() {
             document.getElementById('repId').value = ''; 
             
-            // Find the maximum existing VR Number to assign the correct next number
             let maxVr = 0;
             repData.forEach(d => {
                 let currentVr = parseInt(d.vrno) || 0;
@@ -926,12 +1010,13 @@
 
         async function saveRepair() {
             const id = document.getElementById('repId').value; const vr = document.getElementById('repVr').value; const name = document.getElementById('repName').value.trim(); if (!vr || !name) return;
-            let data = { vrno: vr, date: document.getElementById('repDate').value, name: name, phone: document.getElementById('repPhone').value, location: document.getElementById('repLocation').value, model: document.getElementById('repModel').value, issue: document.getElementById('repIssue').value, remark: document.getElementById('repRemark').value, timestamp: firebase.firestore.FieldValue.serverTimestamp() };
+            let data = { vrno: vr, date: document.getElementById('repDate').value, name: name, phone: document.getElementById('repPhone').value, location: document.getElementById('repLocation').value, model: document.getElementById('repModel').value, issue: document.getElementById('repIssue').value, remark: document.getElementById('repRemark').value };
 
             showLoader(); 
             try {
                 if (id) {
                     data.status = document.getElementById('repStatusSelect').value; data.cost = Number(document.getElementById('repCost').value) || 0; data.income = Number(document.getElementById('repIncome').value) || 0;
+                    data.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
                     if (data.status === 'ထုတ်ယူပြီး-အောင်မြင်' && data.income <= 0) { hideLoader(); return showToast('ရငွေ (Income) မဖြစ်မနေ ထည့်ပေးပါ', 'error'); }
 
                     const oldDoc = await db.collection("repairs").doc(id).get(); const oldData = oldDoc.data();
@@ -966,6 +1051,7 @@
                     }
                 } else {
                     data.status = 'စစ်ဆေးပြုပြင်နေဆဲ'; data.cost = 0; data.income = 0;
+                    data.timestamp = firebase.firestore.FieldValue.serverTimestamp();
                     data.history = [{ msg: "ဖုန်းအသစ် လက်ခံရရှိသည်။", by: userState.name, time: new Date().toISOString() }];
                     await db.collection("repairs").add(data); 
                 }
@@ -975,7 +1061,7 @@
 
         async function voidRepair() {
             if (await Swal.fire({ title: 'စာရင်းမှ မှင်တား ပယ်ဖျက်မည်လား?', text: 'ဤစာရင်းအား Void (ပယ်ဖျက်) အဖြစ် သတ်မှတ်ပါမည်။ မှတ်တမ်းအဖြစ် ကျန်ရှိနေမည်ဖြစ်သော်လည်း ငွေစာရင်းများနှင့် ချိတ်ဆက်မှု ဖြတ်တောက်ပါမည်။', icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--danger)' }).then(r => !r.isConfirmed)) return;
-            const repId = document.getElementById('repId').value; const vr = document.getElementById('repVr').value;
+            const repId = document.getElementById('repId').value;
             showLoader();
             try {
                 const transSnap = await db.collection("transactions").where("repairId", "==", repId).get();
@@ -994,14 +1080,25 @@
         }
 
         // ==========================================
-        // 💰 FINANCE LOGIC
+        // 💰 FINANCE LOGIC (PERSONAL DATA FILTER INCLUDED)
         // ==========================================
         let finData = []; 
         function fetchFinance() {
             let monthStr = document.getElementById('finMonth').value; if (!monthStr) return;
             let startDate = new Date(monthStr + "-01"); let endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59);
             if (unsubListener) unsubListener();
-            unsubListener = db.collection("transactions").where("date", ">=", startDate).where("date", "<=", endDate).onSnapshot(snap => { finData = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderFinance(); });
+            
+            unsubListener = db.collection("transactions")
+                .where("date", ">=", startDate)
+                .where("date", "<=", endDate)
+                .onSnapshot(snap => { 
+                    // 🔴 Admin ၏ Personal စာရင်းများ Main App တွင် မပေါ်စေရန် စစ်ထုတ်ထားပါသည် 🔴
+                    finData = snap.docs
+                        .map(d => ({ id: d.id, ...d.data() }))
+                        .filter(d => d.group !== 'Personal');
+                    
+                    renderFinance(); 
+                });
         }
 
         function renderFinance() {
@@ -1010,7 +1107,7 @@
                 let dStr = (d.date.toDate ? d.date.toDate() : new Date(d.date)).toLocaleDateString('en-CA');
                 if (!globalFinanceDays[dStr]) globalFinanceDays[dStr] = { inc: 0, exp: 0, logs: [] };
                 if (d.type === 'ဝင်ငွေ') globalFinanceDays[dStr].inc += Number(d.amount); else globalFinanceDays[dStr].exp += Number(d.amount); 
-                globalFinanceDays[dStr].logs.push({ ...d, source: d.repairId ? 'auto' : 'tx', exactDate: d.exactDate || d.date });
+                globalFinanceDays[dStr].logs.push({ ...d, source: (d.repairId || d.productId) ? 'auto' : 'tx', exactDate: d.exactDate || d.date });
             });
 
             let sortedDates = Object.keys(globalFinanceDays).sort((a, b) => new Date(b) - new Date(a)); let html = '';
@@ -1022,7 +1119,17 @@
             const currentActiveDay = document.getElementById('fsDayTitle').getAttribute('data-active-day'); if (currentActiveDay && document.getElementById('fullscreenDayView').classList.contains('active')) renderDayDetails(currentActiveDay);
         }
 
-        function openFullscreenDay(date) { document.getElementById('fsDayTitle').innerText = `📅 ${date} စာရင်းချုပ်`; document.getElementById('fsDayTitle').setAttribute('data-active-day', date); document.getElementById('btnFsAddInc').onclick = () => openFinModalWithDate('ဝင်ငွေ', date); document.getElementById('btnFsAddExp').onclick = () => openFinModalWithDate('ထွက်ငွေ', date); renderDayDetails(date); document.getElementById('fullscreenDayView').classList.add('active'); history.pushState({ modal: 'fullscreenDayView' }, null, ""); }
+        function openFullscreenDay(date) { 
+            document.getElementById('fsDayTitle').innerText = `📅 ${date} စာရင်းချုပ်`; 
+            document.getElementById('fsDayTitle').setAttribute('data-active-day', date); 
+            document.getElementById('btnFsAddInc').onclick = () => openFinModalWithDate('ဝင်ငွေ', date); 
+            document.getElementById('btnFsAddExp').onclick = () => openFinModalWithDate('ထွက်ငွေ', date); 
+            document.getElementById('btnFsCheckBalance').onclick = () => openBalanceCheckModal(date);
+            renderDayDetails(date); 
+            document.getElementById('fullscreenDayView').classList.add('active'); 
+            history.pushState({ modal: 'fullscreenDayView' }, null, ""); 
+        }
+        
         function closeFullscreenDay() { document.getElementById('fullscreenDayView').classList.remove('active'); document.getElementById('fsDayTitle').removeAttribute('data-active-day'); if (history.state && history.state.modal === 'fullscreenDayView') history.back(); }
 
         function renderDayDetails(date) {
@@ -1036,7 +1143,7 @@
 
             sortedLogs.forEach(l => {
                 let col = l.type === 'ဝင်ငွေ' ? 'var(--success)' : 'var(--danger)'; let isManualTx = l.source === 'tx';
-                let actionBtns = (userState.role === 'admin' && isManualTx) ? `<div style="display:flex; gap:10px; margin-top:8px; justify-content:flex-end;"><button class="btn-action btn-edit" style="padding:4px 10px; font-size:11px;" onclick="editFinInline('${l.id}')">ပြင်မည်</button><button class="btn-action btn-delete" style="padding:4px 10px; font-size:11px;" onclick="deleteFin('${l.id}')">ဖျက်မည်</button></div>` : (!isManualTx ? `<div style="font-size:10px; color:var(--info); text-align:right; margin-top:4px;">(Repair မှ အလိုအလျောက် ဝင်လာသည်)</div>` : '');
+                let actionBtns = (userState.role === 'admin' && isManualTx) ? `<div style="display:flex; gap:10px; margin-top:8px; justify-content:flex-end;"><button class="btn-action btn-edit" style="padding:4px 10px; font-size:11px;" onclick="editFinInline('${l.id}')">ပြင်မည်</button><button class="btn-action btn-delete" style="padding:4px 10px; font-size:11px;" onclick="deleteFin('${l.id}')">ဖျက်မည်</button></div>` : (!isManualTx ? `<div style="font-size:10px; color:var(--info); text-align:right; margin-top:4px;">(စနစ်မှ အလိုအလျောက် ဝင်လာသည် — Repair/ပစ္စည်း စာရင်းမှ ချိတ်ဆက်ထားသည်)</div>` : '');
                 
                 let timeText = 'အချိန်မသိရပါ';
                 if (l.history && l.history.length > 0) {
@@ -1089,6 +1196,128 @@
         }
 
         // ==========================================
+        // 🔴 BALANCE CHECK / DAILY FINAL SETTLEMENT (SweetAlert Version)
+        // ==========================================
+        function openBalanceCheckModal(dateStr) {
+            let dayObj = globalFinanceDays[dateStr] || { inc: 0, exp: 0, logs: [] };
+            let sysBal = dayObj.inc - dayObj.exp;
+            
+            document.getElementById('sysBalanceDisplay').innerText = sysBal.toLocaleString() + " Ks";
+            document.getElementById('sysBalanceDisplay').dataset.val = sysBal;
+            
+            document.getElementById('physicalCash').value = '';
+            document.getElementById('balanceResult').style.display = 'none';
+            document.getElementById('btnSubmitAdmin').disabled = true;
+            
+            openModal('dailyFinalModal');
+        }
+
+        function checkBalanceMatch() {
+            let sysBal = Number(document.getElementById('sysBalanceDisplay').dataset.val);
+            let physCashStr = document.getElementById('physicalCash').value;
+            let physCash = Number(physCashStr);
+            let resDiv = document.getElementById('balanceResult');
+            let btn = document.getElementById('btnSubmitAdmin');
+
+            if (physCashStr === '') {
+                resDiv.style.display = 'none';
+                btn.disabled = true;
+                return;
+            }
+
+            btn.disabled = false;
+            resDiv.style.display = 'block';
+            let diff = physCash - sysBal;
+
+            if (diff === 0) {
+                resDiv.innerHTML = "✅ စာရင်းကိုက်ပါသည်";
+                resDiv.style.color = "var(--success)";
+                resDiv.style.backgroundColor = "var(--success-light)";
+            } else if (diff > 0) {
+                resDiv.innerHTML = `⚠️ စနစ်စာရင်းထက် ${diff.toLocaleString()} Ks ပိုနေပါသည်`;
+                resDiv.style.color = "var(--danger)";
+                resDiv.style.backgroundColor = "var(--danger-light)";
+            } else {
+                resDiv.innerHTML = `⚠️ စနစ်စာရင်းထက် ${Math.abs(diff).toLocaleString()} Ks လိုနေပါသည်`;
+                resDiv.style.color = "var(--danger)";
+                resDiv.style.backgroundColor = "var(--danger-light)";
+            }
+        }
+
+        async function confirmDailyFinalTransfer() {
+            const physCashStr = document.getElementById('physicalCash').value;
+            if (physCashStr === '') return showToast('အပ်နှံမည့် ငွေပမာဏ ဖြည့်ပါ', 'error');
+            const physCash = Number(physCashStr);
+            
+            const sysBal = Number(document.getElementById('sysBalanceDisplay').dataset.val);
+            let diff = physCash - sysBal;
+
+            let remark = "ယနေ့အပ်ငွေ";
+            let diffMsg = "";
+            
+            if (diff > 0) {
+                diffMsg = `${diff.toLocaleString()} Ks ပိုနေသည်`;
+            } else if (diff < 0) {
+                diffMsg = `${Math.abs(diff).toLocaleString()} Ks လိုနေသည်`;
+            }
+
+            // 🔴 ရိုးရှင်းသော Swal Confirmation ကို အသုံးပြုထားပါသည် 🔴
+            let isConfirmed = await Swal.fire({
+                title: 'ငွေအပ်မည်',
+                text: `${physCash.toLocaleString()} Ks အပ်နှံမှာ သေချာပါသလား? ${diffMsg ? '( ' + diffMsg + ' )' : '( စာရင်းကိုက်ပါသည် )'}`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: 'var(--primary)',
+                confirmButtonText: 'အပ်နှံမည်',
+                cancelButtonText: 'မလုပ်တော့ပါ'
+            }).then(r => r.isConfirmed);
+
+            if (!isConfirmed) return;
+
+            showLoader();
+            try {
+                let finalName = remark;
+                if (diffMsg !== "") {
+                    // Admin ဘက်တွင် အနီရောင်ဖြင့် ပေါ်စေရန်
+                    finalName += ` <span style="color:red; font-size:12px; font-weight:800;">(${diffMsg})</span>`;
+                }
+
+                let curDate = new Date();
+                await db.collection("transactions").add({
+                    type: "ဝင်ငွေ",
+                    group: "Personal",
+                    name: `${finalName} (${userState.name} ထံမှ)`,
+                    amount: physCash,
+                    date: curDate,
+                    exactDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    history: [{
+                        msg: `Main App မှ အပ်ငွေပေးပို့ခြင်း: ${physCash.toLocaleString()} Ks`,
+                        by: userState.name,
+                        time: new Date().toISOString()
+                    }]
+                });
+
+                await logActivity("Daily Settlement Transfer", `${physCash} Ks ကို Admin Personal သို့ အပ်နှံသည်`);
+                
+                hideLoader();
+                
+                // 🔴 Firebase အောင်မြင်ပြီးမှ အမှန်ခြစ်ပြကာ Dialog ပိတ်ပါမည် 🔴
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'အောင်မြင်ပါသည်',
+                    text: 'Admin ထံ ငွေပေးပို့မှု အောင်မြင်ပါသည်',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                
+                closeModal('dailyFinalModal');
+            } catch (e) {
+                hideLoader();
+                showToast("ငွေပေးပို့ရာတွင် အမှားဖြစ်ပွားပါသည်", "error");
+            }
+        }
+
+        // ==========================================
         // 🧾 VOUCHER & AI LOGIC
         // ==========================================
         function generateVoucher() {
@@ -1130,20 +1359,57 @@
         function stopSpeechUI() { isSpeechListening = false; const micBtn = document.getElementById('aiMicBtn'); const floatingBtn = document.getElementById('floatingAiBtn'); micBtn.innerHTML = `🎤`; micBtn.style.background = 'var(--primary-light)'; micBtn.style.color = 'var(--primary)'; floatingBtn.classList.remove('listening'); }
         function receiveVoiceText(text) { stopSpeechUI(); if(text && text.trim() !== "") { document.getElementById('aiInput').value = text; sendAiMsg(); } }
 
+        // 🔴 Google Gemini API အစစ်ဖြင့် ချိတ်ဆက်ထားသော အပိုင်း 🔴
         async function sendAiMsg() {
             const inputEl = document.getElementById('aiInput'); const text = inputEl.value.trim(); if (!text) return;
             addAiMsg(text, 'user'); inputEl.value = ''; addAiMsg("တွက်ချက်နေပါသည်...", "system"); await interpretCommandWithGemini(text);
         }
 
         async function interpretCommandWithGemini(text) {
-            if (!GEMINI_API_KEY || GEMINI_API_KEY.startsWith("YOUR_")) { addAiMsg("Groq API Key ထည့်ရန် လိုအပ်ပါသည်။", "system"); return; }
+            // 🔴 မှတ်ချက်: aistudio.google.com မှ ရရှိသော "AIzaSy..." ဖြင့်စသည့် Key အစစ်ကို ထည့်သွင်းပါ 🔴
+            if (!GEMINI_API_KEY || GEMINI_API_KEY.startsWith("YOUR_")) { 
+                addAiMsg("Google Gemini API Key ထည့်ရန် လိုအပ်ပါသည်။ (AIzaSy...)", "system"); 
+                return; 
+            }
+            
             const systemPrompt = `You are a highly intelligent AI assistant for "Mobile ANSWER" mobile repair shop in Myanmar. You MUST reply with ONLY a valid JSON object. Do not include any markdown formatting. System rules apply as before. User input: "${text}"`;
+            
             try {
-                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + GEMINI_API_KEY }, body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{ role: "user", content: systemPrompt }], temperature: 0.1, response_format: { type: "json_object" } }) });
-                const resData = await response.json(); if (resData.error) throw new Error(resData.error.message);
-                const chatArea = document.getElementById('aiChatArea'); if (chatArea.lastChild && chatArea.lastChild.innerText.includes("တွက်ချက်နေပါသည်")) { chatArea.removeChild(chatArea.lastChild); }
-                await executeAIVoiceAction(JSON.parse(resData.choices[0].message.content.trim()));
-            } catch (err) { const chatArea = document.getElementById('aiChatArea'); if (chatArea.lastChild && chatArea.lastChild.innerText.includes("တွက်ချက်နေပါသည်")) { chatArea.removeChild(chatArea.lastChild); } addAiMsg("⚠️ Error: " + err.message, "system"); }
+                // 🔴 အရင်က Error တက်နေတဲ့ gemini-1.5-flash အစား gemini-1.5-flash-latest ကို ပြောင်းသုံးထားပါတယ် 🔴
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: systemPrompt }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+                
+                const resData = await response.json(); 
+                if (resData.error) throw new Error(resData.error.message);
+                
+                const chatArea = document.getElementById('aiChatArea'); 
+                if (chatArea.lastChild && chatArea.lastChild.innerText.includes("တွက်ချက်နေပါသည်")) { 
+                    chatArea.removeChild(chatArea.lastChild); 
+                }
+                
+                let jsonText = resData.candidates[0].content.parts[0].text.trim();
+                
+                // JSON Format ကို သေချာအောင် ရှင်းထုတ်ခြင်း
+                if (jsonText.startsWith("```json")) {
+                    jsonText = jsonText.replace(/^```json\n/, "").replace(/\n```$/, "");
+                } else if (jsonText.startsWith("```")) {
+                    jsonText = jsonText.replace(/^```\n/, "").replace(/\n```$/, "");
+                }
+                
+                await executeAIVoiceAction(JSON.parse(jsonText));
+            } catch (err) { 
+                const chatArea = document.getElementById('aiChatArea'); 
+                if (chatArea.lastChild && chatArea.lastChild.innerText.includes("တွက်ချက်နေပါသည်")) { 
+                    chatArea.removeChild(chatArea.lastChild); 
+                } 
+                addAiMsg("⚠️ Error: " + err.message, "system"); 
+            }
         }
 
         async function executeAIVoiceAction(json) {
@@ -1161,7 +1427,7 @@
                     if (!docId) return addAiMsg("မှတ်တမ်း ရှာမတွေ့ပါ။ အမည် သို့မဟုတ် VR နံပါတ် အတိအကျ ပြန်ပြောပေးပါ။", "system");
                     
                     const oldDoc = await db.collection("repairs").doc(docId).get(); const oldData = oldDoc.data();
-                    let updatePayload = { timestamp: firebase.firestore.FieldValue.serverTimestamp() }; let changes = [];
+                    let updatePayload = { updatedAt: firebase.firestore.FieldValue.serverTimestamp() }; let changes = [];
                     
                     if (json.status) { updatePayload.status = json.status; if (oldData.status !== json.status) changes.push(`Status: ${oldData.status} -> ${json.status}`); }
                     if (json.income !== undefined) { updatePayload.income = Number(json.income); if ((oldData.income||0) !== Number(json.income)) changes.push(`ရငွေ: ${oldData.income||0} -> ${json.income}`); }
@@ -1195,7 +1461,12 @@
             } else if (json.action === "sell") {
                 const term = (json.itemName || "").toLowerCase(); if (!term) return addAiMsg("ပစ္စည်းအမည်ကို သေချာနားမလည်ပါ။", "system");
                 const item = invData.find(d => (d.name || "").toLowerCase().includes(term) && d.status !== 'ရောင်းပြီး'); if (!item) return addAiMsg(`စတော့စာရင်းထဲတွင် "${json.itemName}" ကို ရှာမတွေ့ပါ။`, "system");
-                try { let qty = Number(json.qty || 1); await sellInv(item.id, item.name, item.amount, item.price, item.costPrice, item.category, qty); addAiMsg(`✅ ${item.name} ကို ရောင်းချပြီး စာရင်းသွင်းလိုက်ပါပြီ။`, "system"); if (currentTab === 'inventory') fetchInventory(); setTimeout(closeAiChat, 2000); } catch (e) { addAiMsg(`စာရင်းသွင်းရာတွင် အမှားဖြစ်ပေါ်နေပါသည်။`, "system"); }
+                try {
+                    let qty = Number(json.qty || 1);
+                    const ok = await sellInv(item.id, item.name, item.amount, item.price, item.costPrice, item.category, qty);
+                    if (ok) { addAiMsg(`✅ ${item.name} ကို ရောင်းချပြီး စာရင်းသွင်းလိုက်ပါပြီ။`, "system"); if (currentTab === 'inventory') fetchInventory(); setTimeout(closeAiChat, 2000); }
+                    else { addAiMsg(`⚠️ "${item.name}" လက်ကျန် ${item.amount} ခုသာ ရှိသဖြင့် ${qty} ခု ရောင်းချ၍ မရပါ။`, "system"); }
+                } catch (e) { addAiMsg(`စာရင်းသွင်းရာတွင် အမှားဖြစ်ပေါ်နေပါသည်။`, "system"); }
             } else { addAiMsg("ကျေးဇူးပြုပြီး ဘာလုပ်ချင်တာလဲ အတိအကျ ပြောပါ။", "system"); }
         }
     </script>
